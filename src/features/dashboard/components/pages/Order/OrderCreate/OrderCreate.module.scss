@@ -1,0 +1,48 @@
+.order {
+  width: 100%;
+  height: calc(100vh - 80px);
+  padding: 16px;
+  overflow: hidden;
+  display: flex;
+  gap: 16px;
+
+  &__box {
+    width: 50%;
+    height: 100%;
+    border: 1px solid #E7E7E7;
+    padding: 20px;
+    border-radius: 16px;
+    clip-path: inset(0 round 16px);
+    transition: 0.5s;
+
+    overflow: auto;
+
+    .buttons {
+      padding: 20px 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+
+      &.two__buttons{
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    &.active {
+      width: 100%;
+    }
+  }
+
+  &.user {
+    .order__box {
+      width: 100%;
+    }
+  }
+
+  &.dark{
+    .order__box{
+      border: none;
+      background: #0F0F0F;
+    }
+  }
+}

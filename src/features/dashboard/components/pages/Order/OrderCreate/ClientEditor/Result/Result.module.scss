@@ -1,0 +1,37 @@
+.result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  background: #181818;
+  padding: 12px 16px;
+  cursor: pointer;
+
+  &__image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 100%;
+    background: #436bfd;
+  }
+
+  &__details {
+    & .name {
+      color: #fff;
+      font-family: var(--font-manrope);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    & .description {
+      color: rgba(255, 255, 255, 0.64);
+      font-family: var(--font-manrope);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+  }
+}

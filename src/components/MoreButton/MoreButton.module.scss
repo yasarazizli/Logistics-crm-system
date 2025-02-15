@@ -1,0 +1,46 @@
+@use "@/assets/styles/variables" as vars;
+
+.menu {
+  position: relative;
+  &__button {
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+  }
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    background: vars.$primary-white-color;
+    position: absolute;
+    right: 15px;
+    top: 110%;
+    z-index: 3;
+    padding: 14px 16px;
+    & button {
+      min-width: 120px;
+      text-align: left;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: transparent;
+      color: vars.$primary-white-color;
+
+      &:hover {
+        background: vars.$primary-color;
+      }
+
+      & span {
+        cursor: pointer;
+        user-select: none;
+        display: block;
+        width: 100%;
+        font-size: 15px;
+        line-height: 1.5;
+        font-weight: 500;
+        color: vars.$primary-white-color;
+        padding: 4px;
+        border-radius: 8px;
+      }
+    }
+  }
+}

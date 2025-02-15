@@ -1,0 +1,24 @@
+@use "variables" as vars;
+
+.primary__color{
+  fill: vars.$primary-color;
+}
+
+.secondary__color{
+  fill: vars.$secondary-color;
+}
+
+.dark_icons{
+  fill: vars.$primary-black-color;
+}
+
+.dark{
+  .icons{
+    fill: vars.$primary-white-color;
+  }
+
+  .dark_icons{
+    fill: vars.$primary-white-color;
+  }
+}
+

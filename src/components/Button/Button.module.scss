@@ -1,0 +1,27 @@
+@use "@/assets/styles/variables" as vars;
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 52px;
+  border-radius: 8px;
+  background: vars.$primary-color;
+  padding: 8px 24px;
+  & span {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  &.dark__blue {
+    background: vars.$secondary-color;
+    & span {
+      color: vars.$primary-white-color;
+    }
+  }
+  &.red {
+    background: vars.$primary-red-color;
+  }
+}

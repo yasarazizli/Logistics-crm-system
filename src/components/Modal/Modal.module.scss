@@ -1,0 +1,101 @@
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(10px);
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  &__inner {
+    min-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 16px;
+    position: relative;
+    z-index: 1;
+    padding: 40px;
+    background: #ffffff;
+    & .head {
+      position: relative;
+      & .title {
+        font-size: 28px;
+        font-weight: 500;
+        line-height: 1.3;
+        margin: 0 0 20px;
+      }
+
+      & .subtitle {
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 1.3;
+      }
+
+      & button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        cursor: pointer;
+      }
+    }
+  }
+  &__outer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    cursor: pointer;
+    left: 0;
+    top: 0;
+  }
+
+
+  &.dark{
+    .modal__inner{
+      background: #000000;
+
+      & .head {
+        position: relative;
+        & .title,.subtitle {
+          color: #ffffff;
+        }
+      }
+    }
+
+  }
+}
+
+.form {
+  margin-top: 32px;
+
+  & .special__row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    min-width: 88vw;
+    & .form__inputs {
+      flex-direction: row;
+    }
+  }
+
+  &__inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    & .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-column-gap: 12px;
+      grid-row-gap: 20px;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 48px;
+  }
+}

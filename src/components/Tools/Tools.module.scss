@@ -1,0 +1,52 @@
+.tools {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .item {
+    cursor: pointer;
+    user-select: none;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &__title {
+      color: #436bfd;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 24px;
+    }
+
+    .text-edit {
+      color: #4caf50;
+    }
+
+    .text-delete {
+      color: #f44336;
+    }
+
+    .text-info {
+      color: #2196f3;
+    }
+
+    .text-approve {
+      color: #8bc34a;
+    }
+
+    .text-reject {
+      color: #ff9800;
+    }
+
+    // Istifade Olunanlar
+    .text-add {
+      color: #1D736B;
+    }
+
+    .text-refresh {
+      color: #FFA800;
+    }
+  }
+}

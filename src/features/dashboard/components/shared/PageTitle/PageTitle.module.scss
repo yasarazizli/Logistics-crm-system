@@ -1,0 +1,17 @@
+.page__title{
+  margin: 0 0 32px;
+
+  .title{
+    color:#000000;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 48px;
+  }
+
+  &.dark{
+    .title{
+      color: #ffffff;
+    }
+  }
+}

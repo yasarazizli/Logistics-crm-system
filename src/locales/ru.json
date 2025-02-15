@@ -1,0 +1,420 @@
+{
+  "tasks": {
+    "tabs": {
+      "one": "Завершённые задачи",
+      "two": "Мои задачи",
+      "three": "Все задачи"
+    },
+    "table": {
+      "one": "Принять",
+      "two": "Выполнено"
+    }
+  },
+
+  "login": {
+    "title": "Вход",
+    "tabs": {
+      "login": "Вход",
+      "sign__up": "Регистрация"
+    },
+    "inputs": {
+      "email": {
+        "label": "Электронная почта",
+        "placeholder": "you@site.com"
+      },
+      "password": {
+        "label": "Пароль",
+        "placeholder": "************"
+      }
+    },
+    "buttons": {
+      "forget": "Забыли пароль?",
+      "sign__in": "Войти",
+      "quotation": "Получить предложение"
+    }
+  },
+  "register": {
+    "title": "Регистрация",
+    "tabs": {
+      "company": "Компания",
+      "individual": "Физическое лицо"
+    },
+    "inputs": {
+      "full__name": {
+        "label": "Имя и Фамилия",
+        "placeholder": "Имя и Фамилия"
+      },
+      "company": {
+        "label": "Компания",
+        "placeholder": "Название компании"
+      },
+      "email": {
+        "label": "Электронная почта",
+        "placeholder": "example@example.com"
+      },
+      "phone": {
+        "label": "Контактный номер",
+        "placeholder": "+7-123-45-67"
+      },
+      "password": {
+        "label": "Пароль",
+        "placeholder": "**************"
+      },
+      "re__password": {
+        "label": "Повторите пароль",
+        "placeholder": "**************"
+      },
+      "tin__code": {
+        "label": "ИНН",
+        "placeholder": "ИНН"
+      },
+      "fin__code": {
+        "label": "Код ФИН",
+        "placeholder": "Код ФИН"
+      }
+    },
+    "buttons": {
+      "redirect": "Вернуться к входу",
+      "next": "Далее"
+    }
+  },
+  "forget": {
+    "title": ""
+  },
+
+  "shared": {
+    "buttons": {
+      "filter": "Фильтр",
+      "save": "Сохранить",
+      "cancel": "Отменить",
+      "manager": "Назначить коммерческого менеджера",
+      "accountant": "Назначить бухгалтера",
+      "search": "Поиск"
+    },
+    "tabs": {
+      "one": "Подтверждённые договоры",
+      "two": "Договоры в ожидании подтверждения",
+      "three": "Без договора"
+    },
+    "inputs": {
+      "file": {},
+      "selected": {
+        "default": "Выбранное значение"
+      }
+    },
+    "roles": {
+      "lawyer": "Юрист",
+      "accountant": "Бухгалтер",
+      "buyer_manager": "Покупатель",
+      "commercial_manager": "Коммерческий менеджер",
+      "commercial_directory": "Коммерческий директор"
+    },
+    "contract": {
+      "name": "Договор",
+      "add": "Добавить договор",
+      "verified": "Подтвердить договор",
+      "unverified": "Отклонить договор",
+      "delete": "Удалить договор"
+    },
+    "notification": {
+      "empty": "Уведомлений нет",
+      "redirect": "Подробнее"
+    }
+  },
+  "home": {
+    "title": "Домашняя страница"
+  },
+  "users": {
+    "title": "Пользователи",
+    "modals": {
+      "add_contract": {
+        "title": "Добавить договор",
+        "subtitle": "Сохраните после добавления договора"
+      },
+      "contract_verification": {
+        "title": "Подтверждение договора",
+        "contract_number": "Номер договора",
+        "contract_start_time": "Дата начала действия договора",
+        "contract_end_time": "Дата окончания действия договора",
+        "payment_methods": "Метод оплаты",
+        "interest_rate": "Процентная ставка",
+        "payment_period": "Период оплаты",
+        "credit_limit": "Максимальный кредитный лимит",
+        "buttons": {
+          "cancel": "Отменить",
+          "save": "Сохранить"
+        },
+        "errors": {
+          "success": "Договор успешно подтверждён.",
+          "error": "Не удалось подтвердить договор."
+        }
+      },
+      "contract_delete": {
+        "title": "Вы уверены, что хотите удалить договор?",
+        "buttons": {
+          "reject": "Отменить",
+          "approve": "Удалить"
+        }
+      },
+      "appoint_commercial_manager": {
+        "title": "Назначить коммерческого менеджера",
+        "subtitle": "Выберите коммерческого менеджера",
+        "inputs": {
+          "selected": "Коммерческие менеджеры"
+        }
+      },
+      "appoint_accountant": {
+        "title": "Назначить бухгалтера",
+        "subtitle": "Сохраните после назначения бухгалтера",
+        "inputs": {
+          "selected": "Бухгалтеры"
+        }
+      },
+      "add_balance": {
+        "title": "Добавить баланс",
+        "subtitle": "Сохраните после добавления баланса",
+        "inputs": {
+          "amount": "Сумма",
+          "file": "Файл"
+        }
+      },
+      "balance_transaction": {
+        "title": "Балансовая операция",
+        "subtitle": "Завершите балансовую операцию",
+        "inputs": {
+          "transaction": "Операция",
+          "amount": "Сумма",
+          "note": "Заметка",
+          "file": "Файл"
+        }
+      }
+    }
+  },
+  "workers": {
+    "title": "Сотрудники",
+    "tabs": {
+      "one": "Юристы",
+      "two": "Бухгалтеры",
+      "three": "Покупатели",
+      "four": "Коммерческие менеджеры",
+      "five": "Коммерческие директора"
+    },
+    "buttons": {
+      "create": "Добавить сотрудника",
+      "delete": "Удалить сотрудника"
+    },
+    "modals": {
+      "create": {
+        "title": "Добавить сотрудника",
+        "inputs": {
+          "full_name": {
+            "label": "Имя и Фамилия",
+            "placeholder": "Имя и Фамилия"
+          },
+          "email": {
+            "label": "Электронная почта",
+            "placeholder": "example@example.com"
+          },
+          "phone": {
+            "label": "Контактный номер",
+            "placeholder": "+7-123-45-67"
+          },
+          "password": {
+            "label": "Пароль",
+            "placeholder": "**************"
+          },
+          "confirm_password": {
+            "label": "Повторите пароль",
+            "placeholder": "**************"
+          },
+          "identity_number": {
+            "label": "Код ФИН",
+            "placeholder": "Код ФИН"
+          }
+        }
+      },
+      "delete": {
+        "title": "Удаление сотрудника",
+        "subtitle": "Вы уверены, что хотите удалить сотрудника?",
+        "buttons": {
+          "approve": "Удалить",
+          "reject": "Отменить"
+        }
+      }
+    }
+  },
+  "vendors": {
+    "title": "Поставщики",
+    "buttons": {
+      "create": "Добавить поставщика"
+    },
+    "tabs": {
+      "one": "Подтверждённые договоры",
+      "two": "Договоры в ожидании подтверждения",
+      "three": "Отключённые договоры"
+    },
+    "modals": {
+      "create": {
+        "title": "Добавить поставщика",
+        "inputs": {
+          "contract_name": "Название поставщика",
+          "contract_start_date": "Дата начала действия договора",
+          "contract_end_date": "Дата окончания действия договора",
+          "contract_language": "Язык договора"
+        }
+      },
+      "contract_verified": {
+        "title": "Подтверждение договора поставщика",
+        "subtitle": "Вы уверены, что хотите подтвердить договор поставщика?",
+        "buttons": {
+          "approve": "Подтвердить",
+          "reject": "Отменить"
+        }
+      },
+      "contract_delete": {
+        "title": "Удаление договора поставщика",
+        "subtitle": "Вы уверены, что хотите удалить договор поставщика?",
+        "buttons": {
+          "approve": "Удалить",
+          "reject": "Отменить"
+        }
+      }
+    }
+  },
+  "services": {
+    "title": "Услуги",
+    "buttons": {
+      "create": "Добавить услугу"
+    },
+    "tabs": {
+      "one": "Подтверждённые договоры",
+      "two": "Договоры в ожидании подтверждения",
+      "three": "Отключённые договоры"
+    },
+    "modals": {
+      "create": {
+        "title": "Добавить услугу",
+        "inputs": {
+          "contract_name": "Название услуги",
+          "contract_start_date": "Дата начала действия договора",
+          "contract_end_date": "Дата окончания действия договора",
+          "contract_language": "Язык договора"
+        }
+      },
+      "contract_verified": {
+        "title": "Подтверждение договора услуги",
+        "subtitle": "Вы уверены, что хотите подтвердить договор услуги?",
+        "buttons": {
+          "approve": "Подтвердить",
+          "reject": "Отменить"
+        }
+      },
+      "contract_delete": {
+        "title": "Удаление договора услуги",
+        "subtitle": "Вы уверены, что хотите удалить договор услуги?",
+        "buttons": {
+          "approve": "Удалить",
+          "reject": "Отменить"
+        }
+      }
+    }
+  },
+  "order": {
+    "title": "Заказ",
+    "tabs": {
+      "list": {
+        "one": "Подтверждённые",
+        "two": "Ожидают подтверждения",
+        "three": "Отклонённые"
+      },
+      "create": {
+        "one": "Основная информация",
+        "two": "Детали заказа"
+      },
+      "services": {
+        "one": "Услуги заказа",
+        "two": "Запрос услуги"
+      }
+    },
+    "buttons": {
+      "create": "Создать заказ",
+      "send_instruction_document": "Отправить инструкцию",
+      "confirm": "Подтвердить",
+      "save": "Сохранить",
+      "send": "Отправить",
+      "back": "Назад"
+    },
+    "client_editor": {
+      "buttons": {
+        "new_user": "Добавить нового пользователя"
+      },
+      "search": {
+        "label": "Поиск пользователя",
+        "placeholder": "Имя пользователя или электронная почта",
+        "result": "Результаты",
+        "empty": "Ничего не найдено"
+      },
+      "user_card": {
+        "title": "Детали пользователя",
+        "inputs": {
+          "name": {
+            "label": "Имя клиента",
+            "placeholder": "Имя клиента"
+          },
+          "tin": {
+            "label": "ИНН",
+            "placeholder": "ИНН"
+          },
+          "phone": {
+            "label": "Контакт",
+            "placeholder": "+994-123-45-67"
+          },
+          "email": {
+            "label": "Электронная почта",
+            "placeholder": "example@example.com"
+          }
+        }
+      }
+    },
+    "route_editor": {
+      "title": "Детали заказа",
+      "order_date": {
+        "title": "Дата начала и окончания заказа",
+        "inputs": {
+          "date_start": "Дата начала заказа",
+          "date_end": "Дата окончания заказа"
+        }
+      },
+      "order_main_route": {
+        "title": "Полный маршрут",
+        "inputs": {
+          "date": {
+            "loading_place": "Место загрузки",
+            "discharging_place": "Место разгрузки"
+          }
+        }
+      }
+    },
+    "services": {
+      "provider": {
+        "buttons": {
+          "add_service": "Добавить новую услугу"
+        }
+      },
+      "request": {
+        "title": "Отправить запрос",
+        "inputs": {
+          "selected": {
+            "country": "Требуемая страна услуги",
+            "city": "Требуемый город услуги"
+          },
+          "textarea": "Описание",
+          "button": "Отправить запрос"
+        }
+      }
+    }
+  },
+  "location": {
+    "title": "Адрес"
+  }
+}

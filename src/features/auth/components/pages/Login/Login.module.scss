@@ -1,0 +1,54 @@
+@use '@/assets/styles/variables' as vars;
+
+.login {
+  padding: 40px 0 0;
+  width: 100%;
+
+  &__form {
+    margin: 56px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+
+    &__head{
+      display: flex;
+      align-items: center;
+      gap: 18px;
+
+      & .head__logo{
+        width: 50px;
+        height: 50px;
+
+        display: grid;
+        place-items: center;
+
+        background: vars.$secondary-color;
+        border-radius: vars.$border-radius;
+      }
+
+      & .head__title{
+        font-size: 26px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        letter-spacing: 0.13px;
+      }
+    }
+
+    &__redirect {
+      text-align: end;
+      color: vars.$primary-color;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+    }
+  }
+
+  &__buttons {
+    margin: 24px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}

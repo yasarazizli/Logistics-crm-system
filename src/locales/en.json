@@ -1,0 +1,420 @@
+{
+  "tasks": {
+    "tabs": {
+      "one": "Completed Tasks",
+      "two": "My Tasks",
+      "three": "All Tasks"
+    },
+    "table": {
+      "one": "Accept",
+      "two": "Completed"
+    }
+  },
+
+  "login": {
+    "title": "Login",
+    "tabs": {
+      "login": "Login",
+      "sign__up": "Register"
+    },
+    "inputs": {
+      "email": {
+        "label": "Email Address",
+        "placeholder": "you@site.com"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "************"
+      }
+    },
+    "buttons": {
+      "forget": "Forgot Password?",
+      "sign__in": "Sign In",
+      "quotation": "Request a Quote"
+    }
+  },
+  "register": {
+    "title": "Register",
+    "tabs": {
+      "company": "Company",
+      "individual": "Individual"
+    },
+    "inputs": {
+      "full__name": {
+        "label": "Full Name",
+        "placeholder": "Full Name"
+      },
+      "company": {
+        "label": "Company",
+        "placeholder": "Company Name"
+      },
+      "email": {
+        "label": "Email Address",
+        "placeholder": "example@example.com"
+      },
+      "phone": {
+        "label": "Phone Number",
+        "placeholder": "+994-123-45-67"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "**************"
+      },
+      "re__password": {
+        "label": "Confirm Password",
+        "placeholder": "**************"
+      },
+      "tin__code": {
+        "label": "TIN Code",
+        "placeholder": "TIN Code"
+      },
+      "fin__code": {
+        "label": "FIN Code",
+        "placeholder": "FIN Code"
+      }
+    },
+    "buttons": {
+      "redirect": "Back to Login",
+      "next": "Next"
+    }
+  },
+  "forget": {
+    "title": ""
+  },
+
+  "shared": {
+    "buttons": {
+      "filter": "Filter",
+      "save": "Save",
+      "cancel": "Cancel",
+      "manager": "Assign Commercial Manager",
+      "accountant": "Assign Accountant",
+      "search": "Search"
+    },
+    "tabs": {
+      "one": "Verified Contracts",
+      "two": "Contracts Pending Approval",
+      "three": "Without Contracts"
+    },
+    "inputs": {
+      "file": {},
+      "selected": {
+        "default": "Selected Value"
+      }
+    },
+    "roles": {
+      "lawyer": "Lawyer",
+      "accountant": "Accountant",
+      "buyer_manager": "Buyer",
+      "commercial_manager": "Commercial Manager",
+      "commercial_directory": "Commercial Director"
+    },
+    "contract": {
+      "name": "Contract Document",
+      "add": "Add Contract",
+      "verified": "Verify Contract",
+      "unverified": "Unverify Contract",
+      "delete": "Delete Contract"
+    },
+    "notification": {
+      "empty": "No Notifications Available",
+      "redirect": "More Info"
+    }
+  },
+  "home": {
+    "title": "Home page"
+  },
+  "users": {
+    "title": "Users",
+    "modals": {
+      "add_contract": {
+        "title": "Add Contract",
+        "subtitle": "Save after adding the contract"
+      },
+      "contract_verification": {
+        "title": "Verify Contract",
+        "contract_number": "Contract Number",
+        "contract_start_time": "Contract Start Date",
+        "contract_end_time": "Contract End Date",
+        "payment_methods": "Payment Method",
+        "interest_rate": "Interest Rate",
+        "payment_period": "Payment Period",
+        "credit_limit": "Maximum Credit Limit",
+        "buttons": {
+          "cancel": "Cancel",
+          "save": "Save"
+        },
+        "errors": {
+          "success": "Contract successfully verified.",
+          "error": "Contract verification failed."
+        }
+      },
+      "contract_delete": {
+        "title": "Are you sure you want to delete the contract?",
+        "buttons": {
+          "reject": "Cancel",
+          "approve": "Delete"
+        }
+      },
+      "appoint_commercial_manager": {
+        "title": "Assign Commercial Manager",
+        "subtitle": "Assign a Commercial Manager",
+        "inputs": {
+          "selected": "Commercial Managers"
+        }
+      },
+      "appoint_accountant": {
+        "title": "Assign Accountant",
+        "subtitle": "Save after assigning an accountant",
+        "inputs": {
+          "selected": "Accountants"
+        }
+      },
+      "add_balance": {
+        "title": "Add Balance",
+        "subtitle": "Save after adding balance",
+        "inputs": {
+          "amount": "Amount",
+          "file": "File"
+        }
+      },
+      "balance_transaction": {
+        "title": "Balance Transaction",
+        "subtitle": "Complete the balance transaction",
+        "inputs": {
+          "transaction": "Transaction",
+          "amount": "Amount",
+          "note": "Note",
+          "file": "File"
+        }
+      }
+    }
+  },
+  "workers": {
+    "title": "Workers",
+    "tabs": {
+      "one": "Lawyer",
+      "two": "Accountant",
+      "three": "Buyers",
+      "four": "Commercial M.",
+      "five": "Commercial D."
+    },
+    "buttons": {
+      "create": "Add Worker",
+      "delete": "Delete Worker"
+    },
+    "modals": {
+      "create": {
+        "title": "Add Worker",
+        "inputs": {
+          "full_name": {
+            "label": "Full Name",
+            "placeholder": "Full Name"
+          },
+          "email": {
+            "label": "Email Address",
+            "placeholder": "example@example.com"
+          },
+          "phone": {
+            "label": "Phone Number",
+            "placeholder": "+994-123-45-67"
+          },
+          "password": {
+            "label": "Password",
+            "placeholder": "**************"
+          },
+          "confirm_password": {
+            "label": "Confirm Password",
+            "placeholder": "**************"
+          },
+          "identity_number": {
+            "label": "FIN Code",
+            "placeholder": "FIN Code"
+          }
+        }
+      },
+      "delete": {
+        "title": "Worker Deletion",
+        "subtitle": "Are you sure you want to delete the worker?",
+        "buttons": {
+          "approve": "Delete",
+          "reject": "Cancel"
+        }
+      }
+    }
+  },
+  "vendors": {
+    "title": "Vendors",
+    "buttons": {
+      "create": "Add Vendor"
+    },
+    "tabs": {
+      "one": "Verified Contracts",
+      "two": "Contracts Pending Approval",
+      "three": "Deactivated Contracts"
+    },
+    "modals": {
+      "create": {
+        "title": "Add Vendor",
+        "inputs": {
+          "contract_name": "Vendor Name",
+          "contract_start_date": "Contract Start Date",
+          "contract_end_date": "Contract End Date",
+          "contract_language": "Contract Language"
+        }
+      },
+      "contract_verified": {
+        "title": "Vendor Contract Verification",
+        "subtitle": "Are you sure you want to verify the vendor contract?",
+        "buttons": {
+          "approve": "Verify",
+          "reject": "Cancel"
+        }
+      },
+      "contract_delete": {
+        "title": "Vendor Contract Deletion",
+        "subtitle": "Are you sure you want to delete the vendor contract?",
+        "buttons": {
+          "approve": "Delete",
+          "reject": "Cancel"
+        }
+      }
+    }
+  },
+  "services": {
+    "title": "Services",
+    "buttons": {
+      "create": "Add Service"
+    },
+    "tabs": {
+      "one": "Verified Contracts",
+      "two": "Contracts Pending Approval",
+      "three": "Deactivated Contracts"
+    },
+    "modals": {
+      "create": {
+        "title": "Add Service",
+        "inputs": {
+          "contract_name": "Service Name",
+          "contract_start_date": "Contract Start Date",
+          "contract_end_date": "Contract End Date",
+          "contract_language": "Contract Language"
+        }
+      },
+      "contract_verified": {
+        "title": "Service Contract Verification",
+        "subtitle": "Are you sure you want to verify the service contract?",
+        "buttons": {
+          "approve": "Verify",
+          "reject": "Cancel"
+        }
+      },
+      "contract_delete": {
+        "title": "Service Contract Deletion",
+        "subtitle": "Are you sure you want to delete the service contract?",
+        "buttons": {
+          "approve": "Delete",
+          "reject": "Cancel"
+        }
+      }
+    }
+  },
+  "order": {
+    "title": "Order",
+    "tabs": {
+      "list": {
+        "one": "Unconfirmed",
+        "two": "Pending Confirmation",
+        "three": "Unprocessed"
+      },
+      "create": {
+        "one": "Basic Information",
+        "two": "Order Details"
+      },
+      "services": {
+        "one": "Order Services",
+        "two": "Service Request"
+      }
+    },
+    "buttons": {
+      "create": "Create Order",
+      "send_instruction_document": "Send Instructions",
+      "confirm": "Confirm",
+      "save": "Save",
+      "send": "Send",
+      "back": "Back"
+    },
+    "client_editor": {
+      "buttons": {
+        "new_user": "Add New User"
+      },
+      "search": {
+        "label": "Search User",
+        "placeholder": "Username or Email",
+        "result": "Results",
+        "empty": "No results found"
+      },
+      "user_card": {
+        "title": "User Details",
+        "inputs": {
+          "name": {
+            "label": "Customer Name",
+            "placeholder": "Customer Name"
+          },
+          "tin": {
+            "label": "TIN",
+            "placeholder": "TIN"
+          },
+          "phone": {
+            "label": "Contact Number",
+            "placeholder": "+994-123-45-67"
+          },
+          "email": {
+            "label": "Email Address",
+            "placeholder": "example@example.com"
+          }
+        }
+      }
+    },
+    "route_editor": {
+      "title": "Order Details",
+      "order_date": {
+        "title": "Order Start-End Date",
+        "inputs": {
+          "date_start": "Order Start Date",
+          "date_end": "Order End Date"
+        }
+      },
+      "order_main_route": {
+        "title": "Full Route",
+        "inputs": {
+          "date": {
+            "loading_place": "Loading Place",
+            "discharging_place": "Discharging Place"
+          }
+        }
+      }
+    },
+    "services": {
+      "provider": {
+        "buttons": {
+          "add_service": "Add New Service"
+        }
+      },
+      "request": {
+        "title": "Send Request",
+        "inputs": {
+          "selected": {
+            "country": "Required Service Country",
+            "city": "Required Service City"
+          },
+          "textarea": "Description",
+          "button": "Send Request"
+        }
+      }
+    }
+  },
+  "location": {
+    "title": "Address"
+  }
+}

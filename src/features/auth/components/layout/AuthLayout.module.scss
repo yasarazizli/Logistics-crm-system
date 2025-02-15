@@ -1,0 +1,69 @@
+@use "@/assets/styles/variables" as vars;
+
+.auth {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+
+  &__content {
+    width: 40%;
+    height: 100%;
+    padding: 40px 80px;
+
+    overflow: scroll;
+
+    &__title {
+      font-size: 22px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 28px;
+      margin: 0 0 32px;
+      a {
+        color: vars.$primary-black-color;
+      }
+    }
+  }
+
+  &__placeholder {
+    position: relative;
+    width: 60%;
+    background: vars.$primary-color;
+    &__background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &.active {
+    .auth__content {
+      width: 60%;
+      order: 1;
+    }
+
+    .auth__placeholder {
+      width: 40%;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+
+  &.dark{
+    background: vars.$primary-black-color;
+    color: vars.$primary-white-color;
+
+    .auth__content{
+
+      &__title{
+        a{
+          color: vars.$primary-white-color;
+        }
+      }
+    }
+  }
+}

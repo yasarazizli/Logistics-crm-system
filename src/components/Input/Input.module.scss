@@ -1,0 +1,102 @@
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &.file {
+    & .input__box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed #292929;
+      & input {
+        padding: 16px 16px 16px 52px;
+        cursor: pointer;
+        position: relative;
+        &:before {
+          content: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%3E%3Cmask%20id%3D%22mask0_332_26706%22%20style%3D%22mask-type%3Aalpha%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23D9D9D9%22%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url%28%23mask0_332_26706%29%22%3E%3Cpath%20d%3D%22M8.00004%2026.6667C7.26671%2026.6667%206.63893%2026.4056%206.11671%2025.8833C5.59449%2025.3611%205.33337%2024.7333%205.33337%2024V20H8.00004V24H24V20H26.6667V24C26.6667%2024.7333%2026.4056%2025.3611%2025.8834%2025.8833C25.3612%2026.4056%2024.7334%2026.6667%2024%2026.6667H8.00004ZM16%2021.3333L9.33337%2014.6667L11.2%2012.7333L14.6667%2016.2V5.33333H17.3334V16.2L20.8%2012.7333L22.6667%2014.6667L16%2021.3333Z%22%20fill%3D%22white%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+          position: absolute;
+          left: 13px;
+          top: 8px;
+          margin-right: 10px;
+        }
+
+        &::file-selector-button {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &.disabled {
+    & span {
+      color: rgba(255, 255, 255, 0.48);
+    }
+    & .input__box {
+      & input {
+        color: rgba(255, 255, 255, 0.64);
+      }
+    }
+  }
+
+  & span {
+    color: #000;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  &__box {
+    border-radius: 6px;
+    border: 1px solid #E7E7E7;
+    background: #F5F5F5;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    position: relative;
+    &.without__icon {
+      & input {
+        padding: 0 16px;
+      }
+    }
+    & .icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    & input {
+      background: transparent;
+      width: 100%;
+      height: 52px;
+      color: #000000;
+      padding: 0 16px 0 52px;
+      border-radius: 6px;
+
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.48);
+      }
+
+      &::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+      }
+    }
+  }
+
+  &.dark{
+    & span{
+      color: #fff;
+    }
+
+    & .input__box {
+      border: 1px solid #292929;
+      background: #181818;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      
+      & input{
+        color: #ffffff;
+        &::placeholder{
+          color: rgba(255, 255, 255, 0.48);
+        }
+      }
+    }
+
+  }
+}

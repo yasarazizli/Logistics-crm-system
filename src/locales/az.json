@@ -1,0 +1,430 @@
+﻿{
+  "tasks": {
+    "tabs": {
+      "one": "Bitən tapşırıqlar",
+      "two": "Tapşırıqlarım",
+      "three": "Bütün tapşırıqlar"
+    },
+    "table": {
+      "one": "Qəbul et",
+      "two": "İcra edildi"
+    }
+  },
+
+  "login": {
+    "title": "Giriş",
+    "tabs": {
+      "login": "Giriş",
+      "sign__up": "Qeydiyyat"
+    },
+    "inputs": {
+      "email": {
+        "label": "E-poçt ünvanı",
+        "placeholder": "you@site.com"
+      },
+      "password": {
+        "label": "Şifrə",
+        "placeholder": "************"
+      }
+    },
+    "buttons": {
+      "forget": "Şifrəni unutmusunuz?",
+      "sign__in": "Giriş",
+      "quotation": "Qiymət təklifi"
+    }
+  },
+  "register": {
+    "title": "Qeydiyyat",
+    "tabs": {
+      "company": "Şirkət",
+      "individual": "Fiziki şəxs"
+    },
+    "inputs": {
+      "full__name": {
+        "label": "Ad Soyad",
+        "placeholder": "Ad Soyad"
+      },
+      "company": {
+        "label": "Şirkət",
+        "placeholder": "Şirkət adı"
+      },
+      "email": {
+        "label": "E-poçt ünvanı",
+        "placeholder": "example@example.com"
+      },
+      "phone": {
+        "label": "Əlaqə nömrəsi",
+        "placeholder": "+994-123-45-67"
+      },
+      "password": {
+        "label": "Şifrə",
+        "placeholder": "**************"
+      },
+      "re__password": {
+        "label": "Şifrəni təkrar daxil et",
+        "placeholder": "**************"
+      },
+      "tin__code": {
+        "label": "VÖEN Kodu",
+        "placeholder": "VÖEN Kodu"
+      },
+      "fin__code": {
+        "label": "FIN Kodu",
+        "placeholder": "FIN Kodu"
+      }
+    },
+    "buttons": {
+      "redirect": "Girişə qayıt",
+      "next": "Növbəti"
+    }
+  },
+  "forget": {
+    "title": ""
+  },
+
+  "shared": {
+    "buttons": {
+      "filter": "Filtr",
+      "save": "Yadda saxla",
+      "cancel": "Ləğv et",
+      "manager": "Kommersiya meneceri təyin et",
+      "accountant": "Maliyyəçi təyin et",
+      "search": "Axtarış"
+    },
+    "tabs": {
+      "one": "Təsdiqlənmiş müqavilələr",
+      "two": "Təsdiq gözləyən müqavilələr",
+      "three": "Müqaviləsiz"
+    },
+    "inputs": {
+      "file": {},
+      "selected": {
+        "default": "Seçilmiş dəyər"
+      }
+    },
+    "roles": {
+      "lawyer": "Hüquqşünas",
+      "accountant": "Maliyyəçi",
+      "buyer_manager": "Alıcı",
+      "commercial_manager": "Kommersiya meneceri",
+      "commercial_directory": "Kommersiya direktoru"
+    },
+    "contract": {
+      "name": "Müqavilə sənədi",
+      "add": "Müqavilə əlavə et",
+      "verified": "Müqaviləni təsdiqlə",
+      "unverified": "Müqaviləni təsdiqləmə",
+      "delete": "Müqaviləni sil"
+    },
+    "notification": {
+      "empty": "Bildiriş mövcud deyil",
+      "redirect": "Ətraflı"
+    }
+  },
+  "home": {
+    "title": "Ana səhifə"
+  },
+  "users": {
+    "title": "İstifadəçilər",
+    "buttons": {
+      "create": "İstifadəçi yarat"
+    },
+    "modals": {
+      "creat_user": {
+        "title": "İstifadəçi yaradın"
+      },
+      "add_contract": {
+        "title": "Müqavilə əlavə edin",
+        "subtitle": "Müqavilə əlavə etdikdən sonra yadda saxlayın"
+      },
+      "contract_verification": {
+        "title": "Müqaviləni təsdiqlə",
+        "contract_number": "Müqavilənin nömrəsi",
+        "contract_start_time": "Müqavilənin başlama tarixi",
+        "contract_end_time": "Müqavilənin bitmə tarixi",
+        "payment_methods": "Ödəniş metodu",
+        "interest_rate": "Faiz dərəcəsi",
+        "payment_period": "Ödəniş aralığı",
+        "credit_limit": "Maksimum kredit limiti",
+        "buttons": {
+          "cancel": "Ləğv et",
+          "save": "Yadda saxla"
+        },
+        "errors": {
+          "success": "Müqavilə uğurla təsdiqləndi.",
+          "error": "Müqavilə təsdiqlənmədi."
+        }
+      },
+      "contract_delete": {
+        "title": "Müqaviləni silməyə əminsiniz?",
+        "buttons": {
+          "reject": "Ləğv et",
+          "approve": "Sil"
+        }
+      },
+      "appoint_commercial_manager": {
+        "title": "Kommersiya meneceri təyin edin",
+        "subtitle": "Kommersiya meneceri təyin edin subtitle",
+        "inputs": {
+          "selected": "Kommersiya menecerləri"
+        }
+      },
+      "appoint_accountant": {
+        "title": "Maliyyəçi təyin edin",
+        "subtitle": "Maliyyəçi təyin etdikdən sonra yadda saxlayın",
+        "inputs": {
+          "selected": "Maliyyəçilər"
+        }
+      },
+      "add_balance": {
+        "title": "Balans əlavə edin",
+        "subtitle": "Balans əlavə etdikdən sonra yadda saxlayın",
+        "inputs": {
+          "amount": "Məbləğ",
+          "file": "Fayl"
+        }
+      },
+      "balance_transaction": {
+        "title": "Balans əməliyyatı",
+        "subtitle": "Balans əməliyyatını tamamlayın",
+        "inputs": {
+          "transaction": "Əməliyyat",
+          "amount": "Məbləğ",
+          "note": "Qeyd",
+          "file": "Fayl"
+        }
+      }
+    }
+  },
+  "workers": {
+    "title": "Əməkdaşlar",
+    "tabs": {
+      "one": "Hüquqşünas",
+      "two": "Mühasib",
+      "three": "Alıcılar",
+      "four": "Kommersiya M.",
+      "five": "Kommersiya D."
+    },
+    "buttons": {
+      "create": "Əməkdaşı əlavə et",
+      "update": "Əməkdaşı redaktə edin",
+      "delete": "Əməkdaşı sil"
+    },
+    "modals": {
+      "create": {
+        "title": "Əməkdaşı əlavə et",
+        "inputs": {
+          "full_name": {
+            "label": "Ad Soyad",
+            "placeholder": "Ad Soyad"
+          },
+          "email": {
+            "label": "E-poçt ünvanı",
+            "placeholder": "example@example.com"
+          },
+          "phone": {
+            "label": "Əlaqə nömrəsi",
+            "placeholder": "+994-123-45-67"
+          },
+          "password": {
+            "label": "Şifrə",
+            "placeholder": "**************"
+          },
+          "confirm_password": {
+            "label": "Şifrəni təkrar daxil et",
+            "placeholder": "**************"
+          },
+          "identity_number": {
+            "label": "FIN kodu",
+            "placeholder": "FIN kodu"
+          }
+        }
+      },
+      "delete": {
+        "title": "Əməkdaşın silinməsi",
+        "subtitle": "Əməkdaşı silməyə əminsiniz?",
+        "buttons": {
+          "approve": "Sil",
+          "reject": "Ləğv et"
+        }
+      }
+    }
+  },
+  "vendors": {
+    "title": "Vendorlar",
+    "buttons": {
+      "create": "Vendor əlavə et"
+    },
+    "tabs": {
+      "one": "Təsdiqlənmiş müqavilələr",
+      "two": "Təsdiq gözləyən müqavilələr",
+      "three": "Deaktiv edilmiş müqavilələr"
+    },
+    "modals": {
+      "create": {
+        "title": "Vendor əlavə et",
+        "inputs": {
+          "contract_name": "Vendorun adı",
+          "contract_start_date": "Müqavilənin başlama tarixi",
+          "contract_end_date": "Müqavilənin bitmə tarixi",
+          "contract_language": "Müqavilənin dili"
+        }
+      },
+      "contract_verified": {
+        "title": "Vendor müqaviləsini təsdiqləmə",
+        "subtitle": "Vendor müqaviləsini təsdiqləməyə əminsiniz?",
+        "buttons": {
+          "approve": "Təsdiqlə",
+          "reject": "Ləğv et"
+        }
+      },
+      "contract_delete": {
+        "title": "Vendor müqaviləsinin silinməsi",
+        "subtitle": "Vendor müqaviləsini silməyə əminsiniz?",
+        "buttons": {
+          "approve": "Sil",
+          "reject": "Ləğv et"
+        }
+      }
+    }
+  },
+  "services": {
+    "title": "Xidmətlər",
+    "buttons": {
+      "create": "Xidmət əlavə et"
+    },
+    "tabs": {
+      "one": "Təsdiqlənmiş müqavilələr",
+      "two": "Təsdiq gözləyən müqavilələr",
+      "three": "Deaktiv edilmiş müqavilələr"
+    },
+    "modals": {
+      "create": {
+        "title": "Xidmət əlavə et",
+        "inputs": {
+          "contract_name": "Xidmətin adı",
+          "contract_start_date": "Müqavilənin başlama tarixi",
+          "contract_end_date": "Müqavilənin bitmə tarixi",
+          "contract_language": "Müqavilənin dili"
+        }
+      },
+      "contract_verified": {
+        "title": "Xidmət müqaviləsinin təsdiqlənməsi",
+        "subtitle": "Xidmət müqaviləsini təsdiqləməyə əminsiniz?",
+        "buttons": {
+          "approve": "Təsdiqlə",
+          "reject": "Ləğv et"
+        }
+      },
+      "contract_delete": {
+        "title": "Xidmət müqaviləsinin silinməsi",
+        "subtitle": "Xidmət müqaviləsini silməyə əminsiniz?",
+        "buttons": {
+          "approve": "Sil",
+          "reject": "Ləğv et"
+        }
+      }
+    }
+  },
+  "order": {
+    "title": "Sifariş",
+    "tabs": {
+      "list": {
+        "one": "Təsdiqləmmiş",
+        "two": "Təsdiq gözləyən",
+        "three": "Təsdiqlənməmiş"
+      },
+      "create": {
+        "one": "Əsas məlumatlar",
+        "two": "Sifariş detalları"
+      },
+      "services": {
+        "one": "Sifarişin xidmətlər",
+        "two": "Xidmət üçün sorğu"
+      }
+    },
+    "buttons": {
+      "create": "Sifariş yarat",
+      "send_instruction_document": "Təlimat göndər",
+      "confirm": "Təsdiqlə",
+      "save": "Yadda Saxla",
+      "send": "Göndər",
+      "back": "Geri"
+    },
+    "client_editor": {
+      "buttons": {
+        "new_user": "Yeni istifadəçi əlavə et"
+      },
+      "search": {
+        "label": "İstifadəçi axtar",
+        "placeholder": "İstifadəçi adı və ya e-poçt ünvanı",
+        "result": "Nəticələr",
+        "empty": "Heç bir nəticə tapılmadı"
+      },
+      "user_card": {
+        "title": "İstifadəçi detalları",
+        "inputs": {
+          "name": {
+            "label": "Müştəri adı",
+            "placeholder": "Müştəri adı"
+          },
+          "tin": {
+            "label": "VÖEN",
+            "placeholder": "VÖEN"
+          },
+          "phone": {
+            "label": "Əlaqə nömrəsi",
+            "placeholder": "+994-123-45-67"
+          },
+          "email": {
+            "label": "E-poçt ünvanı",
+            "placeholder": "example@example.com"
+          }
+        }
+      }
+    },
+    "route_editor": {
+      "title": "Sifariş detalları",
+      "order_date": {
+        "title": "Sifarişin başlama-bitmə tarixi",
+        "inputs": {
+          "date_start": "Sifarişin başlama tarixi",
+          "date_end": "Sifarişin bitmə tarixi"
+        }
+      },
+      "order_main_route": {
+        "title": "Full route",
+        "inputs": {
+          "date": {
+            "loading_place": "Loading place",
+            "discharging_place": "Discharging place"
+          }
+        }
+      }
+    },
+    "services": {
+      "provider": {
+        "buttons": {
+          "add_service": "Yeni xidmət əlavə et"
+        }
+      },
+      "request": {
+        "title": "Sorğu göndərin",
+        "inputs": {
+          "selected": {
+            "country": "Tələb olunan xidmət ölkəsi",
+            "city": "Tələb olunan xidmət şəhəri"
+          },
+          "textarea": "Təsvir",
+          "button": "Sorğu göndərin"
+        }
+      }
+    }
+  },
+  "settings": {
+    "title": "Tənzimləmələr"
+  },
+  "profile": {
+    "title": "Profil"
+  }
+}

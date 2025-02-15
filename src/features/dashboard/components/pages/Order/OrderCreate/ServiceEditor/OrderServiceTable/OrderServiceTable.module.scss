@@ -1,0 +1,82 @@
+@use "@/assets/styles/variables" as vars;
+
+.table__box {
+  width: 100%;
+  overflow: auto;
+
+  & .table {
+    width: 100%;
+    margin-top: 12px;
+    border-radius: 8px;
+
+    & tr {
+      &.active {
+        & td {
+          background: rgba(101, 99, 99, 0.20);
+        }
+      }
+    }
+
+    & td {
+      min-width: 140px;
+      padding: 12px 16px;
+      background: #F5F5F5;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+
+      white-space: nowrap;
+
+      transition: 0.3s;
+
+      &:first-child {
+        min-width: 72px;
+      }
+
+      & .buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      & input, select {
+        color: vars.$primary-color;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.5;
+        background: none;
+        outline: none;
+      }
+
+      & select {
+        background: none;
+
+        outline: none;
+
+        appearance: none;
+      }
+    }
+  }
+
+  &.dark{
+    & .table{
+
+      & tr{
+        &.active{
+          & td{
+            background: #272727;
+          }
+        }
+      }
+
+      & td{
+        color: vars.$primary-white-color;
+        background: #181818;
+        border: 1px solid #292929;
+      }
+    }
+  }
+}

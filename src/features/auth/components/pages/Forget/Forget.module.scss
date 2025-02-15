@@ -1,0 +1,82 @@
+@use "@/assets/styles/variables" as vars;
+
+.forget {
+  padding: 32px 0 0;
+
+  &__redirect {
+    margin: 0 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1D736B;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+  }
+
+  &__head{
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 0 0 20px;
+
+    & .head__logo{
+      width: 50px;
+      height: 50px;
+
+      display: grid;
+      place-items: center;
+
+      background: vars.$secondary-color;
+      border-radius: vars.$border-radius;
+    }
+
+    & .head__title{
+      font-size: 26px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      letter-spacing: 0.13px;
+    }
+  }
+
+  &__info {
+    margin: 0 0 32px;
+
+
+    &__title {
+      margin: 0 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 26px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      letter-spacing: 0.13px;
+    }
+
+    &__subtitle {
+      color: #ababab;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+    }
+  }
+
+  &__form {
+    display: grid;
+    gap: 24px;
+  }
+
+  &.dark{
+    .forget__info{
+      &__title {
+        color: #ffffff;
+      }
+    }
+  }
+}

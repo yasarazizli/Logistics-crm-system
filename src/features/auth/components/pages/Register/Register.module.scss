@@ -1,0 +1,67 @@
+@use "@/assets/styles/variables" as vars;
+
+.register {
+  padding: 24px 0 0;
+
+  &__title {
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 40px;
+  }
+
+  &__tabs {
+    margin: 48px 0 24px;
+  }
+
+  &__form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    &.company {
+      & > *:nth-child(7),
+      & > *:nth-child(8) {
+        grid-column: span 2;
+      }
+    }
+
+    &.individual {
+      & > *:nth-child(1),
+      & > *:nth-child(6),
+      & > *:nth-child(7) {
+        grid-column: span 2;
+      }
+    }
+  }
+
+  &__buttons {
+    margin: 72px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    &__redirect {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: vars.$primary-black-color;
+    }
+
+    button {
+      width: 50%;
+    }
+  }
+
+  &.dark{
+
+    .register__title{
+      color: vars.$primary-white-color;
+    }
+
+    .register__buttons {
+      a {
+        color: vars.$primary-white-color;
+      }
+    }
+  }
+}
