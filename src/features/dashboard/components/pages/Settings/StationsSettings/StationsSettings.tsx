@@ -33,12 +33,12 @@ const StationsSettings = ({
     tabs: [],
     activeTab: 0,
     buttons: [
-      {
-        title: "Station create",
-        onClick: () => {
-          console.log("salam");
-        },
-      },
+      // {
+      //   title: "Station create",
+      //   onClick: () => {
+      //     console.log("salam");
+      //   },
+      // },
       {
         title: "back",
         onClick: () => {

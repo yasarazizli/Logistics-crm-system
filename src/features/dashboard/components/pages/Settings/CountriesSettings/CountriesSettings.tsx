@@ -31,12 +31,12 @@ const CountriesSettings = ({
     tabs: [],
     activeTab: 0,
     buttons: [
-      {
-        title: "Country create",
-        onClick: () => {
-          console.log("salam");
-        },
-      },
+      // {
+      //   title: "Country create",
+      //   onClick: () => {
+      //     console.log("salam");
+      //   },
+      // },
       {
         title: "back",
         onClick: () => {
