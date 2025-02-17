@@ -14,13 +14,6 @@ const Months: { [key: string]: string } = {
 };
 
 export const dateStringConverter = (date: string) => {
-  if (
-    !navigator.userAgent.includes("Chrome") &&
-    navigator.userAgent.includes("Safari")
-  ) {
-    let jDate = date.split("-");
-    date = `${jDate[2]}-${jDate[0]}-${jDate[1]}`;
-  }
   const datetime = new Date(date);
   const jsonDate = {
     day: datetime.getDate(),
