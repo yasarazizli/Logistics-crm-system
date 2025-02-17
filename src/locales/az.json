@@ -133,6 +133,10 @@
       "creat_user": {
         "title": "İstifadəçi yaradın"
       },
+      "delete_user": {
+        "title": "İstifadəçisi siləmə",
+        "subtitle": "İstifadəçisini siləməyə əminsiniz?"
+      },
       "add_contract": {
         "title": "Müqavilə əlavə edin",
         "subtitle": "Müqavilə əlavə etdikdən sonra yadda saxlayın"

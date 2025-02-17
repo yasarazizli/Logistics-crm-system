@@ -10,18 +10,22 @@ import { formCreator } from "@/libs/form.ts";
 import { toast } from "react-toastify";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import {
+  deleteAdminUserRequest,
   postAdminCreateUserRequest,
   postAdminUpdateUserRequest,
 } from "@/features/dashboard/services/user.service.ts";
 import { errorMessageHandler } from "@/libs/error.ts";
 import { UserModel } from "@/features/dashboard/models/dashboard.model.ts";
+import { PageHelperStateType } from "@/features/dashboard/models/shared.model.ts";
 
 const UserModals = ({
   modals,
   setModals,
+  setPageHelper,
 }: {
   modals: UserModalsProps;
   setModals: React.Dispatch<React.SetStateAction<UserModalsProps>>;
+  setPageHelper: React.Dispatch<React.SetStateAction<PageHelperStateType>>;
 }) => {
   const { t } = useTranslation();
   const { setLoader } = useContext(LoaderContext);
@@ -74,6 +78,10 @@ const UserModals = ({
     const { status, data } = await postAdminCreateUserRequest(formData);
 
     if (status == 200) {
+      setPageHelper((prevState) => ({
+        ...prevState,
+        render: !prevState.render,
+      }));
       setModals((prevState) => ({
         ...prevState,
         create: false,
@@ -83,7 +91,6 @@ const UserModals = ({
 
     setLoader(false);
   };
-
   const adminUpdateUser = async (event: FormEvent) => {
     event.preventDefault();
 
@@ -125,9 +132,34 @@ const UserModals = ({
     );
 
     if (status == 200) {
+      setPageHelper((prevState) => ({
+        ...prevState,
+        render: !prevState.render,
+      }));
       setModals((prevState) => ({
         ...prevState,
-        create: false,
+        update: null,
+      }));
+      toast.success(errorMessageHandler(data));
+    } else toast.error(errorMessageHandler(data));
+
+    setLoader(false);
+  };
+  const adminDeleteUser = async (event: FormEvent) => {
+    event.preventDefault();
+    setLoader(true);
+    const { status, data } = await deleteAdminUserRequest(
+      Number(modals.delete?.id),
+    );
+
+    if (status == 200) {
+      setPageHelper((prevState) => ({
+        ...prevState,
+        render: !prevState.render,
+      }));
+      setModals((prevState) => ({
+        ...prevState,
+        delete: null,
       }));
       toast.success(errorMessageHandler(data));
     } else toast.error(errorMessageHandler(data));
@@ -135,7 +167,6 @@ const UserModals = ({
     setLoader(false);
   };
 
-  // @ts-ignore
   return (
     <>
       {/* Create Modal */}
@@ -186,13 +217,14 @@ const UserModals = ({
       )}
       {/**/}
 
+      {/* Update Modal */}
       {modals.update && (
         <Modal
           title={"Admin Update User"}
           modalClose={() => {
             setModals((prevState) => ({
               ...prevState,
-              create: false,
+              update: null,
             }));
           }}
         >
@@ -206,7 +238,13 @@ const UserModals = ({
                   icon={input.icon}
                   type={input.type}
                   onChange={input.onChange}
-                  defaultValue={`${modals?.update?.[input.inputRefName as keyof UserModel]}`}
+                  defaultValue={
+                    !["password", "confirm__password"].includes(
+                      input.inputRefName,
+                    )
+                      ? `${modals?.update?.[input.inputRefName as keyof UserModel]}`
+                      : ""
+                  }
                   autoComplete="off"
                   inputRef={
                     inputsRef[input.inputRefName as keyof typeof inputsRef]
@@ -218,7 +256,6 @@ const UserModals = ({
               <Button
                 text={t("shared.buttons.cancel")}
                 viewType={"dark-green"}
-                type={"submit"}
                 onClick={() => {
                   setModals((prevState) => ({
                     ...prevState,
@@ -226,14 +263,16 @@ const UserModals = ({
                   }));
                 }}
               />
-              <Button text={t("shared.buttons.save")} />
+              <Button text={t("shared.buttons.save")} type={"submit"} />
             </div>
           </form>
         </Modal>
       )}
+
+      {/* Delete Modal */}
       {modals.delete && (
         <Modal
-          title={t("vendors.modals.contract_delete.title")}
+          title={t("users.modals.delete_user.title")}
           modalClose={() => {
             setModals((prevState) => ({
               ...prevState,
@@ -241,9 +280,11 @@ const UserModals = ({
             }));
           }}
         >
-          <form className={styles.form} onSubmit={() => {}}>
+          <form className={styles.form} onSubmit={adminDeleteUser}>
             <div className={styles.form__inputs}>
-              <p>{`Salam ${t("vendors.modals.contract_delete.subtitle")}`}</p>
+              <p
+                className={styles.form__inputs__text}
+              >{`${modals.delete.full_name} ${t("users.modals.delete_user.subtitle")}`}</p>
             </div>
             <div className={styles.form__buttons}>
               <Button
@@ -260,7 +301,6 @@ const UserModals = ({
               <Button
                 type={"submit"}
                 text={t("vendors.modals.contract_delete.buttons.approve")}
-                onClick={() => {}}
               />
             </div>
           </form>

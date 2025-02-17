@@ -172,3 +172,15 @@ export const postAdminUpdateUserRequest = async (
       return err.response;
     });
 };
+
+export const deleteAdminUserRequest = async (id: number) => {
+  return await axios
+    .get(`${apiUrl}/accounts/delete-user/?id=${id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

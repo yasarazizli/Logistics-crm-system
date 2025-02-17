@@ -332,7 +332,11 @@ const Users = () => {
         />
       )}
 
-      <UserModals modals={modals} setModals={setModals} />
+      <UserModals
+        modals={modals}
+        setModals={setModals}
+        setPageHelper={setPageHelper}
+      />
     </>
   );
 };
