@@ -168,7 +168,7 @@ const UsersTableRow: React.FC<TableRenderRowProps> = ({
       {/* Balance */}
       {["admin", "commercial_directory", "accountant", "buyers"].includes(
         auth.role,
-      ) && <td>${user.balance}</td>}
+      ) && <td>$ {user.balance}</td>}
 
       {/* Contract Detail */}
       {["admin", "commercial_directory", "accountant", "lawyer"].includes(
