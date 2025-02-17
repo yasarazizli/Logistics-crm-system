@@ -3,7 +3,7 @@ import useClickOutside from "@/hooks/useClickOutside.ts";
 import styles from "./RouteLocation.module.scss";
 import Input from "@/components/Input/Input.tsx";
 import SelectOption from "@/components/New/SelectOption/SelectOption.tsx";
-import { City, Country } from "@/models/station.model.ts";
+import { Country, Station } from "@/models/station.model.ts";
 import { StoreContext } from "@/contexts/StoreContext.tsx";
 
 const RouteLocation = ({ label, route, position, setLocation }: any) => {
@@ -18,8 +18,8 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
 
   // Locations
   const [countries, setCountries] = useState<Country[]>([]);
-  const [cities, setCities] = useState<{
-    [key: string]: City[];
+  const [stations, setStations] = useState<{
+    [key: string]: Station[];
   }>();
 
   // Requests
@@ -30,8 +30,8 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
         setCountries(store.countries || []);
       });
   };
-  const getAllCities = async (country_id: number) => {
-    await getData([`cities-${country_id}`], country_id);
+  const getAllStations = async (country_id: number) => {
+    await getData([`stations-${country_id}`], country_id);
   };
 
   const addressCreator = () => {
@@ -39,23 +39,18 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
 
     if (position && route) {
       const country = store.countries?.find(
-        (i) => i.value === Number(route[`${position}_country_id`]),
+        (data) => data.value === Number(route[`${position}_country_id`]),
       );
-
-      const city = store.cities?.[route[`${position}_country_id`]]?.find(
-        (city) => city.value === Number(route[`${position}_city_id`]),
+      const station = store.stations?.[route[`${position}_country_id`]]?.find(
+        (data) => data.value === Number(route[`${position}_station_id`]),
       );
 
       if (country) {
         address += `${country.name}`;
       }
 
-      if (city) {
-        address += `, ${
-          store.cities?.[route[`${position}_country_id`]]?.find(
-            (city) => city.value === Number(route[`${position}_city_id`]),
-          )?.name
-        }`;
+      if (station) {
+        address += `, ${station.name}`;
       }
 
       if (route[`${position}_address`]) {
@@ -70,21 +65,6 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
   useEffect(() => {
     getAllCountries().catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (route.start_country_id) {
-      getAllCities(route.start_country_id).catch(() => {});
-    }
-
-    if (route.end_country_id) {
-      getAllCities(route.end_country_id).catch(() => {});
-    }
-  }, [route.start_country_id, route.end_country_id]);
-
-  useEffect(() => {
-    setCities(store.cities);
-  }, [store.cities]);
-
   useEffect(() => {
     if (!clickedInside) {
       setDropdown(false);
@@ -98,13 +78,9 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
           label={label}
           placeholder={label}
           value={addressCreator()}
-          style={{
-            outline: "none",
-            cursor: "pointer",
-          }}
-          onChange={(event) => {
-            setLocation(event.target.value, `${position}_address`);
-          }}
+          // onChange={(event) => {
+          //   setLocation(event.target.value, `${position}_address`);
+          // }}
           onClick={() => {
             setDropdown((prevState) => {
               return !prevState;
@@ -128,7 +104,7 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
 
                 if (selectedCountry) {
                   setLocation(selectedCountry.value, `${position}_country_id`);
-                  await getAllCities(selectedCountry.value);
+                  await getAllStations(selectedCountry.value);
                 } else setLocation(null, `${position}_country_id`);
 
                 setLocation(null, `${position}_city_id`);
@@ -148,35 +124,30 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
               }}
             />
 
-            {/* City */}
+            {/* Stations */}
             <SelectOption
-              label={"City"}
-              disabled={!route[`${position}_country_id`]}
-              options={cities?.[route[`${position}_country_id`]] || []}
-              value={store.cities?.[route[`${position}_country_id`]]?.find(
-                (city) => city.value === Number(route[`${position}_city_id`]),
+              label={"Station Code"}
+              options={stations?.[route[`${position}_country_id`]] || []}
+              value={store.stations?.[route[`${position}_country_id`]]?.find(
+                (city) => city.value === route[`${position}_station_id`],
               )}
-              onChange={async (options) => {
-                const selectedCite = store.cities?.[
+              disabled={!route[`${position}_country_id`]}
+              onChange={(options) => {
+                const selectedStation = store.stations?.[
                   route[`${position}_country_id`]
-                ]?.find((city) => city.value === options.value);
-
-                if (selectedCite) {
-                  await getData(["stations"], selectedCite.value);
-                  setLocation(selectedCite.value, `${position}_city_id`);
-                  setLocation(null, `${position}_station_id`);
+                ]?.find((cite) => cite.value === options.value);
+                if (selectedStation) {
+                  setLocation(selectedStation.value, `${position}_station_id`);
                 }
               }}
-              // Cities Input Search
               isSearchable
               isSearch={(searchValue) => {
-                setCities({
+                console.log(store.stations?.[route[`${position}_country_id`]]);
+                setStations({
                   [route[`${position}_country_id`]]:
-                    store.cities?.[route[`${position}_country_id`]]?.filter(
+                    store.stations?.[route[`${position}_country_id`]]?.filter(
                       (option) =>
-                        option.name
-                          .toLowerCase()
-                          .includes(searchValue.toLowerCase()),
+                        option.name.includes(String(searchValue).toLowerCase()),
                     ) || [],
                 });
               }}
@@ -186,28 +157,10 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
             <Input
               label={"Address"}
               placeholder={"Address"}
-              disabled={!route[`${position}_city_id`]}
+              // disabled={!route[`${position}_country_id`]}
               value={`${route[`${position}_address`] || ""}`}
               onChange={(event) => {
                 setLocation(event.target.value, `${position}_address`);
-              }}
-            />
-
-            {/* Stations */}
-            <SelectOption
-              label={"Station Code"}
-              options={store.stations?.[route[`${position}_city_id`]] || []}
-              value={store.stations?.[route[`${position}_city_id`]]?.find(
-                (city) => city.value === route[`${position}_station_id`],
-              )}
-              disabled={route[`${position}_city_id`] === null}
-              onChange={(options) => {
-                const selectedCite = store.stations?.[
-                  route[`${position}_city_id`]
-                ]?.find((cite) => cite.value === options.value);
-                if (selectedCite) {
-                  setLocation(selectedCite.value, `${position}_station_id`);
-                }
               }}
             />
           </div>

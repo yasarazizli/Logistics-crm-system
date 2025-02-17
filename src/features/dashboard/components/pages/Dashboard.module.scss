@@ -18,29 +18,91 @@
 
     .settings__item{
       width: 100%;
-      height: 350px;
+      height: 100%;
       padding: 16px;
       border: 1px solid vars.$primary-color;
       border-radius: vars.$border-radius;
-      cursor: pointer;
+      transition: .4s;
+
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+
       user-select: none;
 
       &__icon{
-        margin-bottom: 16px;
-
+        width: 100%;
+        height: 100%;
         & svg{
-          width: 100px;
-          height: 100px;
+          width: 100%;
+          height: 100%;
+          path{
+            transition: .4s;
+            fill: #1D736B;
+          }
         }
       }
 
-      &__title{
-        color: vars.$primary-color;
-        font-size: 28px;
-        font-weight: 500;
-        line-height: 36px;
+      &__content{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+
+        &__title{
+          color: #000000;
+          font-size: 48px;
+          line-height: 58px;
+          font-weight: 500;
+        }
+
+        & button{
+          transition: .4s;
+          width: fit-content;
+        }
       }
 
+      &:hover{
+        background: vars.$primary-color;
+        & svg{
+          path{
+            fill: #ffffff;
+          }
+        }
+
+        & button{
+          background: #ffffff;
+
+          & span{
+            color: #000000;
+          }
+        }
+
+        & p{
+          color: #ffffff;
+        }
+
+      }
+    }
+
+    &.dark{
+      .settings__item{
+        &__content{
+          &__title{
+            color: #ffffff;
+          }
+        }
+
+        &:hover{
+          & .settings__item__content{
+            &__title{
+              color: #ffffff;
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -22,7 +22,7 @@ export type ModalType = {
 
 export type CountriesModel = { id: number; name: string };
 export type CitiesModel = { id: number; name: string };
-export type StationsModel = { id: number; name: string };
+export type StationsModel = { id: number; name: string; code?: string };
 
 export interface TableResponseType {
   page_count: number;

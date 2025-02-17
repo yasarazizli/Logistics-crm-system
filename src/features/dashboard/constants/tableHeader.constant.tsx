@@ -197,9 +197,9 @@ export const getLocationTableHeaders = (
   role: string,
 ): string[] => {
   const headersByLanguage: Record<string, string[]> = {
-    en: ["Id", "Name", "More"],
-    az: ["Id", "Adı", "Daha çox"],
-    ru: ["ИД", "Название", "Ещё"],
+    en: ["Id", "Name", "Code", "More"],
+    az: ["Id", "Adı", "Code", "Daha çox"],
+    ru: ["ИД", "Название", "Code", "Ещё"],
   };
 
   const roleMappings: Record<string, number[][]> = {

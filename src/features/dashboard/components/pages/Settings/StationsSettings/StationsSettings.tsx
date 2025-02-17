@@ -8,13 +8,13 @@ import { useContext, useEffect, useState } from "react";
 import { PageHelperStateType } from "@/features/dashboard/models/shared.model.ts";
 import { useFilterInputsChanger } from "@/hooks/useFilterInputsChanger.ts";
 import { citiesFilterConstants } from "@/features/dashboard/constants/filters.constant.tsx";
-import { getAllCitiesRequest } from "@/features/dashboard/services/location.service.ts";
+import { getAllStationsRequest } from "@/features/dashboard/services/location.service.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { usePageChanger } from "@/hooks/usePageChanger.ts";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-const CitiesSettings = ({
+const StationsSettings = ({
   country_id,
   changeSettings,
 }: {
@@ -34,7 +34,7 @@ const CitiesSettings = ({
     activeTab: 0,
     buttons: [
       {
-        title: "Cities create",
+        title: "Station create",
         onClick: () => {
           console.log("salam");
         },
@@ -53,13 +53,14 @@ const CitiesSettings = ({
   const { filterInputsData, setFilterInputsData, resetFilterInputs } =
     useFilterInputsChanger({ ...citiesFilterConstants });
 
-  const getAllCities = async () => {
+  const getAllStations = async () => {
     setLoader(true);
-    const { status, data } = await getAllCitiesRequest(
+    const { status, data } = await getAllStationsRequest(
       country_id,
+      filterInputsData.city.value,
+      "",
       page,
       10,
-      filterInputsData.city.value,
     );
     if (status === 200) {
       setPageHelper((prevState) => ({
@@ -72,7 +73,7 @@ const CitiesSettings = ({
 
   // Effects
   useEffect(() => {
-    getAllCities().catch(() => {});
+    getAllStations().catch(() => {});
   }, [page, pageHelper.render]);
 
   return (
@@ -110,10 +111,11 @@ const CitiesSettings = ({
             auth.role,
           )}
         >
-          {pageHelper.response?.cities?.map((country, index) => (
+          {pageHelper.response?.stations?.map((country, index) => (
             <tr key={index}>
               <td>{country.id}</td>
-              <td>{country.name}</td>
+              <td>{`${country.code}(${country.name})`}</td>
+              <td>{}</td>
             </tr>
           ))}
         </Table>
@@ -122,4 +124,4 @@ const CitiesSettings = ({
   );
 };
 
-export default CitiesSettings;
+export default StationsSettings;

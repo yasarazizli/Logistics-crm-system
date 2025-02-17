@@ -1,20 +1,23 @@
-import { RegionIcon } from "@/assets/icons/sidebar.vectors.tsx";
+import {
+  HsCodeIcon,
+  RegionIcon,
+  StationIcon,
+} from "@/assets/icons/order.vectors.tsx";
 
 export const SettingsCards = [
   {
+    id: 1,
     icon: RegionIcon,
     title: "Countries",
   },
   {
-    icon: RegionIcon,
-    title: "Cities",
+    id: 2,
+    icon: StationIcon,
+    title: "Stations",
   },
-  // {
-  //   icon: RegionIcon,
-  //   title: "Stations",
-  // },
-  // {
-  //   icon: RegionIcon,
-  //   title: "Hs Code",
-  // },
+  {
+    id: 3,
+    icon: HsCodeIcon,
+    title: "Hs Code",
+  },
 ];

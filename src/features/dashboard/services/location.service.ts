@@ -56,25 +56,23 @@ export const getAllCitiesRequest = async (
 };
 
 export const getAllStationsRequest = async (
-  city_id?: number,
-  page?: number,
-  pageSize?: number,
-  city_name?: string,
+  country_id?: number,
   country_name?: string,
   code?: string,
+  page?: number,
+  pageSize?: number,
 ) => {
   const params = {
-    city_id: city_id || "",
-    page: page || "",
-    pageSize: pageSize || "",
-    city_name: city_name || "",
+    country_id: country_id || "",
     country_name: country_name || "",
     code: code || "",
+    page: page || "",
+    pageSize: pageSize || "",
   };
 
   return await axios
     .get(
-      `${apiUrl}/station/get-all-station/?city_id=${params.city_id}&page=${params.page}&pageSize=${params.pageSize}&city_name=${params.city_name}&country_name=${params.country_name}&code=${params.code}`,
+      `${apiUrl}/station/get-all-station/?country_id=${params.country_id}&country_name=${params.country_name}&code=${params.code}&page=${params.page}&pageSize=${params.pageSize}`,
       {
         headers: {
           Authorization: getCookie("allianceToken"),

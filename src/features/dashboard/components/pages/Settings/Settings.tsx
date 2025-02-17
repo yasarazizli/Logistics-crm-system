@@ -5,16 +5,20 @@ import PageTitle from "@/features/dashboard/components/shared/PageTitle/PageTitl
 import styles from "@/features/dashboard/components/pages/Dashboard.module.scss";
 import { useTranslation } from "react-i18next";
 import { SettingsCards } from "@/features/dashboard/constants/settings.constant.tsx";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import CountriesSettings from "@/features/dashboard/components/pages/Settings/CountriesSettings/CountriesSettings.tsx";
-import CitiesSettings from "@/features/dashboard/components/pages/Settings/CitiesSettings/CitiesSettings.tsx";
 import SelectedCountryAndCity from "@/features/dashboard/components/shared/Modals/Settings/SelectedCountryAndCity.tsx";
+import Button from "@/components/Button/Button.tsx";
+import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import StationsSettings from "@/features/dashboard/components/pages/Settings/StationsSettings/StationsSettings.tsx";
+import HSCodeSettings from "@/features/dashboard/components/pages/Settings/HSCodeSettings/HSCodeSettings.tsx";
 
 const Settings = () => {
   // React
   const { t } = useTranslation();
+  const { darkMode } = useContext(ThemeContext);
 
-  const [content, setContent] = useState<string>("");
+  const [content, setContent] = useState<number | null>(null);
   const [id, setId] = useState<number>(0);
   const [modals, setModals] = useState<{
     cities: boolean;
@@ -29,44 +33,60 @@ const Settings = () => {
         <PageTitle title={t("settings.title")} />
 
         {!content && (
-          <div className={styles.dashboard__settings}>
+          <div
+            className={`${styles.dashboard__settings} ${darkMode && styles.dark}`}
+          >
             {SettingsCards.map((item, index) => (
               <div
                 onClick={() => {
-                  if (item.title === "Cities") {
+                  if (item.id === 2) {
                     setModals((prevState) => ({
                       ...prevState,
                       cities: true,
                     }));
                   } else {
-                    setContent(item.title);
+                    setContent(item.id);
                   }
                 }}
                 key={`settings__item__${index}`}
                 className={styles.settings__item}
               >
-                <p className={styles.settings__item__icon}>
+                <div className={styles.settings__item__content}>
+                  <p className={styles.settings__item__content__title}>
+                    {item.title}
+                  </p>
+
+                  <Button text={"Kecid edi"} />
+                </div>
+                <div className={styles.settings__item__icon}>
                   <item.icon />
-                </p>
-                <p className={styles.settings__item__title}>{item.title}</p>
+                </div>
               </div>
             ))}
           </div>
         )}
 
-        {content === "Countries" && (
+        {content === 1 && (
           <CountriesSettings
             changeSettings={() => {
-              setContent("");
+              setContent(null);
             }}
           />
         )}
 
-        {content === "Cities" && (
-          <CitiesSettings
+        {content === 2 && (
+          <StationsSettings
             country_id={id}
             changeSettings={() => {
-              setContent("");
+              setContent(null);
+            }}
+          />
+        )}
+
+        {content === 3 && (
+          <HSCodeSettings
+            changeSettings={() => {
+              setContent(null);
             }}
           />
         )}
@@ -81,7 +101,7 @@ const Settings = () => {
                 cities: false,
               }));
               setId(id);
-              setContent("Cities");
+              setContent(2);
             }}
             modalClose={() => {
               setModals((prevState) => ({

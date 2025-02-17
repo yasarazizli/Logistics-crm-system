@@ -92,13 +92,23 @@ const RouteSection = ({
 
   const saveRouteCodes = (value: string) => {
     const rows = value.split("\n").map((row) => row.split("\t"));
-    const newString = rows.map((row) => row.join(",")).join(",");
+    const newCodes = rows.map((row) => row.join(",")).join(",");
 
     setOrder((prevState) => {
       const updatedRoutes = [...prevState.orderDetail.routes];
       const updatedTransport = { ...updatedRoutes[index].transport };
 
-      updatedTransport.codes += `${newString},`;
+      const existingCodes = updatedTransport.codes.split(",").filter(Boolean);
+
+      const uniqueCodes = newCodes
+        .split(",")
+        .filter((code) => !existingCodes.includes(code));
+
+      if (uniqueCodes.length === 0) {
+        return prevState; // Eğer eklenebilecek yeni kod yoksa state'i değiştirme
+      }
+
+      updatedTransport.codes += `${uniqueCodes.join(",")},`;
 
       updatedRoutes[index] = {
         ...updatedRoutes[index],
@@ -106,6 +116,8 @@ const RouteSection = ({
           ...updatedTransport,
         },
       };
+
+      console.log("create-transport-routes", updatedRoutes);
 
       return {
         ...prevState,
@@ -171,6 +183,7 @@ const RouteSection = ({
                     route.priority = idx - 1;
                   });
                 }
+
                 return {
                   ...prevState,
                   orderDetail: {
@@ -474,11 +487,11 @@ const RouteSection = ({
         <div className={`${styles.grid} ${styles.three}`}>
           {order.orderDetail.routes[index].transport?.codes
             .split(",")
-            .map((code, index) => {
+            .map((code, indexCode) => {
               if (code !== "") {
                 return (
                   <div
-                    key={index}
+                    key={indexCode}
                     style={{
                       width: "100%",
                       height: "52px",
@@ -500,20 +513,32 @@ const RouteSection = ({
                           const updatedRoutes = [
                             ...prevState.orderDetail.routes,
                           ];
+
                           const updatedTransport = {
                             ...updatedRoutes[index].transport,
                           };
 
+                          // Kodları al ve boş stringleri temizle
+                          console.log(updatedTransport.codes);
                           const codesArray = updatedTransport.codes
                             ? updatedTransport.codes
                                 .split(",")
-                                .filter((code) => code.trim() !== "")
+                                .map((c) => c.trim())
+                                .filter(Boolean)
                             : [];
 
+                          console.log(index);
+                          console.log("routes", updatedRoutes);
+                          console.log("Transport", updatedTransport);
+                          console.log("Mevcut Kodlar (önce):", codesArray);
+                          console.log("Silinmek istenen kod:", code);
+
+                          // Kodu listeden sil
                           const updatedCodes = codesArray.filter(
-                            (c) => c !== code,
+                            (c) => c !== code.trim(),
                           );
 
+                          // Güncellenmiş kodları ayarla
                           updatedTransport.codes =
                             updatedCodes.length > 0
                               ? updatedCodes.join(",")

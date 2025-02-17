@@ -154,7 +154,7 @@ const OrdersTableRow = ({
         "accountant",
       ].includes(auth.role) && (
         <td>
-          <span>{order.price || "---"}$</span>
+          <span>$ {order.price || "0"}</span>
         </td>
       )}
 
@@ -167,7 +167,7 @@ const OrdersTableRow = ({
         "accountant",
       ].includes(auth.role) && (
         <td>
-          <span>{order.balance || "---"}$</span>
+          <span>$ {order.balance || "0"}</span>
         </td>
       )}
 
