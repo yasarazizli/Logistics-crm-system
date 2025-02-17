@@ -1,6 +1,7 @@
 import { createContext, PropsWithChildren, useRef, useState } from "react";
-import { Country, HsCodeModel, Station } from "@/models/station.model.ts";
+import { City, Country, HsCodeModel, Station } from "@/models/station.model.ts";
 import {
+  getAllCitiesRequest,
   getAllCountriesRequest,
   getAllHsCodeRequest,
   getAllStationsRequest,
@@ -13,6 +14,9 @@ import { getAllServicesRequest } from "@/features/dashboard/services/services.se
 export const StoreContext = createContext<{
   store: {
     countries?: Country[];
+    cities?: {
+      [key: string]: City[];
+    };
     stations?: {
       [key: string]: Station[];
     };
@@ -30,6 +34,9 @@ export const StoreContext = createContext<{
 export const StoreProvider = ({ children }: PropsWithChildren) => {
   const [store, setStore] = useState<{
     countries?: Country[];
+    cities?: {
+      [key: string]: City[];
+    };
     stations?: {
       [key: string]: Station[];
     };
@@ -45,6 +52,12 @@ export const StoreProvider = ({ children }: PropsWithChildren) => {
       if (status === 200) return data;
     }
 
+    if (name === "cities" && id !== undefined) {
+      const { status, data } = await getAllCitiesRequest(id);
+      if (status === 200) {
+        return data;
+      }
+    }
     if (name === "stations" && id !== undefined) {
       const { status, data } = await getAllStationsRequest(id);
       if (status === 200) {
@@ -82,6 +95,9 @@ export const StoreProvider = ({ children }: PropsWithChildren) => {
     const newValues: Record<string, any> = {};
 
     const namesToFetch = names.filter((name) => {
+      if (name === `cities-${id}` && id !== undefined) {
+        return !store.cities?.[id] && !fetchingRef.current.includes(name);
+      }
       // Station data control
       if (name === `stations-${id}` && id !== undefined) {
         return !store.stations?.[id];
@@ -99,6 +115,13 @@ export const StoreProvider = ({ children }: PropsWithChildren) => {
     const fetchPromises = namesToFetch.map((n) => {
       const name = n.split("-")[0];
       return getStoreData(name, id).then((data) => {
+        if (name === "cities" && id !== undefined) {
+          // Cities için belirli bir id'yi ekle
+          newValues.cities = {
+            ...store.cities, // Mevcut cities verisini koru
+            [id]: data, // Yeni id'yi ekle
+          };
+        }
         if (name === "stations" && id !== undefined) {
           // Stations için belirli bir id'yi ekle
           newValues.stations = {
