@@ -340,7 +340,7 @@ const OrderCreate = () => {
               text={t("order.buttons.back")}
               viewType={"red"}
               onClick={() => {
-                console.log(order);
+                navigate(`/orders`);
               }}
             />
           </div>

@@ -55,10 +55,15 @@ const OrdersTableRow = ({
   };
 
   // Accountant Order Payment Confirmation
-  const getAccountantOrderPaymentConfirmation = async (orderId: number) => {
+  const getAccountantOrderPaymentConfirmation = async (
+    orderId: number,
+    is_approve: boolean,
+  ) => {
     setLoader(true);
-    const { status, data } =
-      await getAccountantOrderPaymentConfirmationRequest(orderId);
+    const { status, data } = await getAccountantOrderPaymentConfirmationRequest(
+      orderId,
+      is_approve,
+    );
     if (status === 200) toast.success(errorMessageHandler(data));
     else toast.error(errorMessageHandler(data));
     setLoader(false);
@@ -234,14 +239,14 @@ const OrdersTableRow = ({
               {
                 type: "approve",
                 onClick: async () => {
-                  await getAccountantOrderPaymentConfirmation(order.id);
+                  await getAccountantOrderPaymentConfirmation(order.id, true);
                   render();
                 },
               },
               {
                 type: "reject",
                 onClick: async () => {
-                  await getAccountantOrderPaymentConfirmation(order.id);
+                  await getAccountantOrderPaymentConfirmation(order.id, false);
                   render();
                 },
               },

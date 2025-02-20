@@ -54,7 +54,6 @@ const InstructionPdf = ({
 
     if (status === 200) {
       setOrder(data);
-      console.log(order);
       setLoader(false);
     } else toast.error(errorMessageHandler(data));
   };

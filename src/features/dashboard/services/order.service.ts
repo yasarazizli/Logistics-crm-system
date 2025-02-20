@@ -74,13 +74,17 @@ export const getUserOrderApprovedRequest = async (
 // Maliyeci Orderin Odenishin Tesdiqliyir
 export const getAccountantOrderPaymentConfirmationRequest = async (
   orderId: number,
+  is_approve: boolean,
 ) => {
   return await axios
-    .get(`${apiUrl}/commercial/order-payment/?order_id=${orderId}`, {
-      headers: {
-        Authorization: getCookie("allianceToken"),
+    .get(
+      `${apiUrl}/commercial/order-payment/?order_id=${orderId}&is_approve=${is_approve}`,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
       },
-    })
+    )
     .catch((err) => {
       return err.response;
     });
