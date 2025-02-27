@@ -7,11 +7,21 @@ export enum ContractStatus {
 
 // Roles Enum
 export enum Roles {
-  lawyer,
-  accountant,
-  buyer_manager,
-  commercial_manager,
-  commercial_director,
+  lawyer = "lawyer",
+  accountant = "accountant",
+  buyer_manager = "buyer_manager",
+  commercial_manager = "commercial_manager",
+  commercial_director = "commercial_director",
+  admin = "admin",
+  user = "user",
+  director = "director",
+}
+
+export enum Transport {
+  truck = "truck",
+  filder = "filder",
+  plane = "plane",
+  railway = "railway",
 }
 
 // Invoice Status Enum

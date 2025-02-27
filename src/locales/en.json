@@ -385,6 +385,12 @@
           "date_end": "Order End Date"
         }
       },
+      "order_participants": {
+        "title": "Order Participants",
+        "shipper": "Shipper",
+        "receiver": "Receiver",
+        "expeditor": "Expeditor"
+      },
       "order_main_route": {
         "title": "Full Route",
         "inputs": {

@@ -33,6 +33,7 @@ import {
   SaveOrderIcon,
   SubmitOrderIcon,
 } from "@/assets/icons/order.vectors.tsx";
+import { Roles } from "@/features/dashboard/constants/enum.constant.tsx";
 
 const OrderCreate = () => {
   const location = useLocation();
@@ -79,7 +80,6 @@ const OrderCreate = () => {
         user_id: data.order.user_id,
         start_time: data.order.start_time,
         end_time: data.order.end_time,
-        expeditor: data.order.expeditor,
         seller_id: data.order.seller_id,
         shipper: data.order.shipper,
         receiver: data.order.receiver,
@@ -108,10 +108,6 @@ const OrderCreate = () => {
       {
         name: "data",
         data: JSON.stringify(order?.orderDetail),
-      },
-      {
-        name: "expeditor",
-        data: order?.expeditor || "",
       },
       {
         name: "seller_id",
@@ -203,16 +199,16 @@ const OrderCreate = () => {
     setLoader(true);
     const formData = formCreator([
       {
+        name: "data",
+        data: JSON.stringify(order?.orderDetail),
+      },
+      {
         name: "receiver",
         data: order.receiver || "",
       },
       {
         name: "shipper",
         data: order.shipper || "",
-      },
-      {
-        name: "expeditor",
-        data: order.expeditor || "",
       },
     ]);
 
@@ -265,97 +261,108 @@ const OrderCreate = () => {
   }, []);
 
   return (
-    <>
-      <div
-        className={`${styles.order} ${["user"].includes(auth.role) && styles.user} ${darkMode && styles.dark}`}
-      >
-        <div className={`${styles.order__box} ${tab === 1 && styles.active}`}>
-          <Tabs tabs={OrderTabs} active={tab} />
+    <div
+      className={`${styles.order} ${[Roles.user, Roles.buyer_manager].includes(auth.role as Roles) && styles.single__box} ${darkMode && styles.dark}`}
+    >
+      <div className={`${styles.order__box} ${tab === 1 && styles.active}`}>
+        <Tabs tabs={OrderTabs} active={tab} />
 
-          <div
-            className={`${styles.buttons} ${["user"].includes(auth.role) && styles.two__buttons}`}
-          >
-            {["admin", "commercial_manager"].includes(auth.role) &&
-              order.status === "SalesAddCodeIsExpected" && (
-                <Button
-                  icon={ConfirmTableIcon}
-                  text={t("order.buttons.send_instruction_document")}
-                  viewType={"dark-green"}
-                  onClick={async () => {
-                    await postInstructionDocument();
-                  }}
-                />
-              )}
-
-            {["buyer_manager"].includes(auth.role) &&
-              order.status === "PadCodeIsExpected" && (
-                <Button
-                  icon={ConfirmTableIcon}
-                  text={t("order.buttons.confirm")}
-                  viewType={"dark-green"}
-                  onClick={async () => {
-                    await postBuyerAddPadCode();
-                  }}
-                />
-              )}
-
-            {["commercial_manager"].includes(auth.role) &&
-              order.status === "AwaitingSalesManagerApproval" && (
-                <Button
-                  icon={ConfirmTableIcon}
-                  text={t("order.buttons.confirm")}
-                  viewType={"dark-green"}
-                  onClick={async () => {
-                    await postCommercialManagerApproval();
-                  }}
-                />
-              )}
-
-            {["user", "admin", "commercial_manager", "buyer_manager"].includes(
-              auth.role,
-            ) && (
+        <div
+          className={`${styles.buttons} ${[Roles.user].includes(auth.role as Roles) && styles.two__buttons}`}
+        >
+          {[Roles.admin, Roles.commercial_manager].includes(
+            auth.role as Roles,
+          ) &&
+            order.status === "SalesAddCodeIsExpected" && (
               <Button
-                icon={SaveOrderIcon}
-                text={t("order.buttons.save")}
+                icon={ConfirmTableIcon}
+                text={t("order.buttons.send_instruction_document")}
+                viewType={"dark-green"}
                 onClick={async () => {
-                  await postOrder(order.id || null, false);
+                  await postInstructionDocument();
                 }}
               />
             )}
 
-            {["admin", "commercial_manager"].includes(auth.role) &&
-              order.status === "Processing" && (
-                <Button
-                  icon={SubmitOrderIcon}
-                  text={t("order.buttons.send")}
-                  viewType={"dark-green"}
-                  onClick={async () => {
-                    await postOrder(order.id || null, true);
-                  }}
-                />
-              )}
+          {[Roles.admin, Roles.buyer_manager].includes(auth.role as Roles) &&
+            order.status === "PadCodeIsExpected" && (
+              <Button
+                icon={ConfirmTableIcon}
+                text={t("order.buttons.confirm")}
+                viewType={"dark-green"}
+                onClick={async () => {
+                  await postBuyerAddPadCode();
+                }}
+              />
+            )}
 
+          {[Roles.admin, Roles.commercial_manager].includes(
+            auth.role as Roles,
+          ) &&
+            order.status === "AwaitingSalesManagerApproval" && (
+              <Button
+                icon={ConfirmTableIcon}
+                text={t("order.buttons.confirm")}
+                viewType={"dark-green"}
+                onClick={async () => {
+                  await postCommercialManagerApproval();
+                }}
+              />
+            )}
+
+          {[
+            Roles.user,
+            Roles.admin,
+            Roles.commercial_manager,
+            Roles.buyer_manager,
+          ].includes(auth.role as Roles) && (
             <Button
-              icon={DeleteOrderIcon}
-              text={t("order.buttons.back")}
-              viewType={"red"}
-              onClick={() => {
-                navigate(`/orders`);
+              icon={SaveOrderIcon}
+              text={
+                [Roles.user].includes(auth.role as Roles)
+                  ? t("order.buttons.send")
+                  : t("order.buttons.save")
+              }
+              onClick={async () => {
+                await postOrder(order.id || null, false);
               }}
             />
-          </div>
+          )}
 
-          <div className={styles.main__informations}>
-            {tab === 0 && <ClientEditor order={order} setOrder={setOrder} />}
-            {tab === 1 && <RouteEditor order={order} setOrder={setOrder} />}
-          </div>
+          {[Roles.admin, Roles.commercial_manager].includes(
+            auth.role as Roles,
+          ) &&
+            order.status === "Processing" && (
+              <Button
+                icon={SubmitOrderIcon}
+                text={t("order.buttons.send")}
+                viewType={"dark-green"}
+                onClick={async () => {
+                  await postOrder(order.id || null, true);
+                }}
+              />
+            )}
+
+          <Button
+            icon={DeleteOrderIcon}
+            text={t("order.buttons.back")}
+            viewType={"red"}
+            onClick={() => {
+              navigate(`/${i18n.language}/order`);
+            }}
+          />
         </div>
 
-        {auth.role !== "user" && (
-          <ServiceEditor order={order} setOrder={setOrder} active={tab === 0} />
-        )}
+        <div className={styles.main__informations}>
+          {tab === 0 && <ClientEditor order={order} setOrder={setOrder} />}
+          {tab === 1 && <RouteEditor order={order} setOrder={setOrder} />}
+        </div>
       </div>
-    </>
+
+      {![Roles.user, Roles.buyer_manager].includes(auth.role as Roles) && (
+        <ServiceEditor order={order} setOrder={setOrder} active={tab === 0} />
+      )}
+    </div>
   );
 };
 

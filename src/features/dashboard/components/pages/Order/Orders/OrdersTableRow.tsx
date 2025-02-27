@@ -8,7 +8,6 @@ import {
 } from "@/assets/images/layout/dashboard.vector.tsx";
 import Tools from "@/components/Tools/Tools.tsx";
 import { Dispatch, SetStateAction, useContext } from "react";
-import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { OrdersModel } from "@/features/dashboard/models/order.model.ts";
 import {
   getAccountantOrderPaymentConfirmationRequest,
@@ -21,27 +20,27 @@ import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 
 const OrdersTableRow = ({
   order,
-  activeTab,
   setModals,
   render,
+  data,
 }: {
   setModals: Dispatch<
     SetStateAction<{
       view_invoice_pdf: number | null;
       view_instruction_pdf: number | null;
       order_reject_user: number | null;
+      order_payment: OrdersModel | null;
     }>
   >;
   order: OrdersModel;
   activeTab: number;
   render: () => void;
+  data: number[];
 }) => {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
-  const { auth } = useContext(AuthContext);
   const { setLoader } = useContext(LoaderContext);
 
-  // Functions
   //  User Order Approved
   const postUserOrderApproved = async (orderId: number, isApprove: boolean) => {
     setLoader(true);
@@ -111,24 +110,47 @@ const OrdersTableRow = ({
     );
   };
 
-  const orderDetails = () => {
-    return (
-      <>
+  return (
+    <tr>
+      {/* Id */}
+      {data.includes(0) && (
         <td>
           <span>{order.id}</span>
         </td>
-        <td>{<span>{order.full_name}</span>}</td>
-        <td>{<span>{order.phone}</span>}</td>
-        <td>{<span>{order.email}</span>}</td>
+      )}
+
+      {/* Full name */}
+      {data.includes(1) && <td>{<span>{order.full_name}</span>}</td>}
+
+      {/* Phone */}
+      {data.includes(2) && <td>{<span>{order.phone}</span>}</td>}
+
+      {/* Email */}
+      {data.includes(3) && <td>{<span>{order.email}</span>}</td>}
+
+      {/* Start location */}
+      {data.includes(4) && (
         <td>
           <span>{order.start_location}</span>
         </td>
+      )}
+
+      {/* End location */}
+      {data.includes(5) && (
         <td>
           <span>{order.end_location}</span>
         </td>
+      )}
+
+      {/* Created */}
+      {data.includes(6) && (
         <td>
           <span>{dateStringConverter(order.created)}</span>
         </td>
+      )}
+
+      {/* Status */}
+      {data.includes(7) && (
         <td>
           <span
             style={{
@@ -140,71 +162,89 @@ const OrdersTableRow = ({
             {renderStatus(order.status)}
           </span>
         </td>
-      </>
-    );
-  };
+      )}
 
-  return (
-    <tr>
-      {/* Order Detail */}
-      {orderDetails()}
-
-      {/* Order Price */}
-      {[
-        "admin",
-        "user",
-        "directory",
-        "commercial_directory",
-        "commercial_manager",
-        "accountant",
-      ].includes(auth.role) && (
+      {/* Price */}
+      {data.includes(8) && (
         <td>
           <span>$ {order.price || "0"}</span>
         </td>
       )}
 
-      {[
-        "admin",
-        "user",
-        "directory",
-        "commercial_directory",
-        "commercial_manager",
-        "accountant",
-      ].includes(auth.role) && (
+      {/* Balance */}
+      {data.includes(9) && (
         <td>
           <span>$ {order.balance || "0"}</span>
         </td>
       )}
 
-      {/* Order Commercial Manager */}
-      {["admin", "directory", "commercial_directory"].includes(auth.role) && (
+      {/* Credit limit */}
+      {data.includes(10) && (
+        <td>
+          <span>$ {order.credit_limit || "0"}</span>
+        </td>
+      )}
+
+      {/* Out Standing Amount */}
+      {data.includes(11) && (
+        <td>
+          <span>$ {order.out_standing_amount || "0"}</span>
+        </td>
+      )}
+
+      {/* Last Payment Date */}
+      {data.includes(12) && (
+        <td>
+          <span>{dateStringConverter(order.last_payment_date)}</span>
+        </td>
+      )}
+
+      {/* Commercial Manager */}
+      {data.includes(13) && (
         <td>
           <span>{order.commercial_manager || "---"}</span>
         </td>
       )}
 
+      {/* User Instuction Document */}
+      {data.includes(15) && (
+        <td>
+          <Tools
+            isMore
+            icons={[
+              {
+                type: "",
+                text: "view instruction pdf",
+                onClick: async () =>
+                  setModals((prevState) => ({
+                    ...prevState,
+                    view_instruction_pdf: order.id,
+                  })),
+              },
+            ]}
+          />
+        </td>
+      )}
+
       {/* Order Edit */}
-      {["admin", "user", "commercial_manager", "buyer_manager"].includes(
-        auth.role,
-      ) &&
-        activeTab === 2 && (
-          <td>
-            <Tools
-              isMore
-              icons={[
-                {
-                  type: "edit",
-                  onClick: () => {
-                    navigate(`/${i18n.language}/order/update?${order.id}`);
-                  },
+      {data.includes(16) && (
+        <td>
+          <Tools
+            isMore
+            icons={[
+              {
+                type: "edit",
+                onClick: () => {
+                  navigate(`/${i18n.language}/order/update?${order.id}`);
                 },
-              ]}
-            />
-          </td>
-        )}
+              },
+            ]}
+          />
+        </td>
+      )}
 
       {/* User Approve Order */}
-      {["user"].includes(auth.role) && activeTab === 1 && (
+      {data.includes(17) && (
         <td>
           <Tools
             isMore
@@ -230,8 +270,29 @@ const OrdersTableRow = ({
         </td>
       )}
 
+      {/* Order Payment */}
+      {data.includes(18) && (
+        <td>
+          <Tools
+            isMore
+            icons={[
+              {
+                type: "add",
+                text: "Odenish",
+                onClick: () => {
+                  setModals((prevState) => ({
+                    ...prevState,
+                    order_payment: order,
+                  }));
+                },
+              },
+            ]}
+          />
+        </td>
+      )}
+
       {/* Accountant Order Payment Confirmation */}
-      {["accountant"].includes(auth.role) && activeTab === 2 && (
+      {data.includes(19) && (
         <td>
           <Tools
             isMore
@@ -263,27 +324,8 @@ const OrdersTableRow = ({
         </td>
       )}
 
-      {/* Accountant Order Payment Confirmation */}
-      {["user"].includes(auth.role) && activeTab === 0 && (
-        <td>
-          <Tools
-            isMore
-            icons={[
-              {
-                type: "info",
-                onClick: async () =>
-                  setModals((prevState) => ({
-                    ...prevState,
-                    view_instruction_pdf: order.id,
-                  })),
-              },
-            ]}
-          />
-        </td>
-      )}
-
       {/* Director Approve Order */}
-      {["directory"].includes(auth.role) && activeTab === 2 && (
+      {data.includes(20) && (
         <td>
           <Tools
             isMore

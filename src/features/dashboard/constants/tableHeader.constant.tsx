@@ -217,79 +217,123 @@ export const getLocationTableHeaders = (
 };
 
 // Orders
-export const getOrdersTableHeaders = (
+export const getOrdersTable = (
   activeTab: number,
   language: string,
   role: string,
-): string[] => {
+): {
+  header: string[];
+  rows: number[];
+} => {
   const headersByLanguage: Record<string, string[]> = {
     en: [
+      // User
       "Order code",
       "Customer",
       "Phone number",
       "Email address",
+
       "Country of loading",
       "Country of destination",
       "Date",
       "Status",
+
       "Price",
       "Balance",
+      "Credit limit",
+      "Debt",
+      "Final payment date",
+
       "Manager",
-      "Edit",
       "Order confirmation",
       "Instruction document",
+
+      "Edit",
+      "Userin tesdiqi",
+      "Odenish",
+      "Maliyeci tesdiqi",
+      "Director tesdiqi",
     ],
     az: [
+      // İstifadəçi
       "Sifariş kodu",
       "Müştəri",
-      "Nömrə",
-      "E-poçt ünvanı",
+      "Telefon nömrəsi",
+      "Email ünvanı",
+
       "Yükləmə ölkəsi",
       "Təyinat ölkəsi",
       "Tarix",
       "Status",
+
       "Qiymət",
       "Balans",
+      "Kredit limiti",
+      "Borc",
+      "Son ödəniş tarixi",
+
       "Menecer",
-      "Redaktə",
-      "Sifariş təsdiqi",
-      "İnstruksiya sənədi",
+      "Sifarişin təsdiqi",
+      "Təlimat sənədi",
+
+      "Düzəliş et",
     ],
     ru: [
+      // Пользователь
       "Код заказа",
       "Клиент",
-      "Номер",
+      "Номер телефона",
       "Адрес электронной почты",
-      "Страна отправления",
+
+      "Страна загрузки",
       "Страна назначения",
       "Дата",
       "Статус",
+
       "Цена",
-      "Цена",
+      "Баланс",
+      "Кредитный лимит",
+      "Долг",
+      "Дата окончательного платежа",
+
       "Менеджер",
-      "Редактировать",
       "Подтверждение заказа",
-      "Инструктивный документ",
+      "Инструкционный документ",
+
+      "Редактировать",
     ],
   };
 
   const roleMappings: Record<string, number[][]> = {
-    admin: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]],
+    // Old
     commercial_directory: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
-    directory: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
-    commercial_manager: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 10]],
-    buyer_manager: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 10]],
-    accountant: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 11]],
+    directory: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20]],
+    // New
+    admin: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 16], [], []],
     user: [
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+      [0, 4, 5, 6, 7, 18],
+      [0, 4, 5, 6, 7, 17],
+      [0, 4, 5, 6, 7, 16],
+      [],
+      [],
     ],
+    commercial_manager: [[], [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 16], [], []],
+    accountant: [
+      [],
+      [],
+      [],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 19],
+      [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 18],
+    ],
+    buyer_manager: [[], [], [], [0, 1, 2, 3, 4, 5, 6, 7, 16], []],
   };
 
   const selectedRoleMapping = roleMappings[role]?.[activeTab] || [];
   const headers = headersByLanguage[language] || headersByLanguage.en;
-  return selectedRoleMapping.map((index) => headers[index]).filter(Boolean);
+  return {
+    header: selectedRoleMapping.map((index) => headers[index]).filter(Boolean),
+    rows: roleMappings[role]?.[activeTab],
+  };
 };
 
 // Workers
@@ -320,7 +364,7 @@ export const getWorkersTableHeaders = (
   return selectedRoleMapping.map((index) => headers[index]).filter(Boolean);
 };
 
-// Orders
+// Balance Activities
 export const getBalanceActivitiesTableHeaders = (
   activeTab: number,
   language: string,

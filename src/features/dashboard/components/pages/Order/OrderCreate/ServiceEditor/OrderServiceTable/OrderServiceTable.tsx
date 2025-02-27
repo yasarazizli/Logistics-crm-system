@@ -132,7 +132,7 @@ const OrderServiceTable = ({
             return (
               <tr
                 className={`${edit === index && styles.active}`}
-                key={`service_${service.key_id}`}
+                key={`service_${service.key_id}_${index}`}
               >
                 <td>
                   <div className={styles.buttons}>
@@ -210,6 +210,7 @@ const OrderServiceTable = ({
                 </td>
                 <td>{(selectedService?.selling_price || 0).toFixed(2)}</td>
                 <td>
+                  $
                   {(
                     (selectedService?.selling_price || 0) *
                     Number(service.count)
@@ -228,8 +229,11 @@ const OrderServiceTable = ({
                     disabled={edit !== index}
                   />
                 </td>
-                <td>{Number(service.selling_price) * Number(service.count)}</td>
                 <td>
+                  $ {Number(service.selling_price) * Number(service.count)}
+                </td>
+                <td>
+                  ${" "}
                   {(
                     (Number(service.selling_price) -
                       (selectedService?.selling_price || 0)) *
@@ -246,10 +250,10 @@ const OrderServiceTable = ({
             <td></td>
             <td></td>
             <td></td>
-            <td>{total.buy.toFixed(2)}</td>
+            <td>$ {total.buy.toFixed(2)}</td>
             <td></td>
-            <td>{total.sale.toFixed(2)}</td>
-            <td>{total.profit.toFixed(2)}</td>
+            <td>$ {total.sale.toFixed(2)}</td>
+            <td>$ {total.profit.toFixed(2)}</td>
           </tr>
         </tbody>
       </table>

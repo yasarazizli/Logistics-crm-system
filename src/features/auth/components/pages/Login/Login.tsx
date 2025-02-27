@@ -44,8 +44,6 @@ const Login = () => {
       },
     ]);
     const { data, status } = await loginRequest(formData);
-    console.log("data:", data);
-    console.log("status", status);
     if (status === 200) {
       setAuth({
         isAuth: true,

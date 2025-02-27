@@ -77,10 +77,7 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
         <Input
           label={label}
           placeholder={label}
-          value={addressCreator()}
-          // onChange={(event) => {
-          //   setLocation(event.target.value, `${position}_address`);
-          // }}
+          defaultValue={addressCreator()}
           onClick={() => {
             setDropdown((prevState) => {
               return !prevState;
@@ -158,7 +155,7 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
               label={"Address"}
               placeholder={"Address"}
               // disabled={!route[`${position}_country_id`]}
-              value={`${route[`${position}_address`] || ""}`}
+              defaultValue={`${route[`${position}_address`] || ""}`}
               onChange={(event) => {
                 setLocation(event.target.value, `${position}_address`);
               }}

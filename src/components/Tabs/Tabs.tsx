@@ -17,7 +17,7 @@ const Tabs = ({ tabs, active }: { tabs: Array<any>; active?: number }) => {
               {tab?.link ? (
                 <Link
                   to={`/${i18n.language}/auth/${tab.link}`}
-                  className={`${styles.tab} ${index === active && styles.active}`}
+                  className={`${styles.tab} ${tab.tab === active && styles.active}`}
                   onClick={() => {
                     if (tab.onClick) tab.onClick();
                   }}
@@ -27,7 +27,7 @@ const Tabs = ({ tabs, active }: { tabs: Array<any>; active?: number }) => {
               ) : (
                 <>
                   <button
-                    className={`${styles.tab} ${index === active && styles.active}`}
+                    className={`${styles.tab} ${tab.tab === active && styles.active}`}
                     onClick={() => {
                       if (tab.onClick) tab.onClick();
                     }}

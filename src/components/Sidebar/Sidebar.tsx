@@ -63,7 +63,7 @@ const Sidebar = () => {
         </div>
 
         <div className={`${styles.navigation__list} ${styles.second}`}>
-          <Link to={`/en/settings`}>
+          <Link to={`/en/profile`}>
             <div className={`${styles.icon}`}>
               <ProfileIcon />
               <p>{t("profile.title")}</p>

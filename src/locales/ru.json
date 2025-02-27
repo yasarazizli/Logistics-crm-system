@@ -385,6 +385,12 @@
           "date_end": "Дата окончания заказа"
         }
       },
+      "order_participants": {
+        "title": "Участники заказа",
+        "shipper": "Грузоотправитель",
+        "receiver": "Грузополучатель",
+        "expeditor": "Экспедитор"
+      },
       "order_main_route": {
         "title": "Полный маршрут",
         "inputs": {

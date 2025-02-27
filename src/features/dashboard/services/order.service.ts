@@ -222,3 +222,22 @@ export const getDirectoryApproveOrderRequest = async (
       return err.response;
     });
 };
+
+export const postOrderPaymentRequest = async (
+  formData: FormData,
+  order_id: number,
+) => {
+  return await axios
+    .post(
+      `${apiUrl}/commercial/order-payment/?order_id=${order_id}`,
+      formData,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
+      },
+    )
+    .catch((err) => {
+      return err.response;
+    });
+};

@@ -16,7 +16,7 @@ import { usePageChanger } from "@/hooks/usePageChanger.ts";
 import { useFilterInputsChanger } from "@/hooks/useFilterInputsChanger.ts";
 
 //Constants
-import { getOrdersTableHeaders } from "@/features/dashboard/constants/tableHeader.constant.tsx";
+import { getOrdersTable } from "@/features/dashboard/constants/tableHeader.constant.tsx";
 
 // Request
 import {
@@ -25,28 +25,29 @@ import {
 } from "@/features/dashboard/services/order.service.ts";
 
 // utils
+import { orderFilterConstants } from "@/features/dashboard/constants/filters.constant.tsx";
+import { errorMessageHandler } from "@/libs/error.ts";
+import { toast } from "react-toastify";
+import { Roles } from "@/features/dashboard/constants/enum.constant.tsx";
 
 // Components
 import PageHeader from "@/features/dashboard/components/shared/PageHeader/PageHeader.tsx";
-
 import Table from "@/components/Table/Table.tsx";
 import OrdersTableRow from "@/features/dashboard/components/pages/Order/Orders/OrdersTableRow.tsx";
-
 import Filter from "@/components/Filter/Filter.tsx";
 import FilterPopup from "@/features/dashboard/components/shared/Filter/FilterPopup.tsx";
-
-// Styles
-import styles from "@/features/dashboard/components/pages/Dashboard.module.scss";
-import { orderFilterConstants } from "@/features/dashboard/constants/filters.constant.tsx";
 import InvoicePdf from "@/features/dashboard/components/shared/Modals/Order/InvoicePdf.tsx";
-import { errorMessageHandler } from "@/libs/error.ts";
-import { toast } from "react-toastify";
 import InstructionPdf from "@/features/dashboard/components/shared/Modals/Order/InstructionPdf.tsx";
 import PageTitle from "@/features/dashboard/components/shared/PageTitle/PageTitle.tsx";
 import Modal from "@/components/Modal/Modal.tsx";
 import Button from "@/components/Button/Button.tsx";
 import TextArea from "@/components/TextArea/TextArea.tsx";
 import { formCreator } from "@/libs/form.ts";
+
+// Styles
+import styles from "@/features/dashboard/components/pages/Dashboard.module.scss";
+import OrderPayment from "@/features/dashboard/components/shared/Modals/Order/OrderPayment.tsx";
+
 const Orders = () => {
   //  Reacts
   const { i18n, t } = useTranslation();
@@ -67,41 +68,75 @@ const Orders = () => {
   const [pageHelper, setPageHelper] = useState({
     render: false,
     tabs: [
-      {
-        name: "order.tabs.list.one",
-        tab: 0,
-        onClick: () => {
-          setPageHelper((prevState) => ({
-            ...prevState,
-            activeTab: 0,
-            activeTabsName: "confirmed",
-          }));
-        },
-      },
-      {
-        name: "order.tabs.list.two",
-        tab: 1,
-        onClick: () => {
-          setPageHelper((prevState) => ({
-            ...prevState,
-            activeTab: 1,
-            activeTabsName: "managerconfirmed",
-          }));
-        },
-      },
-      {
-        name: "order.tabs.list.three",
-        tab: 1,
-        onClick: () => {
-          setPageHelper((prevState) => ({
-            ...prevState,
-            activeTab: 2,
-            activeTabsName: "processing",
-          }));
-        },
-      },
+      // User
+      ...([Roles.user].includes(auth?.role as Roles)
+        ? [
+            {
+              name: "order.tabs.list.one",
+              tab: 0,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 0,
+                  activeTabsName: "confirmed",
+                }));
+              },
+            },
+            {
+              name: "order.tabs.list.two",
+              tab: 1,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 1,
+                  activeTabsName: "manager_confirmed",
+                }));
+              },
+            },
+            {
+              name: "order.tabs.list.three",
+              tab: 2,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 2,
+                  activeTabsName: "processing",
+                }));
+              },
+            },
+          ]
+        : []),
+
+      // Accountant
+      ...([Roles.accountant].includes(auth?.role as Roles)
+        ? [
+            {
+              name: "order.tabs.list.four",
+              tab: 3,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 3,
+                  activeTabsName: "payment_pending",
+                }));
+              },
+            },
+            {
+              name: "order.tabs.list.five",
+              tab: 4,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 4,
+                  activeTabsName: "shipping_started",
+                }));
+              },
+            },
+          ]
+        : []),
     ],
-    activeTab: 2,
+
+    activeTab: auth.role === "user" ? 2 : auth.role === "accountant" ? 3 : 2,
     buttons: [
       {
         title: "order.buttons.create",
@@ -110,8 +145,8 @@ const Orders = () => {
         },
       },
     ],
-    activeTabsName: ["admin", "commercial_manager"].includes(auth.role)
-      ? "all"
+    activeTabsName: [Roles.accountant].includes(auth.role as Roles)
+      ? "payment_pending"
       : "processing",
   });
 
@@ -156,10 +191,12 @@ const Orders = () => {
     view_invoice_pdf: number | null;
     view_instruction_pdf: number | null;
     order_reject_user: number | null;
+    order_payment: OrdersModel | null;
   }>({
     view_invoice_pdf: null,
     view_instruction_pdf: null,
     order_reject_user: null,
+    order_payment: null,
   });
 
   // useEffects
@@ -170,7 +207,7 @@ const Orders = () => {
   return (
     <>
       <div className={styles.dashboard}>
-        {auth.role === "user" ? (
+        {[Roles.user].includes(auth.role as Roles) ? (
           <PageHeader title={`${auth.user?.full_name}`} />
         ) : (
           <PageTitle title={t("order.title")} />
@@ -178,11 +215,13 @@ const Orders = () => {
 
         <Filter
           buttons={
-            (["user", "admin", "commercial_manager"].includes(auth.role) &&
+            ([Roles.admin, Roles.user, Roles.commercial_manager].includes(
+              auth.role as Roles,
+            ) &&
               pageHelper.buttons) ||
             []
           }
-          tabs={auth.role === "user" ? pageHelper.tabs : null}
+          tabs={pageHelper.tabs}
           activeTabs={pageHelper.activeTab}
           onFilter={() => {
             setPageHelper((prevState) => ({
@@ -207,17 +246,20 @@ const Orders = () => {
         <div className={styles.dashboard__table}>
           <Table
             dataCount={response?.page_count}
-            tableRow={getOrdersTableHeaders(
-              pageHelper.activeTab,
-              i18n.language,
-              auth.role,
-            )}
+            tableRow={
+              getOrdersTable(pageHelper.activeTab, i18n.language, auth.role)
+                .header
+            }
           >
             {response?.orders?.map((order: OrdersModel, index: number) => (
               <OrdersTableRow
                 key={index}
                 order={order}
                 setModals={setModals}
+                data={
+                  getOrdersTable(pageHelper.activeTab, i18n.language, auth.role)
+                    .rows
+                }
                 activeTab={pageHelper.activeTab}
                 render={() => {
                   setPageHelper((prevState) => ({
@@ -300,6 +342,18 @@ const Orders = () => {
             setModals((prevState) => ({
               ...prevState,
               view_instruction_pdf: null,
+            }));
+          }}
+        />
+      )}
+
+      {modals.order_payment && (
+        <OrderPayment
+          order={modals.order_payment}
+          modalClose={() => {
+            setModals((prevState) => ({
+              ...prevState,
+              order_payment: null,
             }));
           }}
         />

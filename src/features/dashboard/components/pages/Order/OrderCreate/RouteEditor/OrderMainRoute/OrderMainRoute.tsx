@@ -1,9 +1,9 @@
 import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
-import SectionHead from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/SectionHead/SectionHead.tsx";
 import { FullRouteIcon } from "@/assets/icons/order.vectors.tsx";
-import RouteLocation from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteLocation/RouteLocation.tsx";
 import { OrderEditorProps } from "@/features/dashboard/models/order.model.ts";
 import { useTranslation } from "react-i18next";
+import SectionHead from "@/components/SectionHead/SectionHead.tsx";
+import RouteLocation from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/RouteLocation/RouteLocation.tsx";
 
 const OrderMainRoute = ({ order, setOrder }: OrderEditorProps) => {
   const { t } = useTranslation();

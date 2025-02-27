@@ -40,7 +40,8 @@ export type RouteEditorNameTypes =
   | "transit"
   | "pad_code"
   | "border_crossing_points_exit"
-  | "border_crossing_points_entry";
+  | "border_crossing_points_entry"
+  | "expeditor";
 
 export type TransportEditorNameTypes =
   | "type"
@@ -136,6 +137,9 @@ export interface RouteModel {
   // Pad code
   pad_code?: string;
 
+  // Expeditor
+  expeditor?: string;
+
   // Route Start-End Country İd
   start_country_id: number | null;
   end_country_id: number | null;
@@ -172,7 +176,6 @@ export interface OrderModel {
   // Order
   shipper: string;
   receiver: string;
-  expeditor: string;
 
   // Deyishmediyim Datalar
   id: number | null;
@@ -199,12 +202,17 @@ export interface OrdersModel {
   phone: string;
   email: string;
 
-  price: string;
-  balance: string;
   status: string;
-  seller: string;
   commercial_manager: string;
   created: string;
+
+  seller: string;
+
+  price: string;
+  balance: string;
+  credit_limit: number;
+  last_payment_date: string;
+  out_standing_amount: number;
 
   start_time: string | null;
   end_time: string | null;

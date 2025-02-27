@@ -1,5 +1,5 @@
 import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
-import SectionHead from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/SectionHead/SectionHead.tsx";
+import SectionHead from "@/components/SectionHead/SectionHead.tsx";
 import { OrderDateIcon } from "@/assets/icons/order.vectors.tsx";
 import Input from "@/components/Input/Input.tsx";
 import { dateToInputFormat } from "@/libs/date.ts";

@@ -10,15 +10,23 @@
   }
 
   // Order Date
-  .order__date{
+  & .order__date{
     display: flex;
     flex-direction: column;
     gap: 24px;
     margin: 24px 0;
   }
 
+  // Order Detail
+  & .order__detail{
+    margin: 32px 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
   // Main Route
-  .main__route{
+  & .main__route{
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -100,13 +108,7 @@
     }
   }
 
-  // Route Buyer
-  & .buyer__detail{
-    margin: 32px 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
+
 
   // Route Hs Code
   & .code{

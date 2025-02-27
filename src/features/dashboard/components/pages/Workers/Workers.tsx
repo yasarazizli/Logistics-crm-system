@@ -124,7 +124,7 @@ const Workers = () => {
       filterInputsData.name.value,
       filterInputsData.email.value,
       filterInputsData.phone.value,
-      Roles[pageHelper.activeTab],
+      Object.values(Roles)[pageHelper.activeTab],
     );
 
     if (status === 200) {

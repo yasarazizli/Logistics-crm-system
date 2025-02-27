@@ -336,7 +336,9 @@
       "list": {
         "one": "Təsdiqləmmiş",
         "two": "Təsdiq gözləyən",
-        "three": "Təsdiqlənməmiş"
+        "three": "Təsdiqlənməmiş",
+        "four": "Sifarish tesdiqi",
+        "five": "Odenishler"
       },
       "create": {
         "one": "Əsas məlumatlar",
@@ -395,6 +397,12 @@
           "date_start": "Sifarişin başlama tarixi",
           "date_end": "Sifarişin bitmə tarixi"
         }
+      },
+      "order_participants": {
+        "title": "Sifarişin İştirakçıları",
+        "shipper": "Yük Göndərən",
+        "receiver": "Yük Alan",
+        "expeditor": "Ekspeditor"
       },
       "order_main_route": {
         "title": "Full route",

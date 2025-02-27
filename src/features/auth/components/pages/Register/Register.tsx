@@ -37,12 +37,14 @@ const Register = ({
   const tabs = [
     {
       name: "register.tabs.company",
+      tab: 0,
       onClick: () => {
         setActiveTab(0);
       },
     },
     {
       name: "register.tabs.individual",
+      tab: 1,
       onClick: () => {
         setActiveTab(1);
       },

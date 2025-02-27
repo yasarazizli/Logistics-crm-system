@@ -1,6 +1,4 @@
 import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
-import SectionHead from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/SectionHead/SectionHead.tsx";
-import RouteLocation from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteLocation/RouteLocation.tsx";
 import {
   OrderEditorProps,
   RouteEditorNameTypes,
@@ -9,6 +7,7 @@ import {
 } from "@/features/dashboard/models/order.model.ts";
 import SelectOption from "@/components/New/SelectOption/SelectOption.tsx";
 import {
+  expeditors,
   ownerTransportTypes,
   sizeTypes,
   transitTypes,
@@ -18,7 +17,6 @@ import {
   weightTypes,
 } from "@/features/dashboard/constants/order.constant.tsx";
 import Input from "@/components/Input/Input.tsx";
-import DimensionBox from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/Route/DimensionBox/DimensionBox.tsx";
 import { useContext, useRef } from "react";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
 import TextArea from "@/components/TextArea/TextArea.tsx";
@@ -29,6 +27,13 @@ import {
   RouteIcon,
 } from "@/assets/icons/order.vectors.tsx";
 import { DeleteOrderIcon } from "@/assets/images/layout/dashboard.vector.tsx";
+import {
+  Roles,
+  Transport,
+} from "@/features/dashboard/constants/enum.constant.tsx";
+import SectionHead from "@/components/SectionHead/SectionHead.tsx";
+import DimensionBox from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/Route/DimensionBox/DimensionBox.tsx";
+import RouteLocation from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/RouteLocation/RouteLocation.tsx";
 
 const RouteSection = ({
   order,
@@ -259,6 +264,7 @@ const RouteSection = ({
           )}
           options={transportTypes}
           onChange={(option) => {
+            routeEditor("", index, "pad_code");
             routeEditor(option.value, index, "type");
           }}
         />
@@ -275,21 +281,47 @@ const RouteSection = ({
         />
       </div>
 
-      <div className={`${styles.grid} ${styles.three}`}>
-        <Input
-          label={"Padcode"}
-          placeholder={"padcode"}
-          disabled={
-            !(
-              order.status === "PadCodeIsExpected" &&
-              ["buyer_manager", "admin"].includes(auth.role)
-            )
-          }
-          value={route.pad_code || ""}
-          onChange={(event) => {
-            routeEditor(event.target.value, index, "pad_code");
-          }}
-        />
+      <div
+        className={`${styles.grid} ${
+          [Transport.truck, Transport.filder].includes(route.type as Transport)
+            ? styles.three
+            : [Transport.railway].includes(route.type as Transport)
+              ? styles.three
+              : ""
+        }`}
+      >
+        {[Transport.truck, Transport.filder].includes(
+          route.type as Transport,
+        ) &&
+          order.status === "PadCodeIsExpected" && (
+            <Input
+              label={"Padcode"}
+              placeholder={"padcode"}
+              value={route.pad_code || ""}
+              onChange={(event) => {
+                routeEditor(event.target.value, index, "pad_code");
+              }}
+            />
+          )}
+
+        {(auth.role === "admin"
+          ? true
+          : [Transport.railway].includes(route.type as Transport) &&
+            order.status === "AwaitingSalesManagerApproval") && (
+          <SelectOption
+            label={"Expeditor"}
+            options={expeditors}
+            value={
+              expeditors.filter(
+                (expeditor) =>
+                  expeditor.value === order.orderDetail.routes[index].expeditor,
+              )[0]
+            }
+            onChange={(option) => {
+              routeEditor(option.value, index, "expeditor");
+            }}
+          />
+        )}
 
         <Input
           label={"Giriş"}
@@ -318,8 +350,9 @@ const RouteSection = ({
         />
       </div>
 
-      {/* Route Type */}
-      {route.type === "railway" && (
+      {/* ---------------- Route Type ---------------- */}
+      {/* Railway */}
+      {route.type === Transport.railway && (
         <>
           <div className={`${styles.grid}`}>
             <SelectOption
@@ -332,6 +365,7 @@ const RouteSection = ({
                 transportEditor(option.value, index, "type");
               }}
             />
+
             <Input
               label={"Quantity"}
               placeholder={"Quantity"}
@@ -357,6 +391,7 @@ const RouteSection = ({
                 }}
               />
             )}
+
             <SelectOption
               label={"Wagon Owner"}
               value={ownerTransportTypes.find(
@@ -415,7 +450,8 @@ const RouteSection = ({
         </>
       )}
 
-      {route.type === "truck" && (
+      {/* Truck */}
+      {route.type === Transport.truck && (
         <>
           <div className={`${styles.grid}`}>
             <SelectOption
@@ -482,8 +518,40 @@ const RouteSection = ({
         </>
       )}
 
+      {/* Filder */}
+      {route.type === Transport.filder && (
+        <div className={`${styles.grid}`}>
+          <Input
+            label={"Quantity"}
+            placeholder={"Quantity"}
+            value={route.transport?.count || ""}
+            onChange={(event) => {
+              transportEditor(event.target.value, index, "count");
+            }}
+          />
+
+          {[Roles.admin, Roles.commercial_manager].includes(
+            auth.role as Roles,
+          ) && (
+            <Input
+              type="text"
+              label={"Container №"}
+              placeholder={"№"}
+              inputRef={codesInputRef}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  saveRouteCodes(String(codesInputRef.current?.value));
+                }
+              }}
+            />
+          )}
+        </div>
+      )}
+
       {/* Wagon And Container Cods */}
-      {["railway", "truck"].includes(route?.type || "") && (
+      {[Transport.truck, Transport.railway, Transport.filder].includes(
+        route.type as Transport,
+      ) && (
         <div className={`${styles.grid} ${styles.three}`}>
           {order.orderDetail.routes[index].transport?.codes
             .split(",")
@@ -527,12 +595,6 @@ const RouteSection = ({
                                 .filter(Boolean)
                             : [];
 
-                          console.log(index);
-                          console.log("routes", updatedRoutes);
-                          console.log("Transport", updatedTransport);
-                          console.log("Mevcut Kodlar (önce):", codesArray);
-                          console.log("Silinmek istenen kod:", code);
-
                           // Kodu listeden sil
                           const updatedCodes = codesArray.filter(
                             (c) => c !== code.trim(),
@@ -570,8 +632,8 @@ const RouteSection = ({
       )}
 
       <TextArea
-        label={`${index} Route Qeyd`}
-        placeholder={`${index} Route Qeyd`}
+        label={`Route Qeyd`}
+        placeholder={`Route Qeyd`}
         value={route.note || ""}
         onChange={(event) => {
           routeEditor(event.target.value, index, "note");

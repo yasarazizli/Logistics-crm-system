@@ -1,4 +1,4 @@
-import styles from "../../RouteEditor.module.scss";
+import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
 import {
   OrderEditorProps,
   PackageEditorNameTypes,
@@ -15,9 +15,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { ModalType } from "@/features/dashboard/models/shared.model.ts";
 import { DataContext } from "@/contexts/DataContext.tsx";
-import DimensionBox from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/Route/DimensionBox/DimensionBox.tsx";
 import HsCodeCreate from "@/features/dashboard/components/shared/Modals/Order/HsCodeCreate.tsx";
-import SectionHead from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/SectionHead/SectionHead.tsx";
 import { HsCodeModel } from "@/models/station.model.ts";
 import {
   AddIcon,
@@ -25,6 +23,8 @@ import {
   DeleteRouteIcon,
 } from "@/assets/icons/order.vectors.tsx";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import DimensionBox from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/Route/DimensionBox/DimensionBox.tsx";
+import SectionHead from "@/components/SectionHead/SectionHead.tsx";
 
 const PackingSection = ({
   order,

@@ -23,7 +23,7 @@ export default function PrivateRoute() {
       "/order/create",
       "/order/update",
 
-      "/settings",
+      "/profile",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/order`} />;
@@ -39,7 +39,7 @@ export default function PrivateRoute() {
       "/vendors",
       "/services",
 
-      "/settings",
+      "/profile",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/home`} />;
@@ -53,7 +53,7 @@ export default function PrivateRoute() {
       "/users",
       "/balance",
       "/order",
-      "/settings",
+      "/profile",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/users`} />;
@@ -69,9 +69,8 @@ export default function PrivateRoute() {
 
       "/order",
       "/order/update",
-      "/settings",
+      "/profile",
     ];
-    console.log(normalizedPath);
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/vendors`} />;
     }
@@ -79,7 +78,7 @@ export default function PrivateRoute() {
 
   // Komersiya Direktoru
   if (auth.role === "commercial_directory") {
-    const accessiblePages = ["/users", "/order", "/services", "/settings"];
+    const accessiblePages = ["/users", "/order", "/services", "/profile"];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/order`} />;
     }
@@ -104,6 +103,8 @@ export default function PrivateRoute() {
       "/order/update",
 
       "/settings",
+
+      "/profile",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/home`} />;

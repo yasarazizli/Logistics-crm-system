@@ -192,6 +192,9 @@ export const defaultRouteValue: RouteModel = {
   // Pad code
   pad_code: "",
 
+  // Expeditor
+  expeditor: "",
+
   // Route Start-End Country İd
   start_country_id: null,
   end_country_id: null,
@@ -291,7 +294,6 @@ export const defaultOrderValue: OrderModel = {
   user: null,
   status: "",
   user_id: null,
-  expeditor: "",
   seller_id: null,
   start_time: "",
   end_time: "",

@@ -14,10 +14,12 @@ import { ChangeEvent } from "react";
 export const loginTabs = [
   {
     name: "login.tabs.login",
+    tab: 0,
     link: "login",
   },
   {
     name: "login.tabs.sign__up",
+    tab: 1,
     link: "register",
   },
 ];
