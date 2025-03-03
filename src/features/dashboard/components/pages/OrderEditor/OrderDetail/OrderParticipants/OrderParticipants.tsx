@@ -1,9 +1,9 @@
 import Input from "@/components/Input/Input.tsx";
 import { OrderEditorProps } from "@/features/dashboard/models/order.model.ts";
-import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
 import SectionHead from "@/components/SectionHead/SectionHead.tsx";
 import { OrderParticipantsIcon } from "@/assets/icons/order.vectors.tsx";
 import { useTranslation } from "react-i18next";
+import styles from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.module.scss";
 
 const OrderParticipants = ({ order, setOrder }: OrderEditorProps) => {
   const { t } = useTranslation();

@@ -9,10 +9,11 @@ import Button from "@/components/Button/Button.tsx";
 import { generate8CharID } from "@/libs/form.ts";
 
 import styles from "./ServiceProvider.module.scss";
-import OrderServiceTable from "@/features/dashboard/components/pages/Order/OrderCreate/ServiceEditor/OrderServiceTable/OrderServiceTable.tsx";
 import { AddIcon } from "@/assets/icons/order.vectors.tsx";
 import { StoreContext } from "@/contexts/StoreContext.tsx";
 import { useTranslation } from "react-i18next";
+import OrderServiceTable
+    from "@/features/dashboard/components/pages/OrderEditor/ServiceEditor/OrderServiceTable/OrderServiceTable.tsx";
 
 const ServiceProvider = ({ order, setOrder }: OrderEditorProps) => {
   const { t } = useTranslation();
@@ -46,7 +47,9 @@ const ServiceProvider = ({ order, setOrder }: OrderEditorProps) => {
                 },
               };
             });
-            setEdit(0);
+
+
+            setEdit(Number(order.orderDetail.services?.length));
           }}
         />
       </div>

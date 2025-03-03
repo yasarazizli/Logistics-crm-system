@@ -3,9 +3,11 @@ import { useContext, useState } from "react";
 import Tabs from "@/components/Tabs/Tabs.tsx";
 import { OrderEditorProps } from "@/features/dashboard/models/order.model.ts";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
-import ServiceProvider from "@/features/dashboard/components/pages/Order/OrderCreate/ServiceEditor/ServiceProvider/ServiceProvider.tsx";
-import ServiceRequester from "@/features/dashboard/components/pages/Order/OrderCreate/ServiceEditor/ServiceRequester/ServiceRequester.tsx";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import ServiceProvider
+  from "@/features/dashboard/components/pages/OrderEditor/ServiceEditor/ServiceProvider/ServiceProvider.tsx";
+import ServiceRequester
+  from "@/features/dashboard/components/pages/OrderEditor/ServiceEditor/ServiceRequester/ServiceRequester.tsx";
 
 const ServiceEditor = ({
   order,

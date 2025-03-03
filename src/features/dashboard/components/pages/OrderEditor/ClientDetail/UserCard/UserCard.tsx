@@ -1,4 +1,4 @@
-import styles from "@/features/dashboard/components/pages/Order/OrderCreate/ClientEditor/ClientEditor.module.scss";
+import styles from "@/features/dashboard/components/pages/OrderEditor/ClientDetail/ClientDetail.module.scss";
 import Input from "@/components/Input/Input.tsx";
 import { OrderModel } from "@/features/dashboard/models/order.model.ts";
 import { useTranslation } from "react-i18next";

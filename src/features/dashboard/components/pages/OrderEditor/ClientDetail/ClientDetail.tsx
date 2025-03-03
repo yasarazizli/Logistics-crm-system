@@ -1,18 +1,18 @@
 import { useContext, useEffect, useState } from "react";
 
-import styles from "./ClientEditor.module.scss";
+import styles from "./ClientDetail.module.scss";
 import Input from "@/components/Input/Input.tsx";
 import Button from "@/components/Button/Button.tsx";
 import { getAllUsersRequest } from "@/features/dashboard/services/user.service.ts";
 import { UserModel } from "@/features/dashboard/models/dashboard.model.ts";
 import { OrderEditorProps } from "@/features/dashboard/models/order.model.ts";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
-import Result from "@/features/dashboard/components/pages/Order/OrderCreate/ClientEditor/Result/Result.tsx";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 import { useTranslation } from "react-i18next";
-import UserCard from "@/features/dashboard/components/pages/Order/OrderCreate/ClientEditor/UserCard/UserCard.tsx";
+import Result from "@/features/dashboard/components/pages/OrderEditor/ClientDetail/Result/Result.tsx";
+import UserCard from "@/features/dashboard/components/pages/OrderEditor/ClientDetail/UserCard/UserCard.tsx";
 
-const ClientEditor = ({ order, setOrder }: OrderEditorProps) => {
+const ClientDetail = ({ order, setOrder }: OrderEditorProps) => {
   const { auth } = useContext(AuthContext);
   const { darkMode } = useContext(ThemeContext);
   const { t } = useTranslation();
@@ -101,4 +101,4 @@ const ClientEditor = ({ order, setOrder }: OrderEditorProps) => {
   );
 };
 
-export default ClientEditor;
+export default ClientDetail;

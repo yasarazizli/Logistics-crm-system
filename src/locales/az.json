@@ -405,11 +405,11 @@
         "expeditor": "Ekspeditor"
       },
       "order_main_route": {
-        "title": "Full route",
+        "title": "Tam Marşrut",
         "inputs": {
           "date": {
-            "loading_place": "Loading place",
-            "discharging_place": "Discharging place"
+            "loading_place": "Yükləmə Yeri",
+            "discharging_place": "Təyinat Yeri"
           }
         }
       }

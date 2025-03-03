@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { defaultOrderValue } from "@/features/dashboard/constants/order.constant.tsx";
 import { ArrowLeftIcon } from "@/assets/images/auth/auth.vector.tsx";
 import { OrderModel } from "@/features/dashboard/models/order.model.ts";
-import RouteEditor from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.tsx";
+import OrderDetail from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.tsx";
 
 const PriceQuotation = () => {
   const { i18n } = useTranslation();
@@ -137,7 +137,7 @@ const PriceQuotation = () => {
               />
             </div>
           </section>
-          <RouteEditor order={order} setOrder={setOrder} />
+          <OrderDetail order={order} setOrder={setOrder} />
           <Button text={"compilite order"} onClick={postUnAuthorizedOrder} />
         </main>
       )}

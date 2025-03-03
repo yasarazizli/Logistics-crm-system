@@ -1,4 +1,4 @@
-import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
+import styles from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.module.scss";
 import {
   OrderEditorProps,
   RouteEditorNameTypes,
@@ -32,8 +32,10 @@ import {
   Transport,
 } from "@/features/dashboard/constants/enum.constant.tsx";
 import SectionHead from "@/components/SectionHead/SectionHead.tsx";
-import DimensionBox from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/Route/DimensionBox/DimensionBox.tsx";
-import RouteLocation from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/RouteLocation/RouteLocation.tsx";
+import DimensionBox
+  from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderRoutes/Route/DimensionBox/DimensionBox.tsx";
+import RouteLocation
+  from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderRoutes/RouteLocation/RouteLocation.tsx";
 
 const RouteSection = ({
   order,

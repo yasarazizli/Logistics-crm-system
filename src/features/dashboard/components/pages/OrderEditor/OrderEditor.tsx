@@ -1,4 +1,4 @@
-import styles from "./OrderCreate.module.scss";
+import styles from "./OrderEditor.module.scss";
 import Tabs from "@/components/Tabs/Tabs.tsx";
 import { useContext, useEffect, useState } from "react";
 import Button from "@/components/Button/Button.tsx";
@@ -22,9 +22,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { defaultOrderValue } from "@/features/dashboard/constants/order.constant.tsx";
 import { useTranslation } from "react-i18next";
-import ServiceEditor from "@/features/dashboard/components/pages/Order/OrderCreate/ServiceEditor/ServiceEditor.tsx";
-import RouteEditor from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.tsx";
-import ClientEditor from "@/features/dashboard/components/pages/Order/OrderCreate/ClientEditor/ClientEditor.tsx";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 import { errorMessageHandler } from "@/libs/error.ts";
 import {
@@ -33,8 +30,11 @@ import {
   SubmitOrderIcon,
 } from "@/assets/icons/order.vectors.tsx";
 import { Roles } from "@/features/dashboard/constants/enum.constant.tsx";
+import OrderDetail from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.tsx";
+import ClientDetail from "@/features/dashboard/components/pages/OrderEditor/ClientDetail/ClientDetail.tsx";
+import ServiceEditor from "@/features/dashboard/components/pages/OrderEditor/ServiceEditor/ServiceEditor.tsx";
 
-const OrderCreate = () => {
+const OrderEditor = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { i18n, t } = useTranslation();
@@ -309,8 +309,8 @@ const OrderCreate = () => {
         </div>
 
         <div className={styles.main__informations}>
-          {tab === 0 && <ClientEditor order={order} setOrder={setOrder} />}
-          {tab === 1 && <RouteEditor order={order} setOrder={setOrder} />}
+          {tab === 0 && <ClientDetail order={order} setOrder={setOrder} />}
+          {tab === 1 && <OrderDetail order={order} setOrder={setOrder} />}
         </div>
       </div>
 
@@ -321,4 +321,4 @@ const OrderCreate = () => {
   );
 };
 
-export default OrderCreate;
+export default OrderEditor;

@@ -1,4 +1,4 @@
-import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
+import styles from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.module.scss";
 import { useContext } from "react";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 

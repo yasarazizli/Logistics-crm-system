@@ -1,4 +1,4 @@
-import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
+import styles from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.module.scss";
 import {
   OrderEditorProps,
   PackageEditorNameTypes,
@@ -23,8 +23,9 @@ import {
   DeleteRouteIcon,
 } from "@/assets/icons/order.vectors.tsx";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
-import DimensionBox from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/Route/DimensionBox/DimensionBox.tsx";
 import SectionHead from "@/components/SectionHead/SectionHead.tsx";
+import DimensionBox
+  from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderRoutes/Route/DimensionBox/DimensionBox.tsx";
 
 const PackingSection = ({
   order,

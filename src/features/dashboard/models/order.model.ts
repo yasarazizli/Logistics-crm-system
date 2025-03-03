@@ -205,6 +205,8 @@ export interface OrdersModel {
   status: string;
   commercial_manager: string;
   created: string;
+  is_invoice: boolean;
+  is_instruction: boolean;
 
   seller: string;
 

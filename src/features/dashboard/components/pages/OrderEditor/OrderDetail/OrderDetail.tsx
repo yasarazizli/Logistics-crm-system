@@ -5,15 +5,17 @@ import { OrderEditorProps } from "@/features/dashboard/models/order.model.ts";
 
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
-import OrderDate from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderDate/OrderDate.tsx";
-import OrderMainRoute from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderMainRoute/OrderMainRoute.tsx";
-import OrderParticipants from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderParticipants/OrderParticipants.tsx";
-import OrderRoutes from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/OrderRoutes.tsx";
 import TextArea from "@/components/TextArea/TextArea.tsx";
 
-import styles from "./RouteEditor.module.scss";
+import styles from "./OrderDetail.module.scss";
+import OrderDate from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDate/OrderDate.tsx";
+import OrderParticipants
+    from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderParticipants/OrderParticipants.tsx";
+import OrderMainRoute
+    from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderMainRoute/OrderMainRoute.tsx";
+import OrderRoutes from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderRoutes/OrderRoutes.tsx";
 
-const RouteEditor = ({ order, setOrder }: OrderEditorProps) => {
+const OrderDetail = ({ order, setOrder }: OrderEditorProps) => {
   const { darkMode } = useContext(ThemeContext);
   const { t } = useTranslation();
 
@@ -49,4 +51,4 @@ const RouteEditor = ({ order, setOrder }: OrderEditorProps) => {
   );
 };
 
-export default RouteEditor;
+export default OrderDetail;

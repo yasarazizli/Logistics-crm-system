@@ -1,10 +1,12 @@
-import styles from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/RouteEditor.module.scss";
 import Button from "@/components/Button/Button.tsx";
 import { AddIcon } from "@/assets/icons/order.vectors.tsx";
 import { defaultRouteValue } from "@/features/dashboard/constants/order.constant.tsx";
 import { OrderEditorProps } from "@/features/dashboard/models/order.model.ts";
-import RouteSection from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/Route/RouteSection/RouteSection.tsx";
-import PackingSection from "@/features/dashboard/components/pages/Order/OrderCreate/RouteEditor/OrderRoutes/Route/PackingSection/PackingSection.tsx";
+import RouteSection
+  from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderRoutes/Route/RouteSection/RouteSection.tsx";
+import PackingSection
+  from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderRoutes/Route/PackingSection/PackingSection.tsx";
+import styles from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.module.scss";
 
 const OrderRoutes = ({ order, setOrder }: OrderEditorProps) => {
   return (

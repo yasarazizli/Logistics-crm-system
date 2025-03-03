@@ -208,41 +208,49 @@ const OrdersTableRow = ({
       {/* Invoice Document */}
       {data.includes(15) && (
         <td>
-          <Tools
-            isMore
-            icons={[
-              {
-                type: "info",
-                text: "invoice",
-                onClick: () => {
-                  setModals((prevState) => ({
-                    ...prevState,
-                    view_invoice_pdf: order.id,
-                  }));
+          {order.is_invoice ? (
+            <Tools
+              isMore
+              icons={[
+                {
+                  type: "info",
+                  text: "invoice",
+                  onClick: () => {
+                    setModals((prevState) => ({
+                      ...prevState,
+                      view_invoice_pdf: order.id,
+                    }));
+                  },
                 },
-              },
-            ]}
-          />
+              ]}
+            />
+          ) : (
+            <span>Sened Yoxdur</span>
+          )}
         </td>
       )}
 
       {/* User Instruction Document */}
       {data.includes(16) && (
         <td>
-          <Tools
-            isMore
-            icons={[
-              {
-                type: "info",
-                text: "view instruction pdf",
-                onClick: async () =>
-                  setModals((prevState) => ({
-                    ...prevState,
-                    view_instruction_pdf: order.id,
-                  })),
-              },
-            ]}
-          />
+          {order.is_instruction ? (
+            <Tools
+              isMore
+              icons={[
+                {
+                  type: "info",
+                  text: "view instruction pdf",
+                  onClick: async () =>
+                    setModals((prevState) => ({
+                      ...prevState,
+                      view_instruction_pdf: order.id,
+                    })),
+                },
+              ]}
+            />
+          ) : (
+            <span>Sened Yoxdur</span>
+          )}
         </td>
       )}
 

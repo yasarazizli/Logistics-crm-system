@@ -26,6 +26,7 @@ const OrderServiceTable = ({
   const { store, getData } = useContext(DataContext);
   const { auth } = useContext(AuthContext);
   const [render, setRender] = useState(false);
+
   useEffect(() => {
     getData(["vendors"], 0).catch(() => {});
   }, []);
