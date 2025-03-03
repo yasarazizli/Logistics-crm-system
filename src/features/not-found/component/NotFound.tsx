@@ -1,15 +1,18 @@
-import styles from "./NotFound.module.scss";
-import notFound from "../../../assets/images/shared/not-found-icon.png";
-import Button from "../../../components/Button/Button.tsx";
+import styles from "@/features/not-found/component/NotFound.module.scss";
+import notFound from "@/assets/images/shared/not-found-icon.png";
+import Button from "@/components/Button/Button.tsx";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import { useContext } from "react";
 
 const NotFound = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
+  const { darkMode } = useContext(ThemeContext);
 
   return (
-    <div className={styles.not__found}>
+    <div className={`${styles.not__found} ${darkMode && styles.dark}`}>
       <div className={styles.not__found__content}>
         <h1 className={styles.not__found__content__title}>404</h1>
         <p className={styles.not__found__content__subtitle}>
@@ -18,7 +21,7 @@ const NotFound = () => {
         <Button
           text={"Home"}
           onClick={() => {
-              console.log(`/${i18n.language}/home`)
+            console.log(`/${i18n.language}/home`);
             navigate(`/${i18n.language}/home`);
           }}
         />

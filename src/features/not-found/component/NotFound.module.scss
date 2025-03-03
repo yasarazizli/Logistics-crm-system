@@ -1,6 +1,11 @@
+@use "@/assets/styles/variables" as vars;
+
 .not__found {
   width: 100%;
   height: 100vh;
+  color: vars.$primary-black-color;
+  background: vars.$primary-white-color;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,5 +33,10 @@
       font-weight: 400;
       line-height: normal;
     }
+  }
+
+  &.dark{
+    background: vars.$primary-black-color;
+    color: vars.$primary-white-color;
   }
 }

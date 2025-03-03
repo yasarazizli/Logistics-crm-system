@@ -11,17 +11,24 @@ export enum Roles {
   accountant = "accountant",
   buyer_manager = "buyer_manager",
   commercial_manager = "commercial_manager",
-  commercial_director = "commercial_director",
+  commercial_directory = "commercial_director",
   admin = "admin",
   user = "user",
   director = "director",
 }
 
+// Transport Type
 export enum Transport {
   truck = "truck",
   filder = "filder",
   plane = "plane",
   railway = "railway",
+}
+
+// Order Status
+export enum OrderStatus {
+  pending = "pending",
+  processing = "Processing",
 }
 
 // Invoice Status Enum

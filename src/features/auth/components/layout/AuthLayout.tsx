@@ -10,6 +10,8 @@ import AuthLayoutBg from "@/assets/images/auth/auth_layout_bg.jpg";
 import styles from "@/features/auth/components/layout/AuthLayout.module.scss";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 import { useTranslation } from "react-i18next";
+import Switcher from "@/components/Switcher/Switcher.tsx";
+import { DarkModeIcon, LightModeIcon } from "@/assets/icons/shared.vectors.tsx";
 
 const AuthLayout = ({
   children,
@@ -18,7 +20,7 @@ const AuthLayout = ({
   children: React.ReactNode;
   changeSide?: boolean;
 }) => {
-  const { darkMode } = useContext(ThemeContext);
+  const { darkMode, setDarkMode } = useContext(ThemeContext);
   const { i18n } = useTranslation();
 
   return (
@@ -34,6 +36,14 @@ const AuthLayout = ({
         {children}
       </section>
       <section className={styles.auth__placeholder}>
+        <div className={styles.auth__placeholder__switcher}>
+          <Switcher
+            iconOne={DarkModeIcon}
+            iconTwo={LightModeIcon}
+            toggle={darkMode}
+            onToggle={() => setDarkMode(!darkMode)}
+          />
+        </div>
         <img
           className={styles.auth__placeholder__background}
           src={AuthLayoutBg}

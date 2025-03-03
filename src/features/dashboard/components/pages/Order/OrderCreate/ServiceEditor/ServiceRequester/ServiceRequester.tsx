@@ -66,6 +66,7 @@ const ServiceRequester = () => {
   };
   const getCities = async (country_id: number) => {
     await getData([`cities-${country_id}`], country_id);
+    console.log(store);
   };
 
   useEffect(() => {
@@ -91,7 +92,6 @@ const ServiceRequester = () => {
               country: Number(selectedCountry?.value),
               city: null,
             }));
-
             getCities(Number(selectedCountry?.value)).catch(() => {});
           }}
           isSearchable

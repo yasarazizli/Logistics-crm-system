@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext.tsx";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
+import { Roles } from "@/features/dashboard/constants/enum.constant.tsx";
 
 // Context
 
@@ -16,8 +17,8 @@ export default function PrivateRoute() {
     return <Navigate to={`/${i18n.language}/auth/login`} />;
   }
 
-  // İstifatəçi
-  if (auth.role === "user") {
+  // User
+  if (auth.role === Roles.user) {
     const accessiblePages = [
       "/order",
       "/order/create",
@@ -30,8 +31,8 @@ export default function PrivateRoute() {
     }
   }
 
-  // Hüquqşunas
-  if (auth.role === "lawyer") {
+  // Lawyer
+  if (auth.role === Roles.lawyer) {
     const accessiblePages = [
       "/home",
       "/users",
@@ -46,8 +47,8 @@ export default function PrivateRoute() {
     }
   }
 
-  // Maliyəçi
-  if (auth.role === "accountant") {
+  // Accountant
+  if (auth.role === Roles.accountant) {
     const accessiblePages = [
       "/home",
       "/users",
@@ -60,8 +61,8 @@ export default function PrivateRoute() {
     }
   }
 
-  // Alış
-  if (auth.role === "buyer_manager") {
+  // Buyer Manager
+  if (auth.role === Roles.buyer_manager) {
     const accessiblePages = [
       "/vendors",
       "/services",
@@ -76,16 +77,30 @@ export default function PrivateRoute() {
     }
   }
 
-  // Komersiya Direktoru
-  if (auth.role === "commercial_directory") {
+  // Commercial Directory
+  if (auth.role === Roles.commercial_directory) {
     const accessiblePages = ["/users", "/order", "/services", "/profile"];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/order`} />;
     }
   }
 
+  // Director
+  if (auth.role === "directory") {
+    const accessiblePages = [
+      "/profile",
+      "/balance",
+      "/order",
+      "/order/create",
+      "/order/update",
+    ];
+    if (!accessiblePages.includes(normalizedPath)) {
+      return <Navigate to={`/${i18n.language}/order`} />;
+    }
+  }
+
   // Admin
-  if (auth.role === "admin") {
+  if (auth.role === Roles.admin) {
     const accessiblePages = [
       "/home",
       "/users",
@@ -110,53 +125,6 @@ export default function PrivateRoute() {
       return <Navigate to={`/${i18n.language}/home`} />;
     }
   }
-
-  // // Direktor
-  // if (auth.role === "directory") {
-  //   const accessiblePages = [
-  //     "/settings",
-  //     "balance",
-  //     "/order",
-  //     "/order/create",
-  //     "/order/update",
-  //   ];
-  //   if (!accessiblePages.includes(normalizedPath)) {
-  //     return <Navigate to={`/${i18n.language}/order`} />;
-  //   }
-  // }
-  //
-  //
-  // // Komersiya manageri
-  // if (auth.role === "commercial_manager") {
-  //   const accessiblePages = [
-  //     "/order",
-  //     "/order/create",
-  //     "/order/update",
-  //     `/settings`,
-  //   ];
-  //
-  //   if (!accessiblePages.includes(normalizedPath)) {
-  //     return <Navigate to={`/${i18n.language}/order`} />;
-  //   }
-  // }
-  //
-  // if (auth.role === "sales_manager") {
-  //   const accessiblePages = ["/order", "/order/update"];
-  //
-  //   if (!accessiblePages.includes(normalizedPath)) {
-  //     return <Navigate to={`/${i18n.language}/order`} />;
-  //   }
-  // }
-  //
-
-  //
-  // // Maliyəçi
-  // if (auth.role === "accountant") {
-  //   const accessiblePages = ["/order", "/financial", "/settings"];
-  //   if (!accessiblePages.includes(normalizedPath)) {
-  //     return <Navigate to={`/${i18n.language}/financial`} />;
-  //   }
-  // }
 
   return <Outlet />;
 }

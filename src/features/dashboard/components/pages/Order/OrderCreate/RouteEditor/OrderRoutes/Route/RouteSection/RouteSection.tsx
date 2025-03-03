@@ -282,34 +282,28 @@ const RouteSection = ({
       </div>
 
       <div
-        className={`${styles.grid} ${
-          [Transport.truck, Transport.filder].includes(route.type as Transport)
-            ? styles.three
-            : [Transport.railway].includes(route.type as Transport)
-              ? styles.three
-              : ""
+        className={`${
+          [Transport.railway].includes(route.type as Transport)
+            ? styles.four
+            : styles.grid
         }`}
       >
-        {[Transport.truck, Transport.filder].includes(
-          route.type as Transport,
-        ) &&
-          order.status === "PadCodeIsExpected" && (
-            <Input
-              label={"Padcode"}
-              placeholder={"padcode"}
-              value={route.pad_code || ""}
-              onChange={(event) => {
-                routeEditor(event.target.value, index, "pad_code");
-              }}
-            />
-          )}
+        {[Transport.railway].includes(route.type as Transport) && (
+          <Input
+            label={"Padcode"}
+            disabled={order.status !== "PadCodeIsExpected"}
+            placeholder={"padcode"}
+            value={route.pad_code || ""}
+            onChange={(event) => {
+              routeEditor(event.target.value, index, "pad_code");
+            }}
+          />
+        )}
 
-        {(auth.role === "admin"
-          ? true
-          : [Transport.railway].includes(route.type as Transport) &&
-            order.status === "AwaitingSalesManagerApproval") && (
+        {[Transport.railway].includes(route.type as Transport) && (
           <SelectOption
             label={"Expeditor"}
+            disabled={order.status !== "PadCodeIsExpected"}
             options={expeditors}
             value={
               expeditors.filter(

@@ -96,7 +96,7 @@ export const StoreProvider = ({ children }: PropsWithChildren) => {
 
     const namesToFetch = names.filter((name) => {
       if (name === `cities-${id}` && id !== undefined) {
-        return !store.cities?.[id] && !fetchingRef.current.includes(name);
+        return !store.cities?.[id];
       }
       // Station data control
       if (name === `stations-${id}` && id !== undefined) {
@@ -116,13 +116,11 @@ export const StoreProvider = ({ children }: PropsWithChildren) => {
       const name = n.split("-")[0];
       return getStoreData(name, id).then((data) => {
         if (name === "cities" && id !== undefined) {
-          // Cities için belirli bir id'yi ekle
           newValues.cities = {
             ...store.cities, // Mevcut cities verisini koru
             [id]: data, // Yeni id'yi ekle
           };
-        }
-        if (name === "stations" && id !== undefined) {
+        } else if (name === "stations" && id !== undefined) {
           // Stations için belirli bir id'yi ekle
           newValues.stations = {
             ...store.stations, // Mevcut stations verisini koru

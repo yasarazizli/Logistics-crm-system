@@ -92,7 +92,6 @@ const OrdersTableRow = ({
       PadCodeIsExpected: { icon: <ProcessIcon />, color: "#FFA800" },
       AwaitingDirectoryApproval: { icon: <ProcessIcon />, color: "#FFA800" },
       SalesAddCodeIsExpected: { icon: <ProcessIcon />, color: "#FFA800" },
-      AwaitingSalesManagerApproval: { icon: <ProcessIcon />, color: "#FFA800" },
       Correct: { icon: <CorrectIcon />, color: "#436BFD" },
       DirectoryDeclined: { icon: <RejectIcon />, color: "#FF4D4F" },
       UserDeclined: { icon: <RejectIcon />, color: "#FF4D4F" },
@@ -206,37 +205,41 @@ const OrdersTableRow = ({
         </td>
       )}
 
-      {/* User Instuction Document */}
+      {/* Invoice Document */}
       {data.includes(15) && (
         <td>
           <Tools
             isMore
             icons={[
               {
-                type: "",
-                text: "view instruction pdf",
-                onClick: async () =>
+                type: "info",
+                text: "invoice",
+                onClick: () => {
                   setModals((prevState) => ({
                     ...prevState,
-                    view_instruction_pdf: order.id,
-                  })),
+                    view_invoice_pdf: order.id,
+                  }));
+                },
               },
             ]}
           />
         </td>
       )}
 
-      {/* Order Edit */}
+      {/* User Instruction Document */}
       {data.includes(16) && (
         <td>
           <Tools
             isMore
             icons={[
               {
-                type: "edit",
-                onClick: () => {
-                  navigate(`/${i18n.language}/order/update?${order.id}`);
-                },
+                type: "info",
+                text: "view instruction pdf",
+                onClick: async () =>
+                  setModals((prevState) => ({
+                    ...prevState,
+                    view_instruction_pdf: order.id,
+                  })),
               },
             ]}
           />
@@ -342,6 +345,23 @@ const OrdersTableRow = ({
                 onClick: async () => {
                   await getDirectoryApproveOrder(order.id, false);
                   render();
+                },
+              },
+            ]}
+          />
+        </td>
+      )}
+
+      {/* Order Edit */}
+      {data.includes(21) && (
+        <td>
+          <Tools
+            isMore
+            icons={[
+              {
+                type: "edit",
+                onClick: () => {
+                  navigate(`/${i18n.language}/order/update?${order.id}`);
                 },
               },
             ]}

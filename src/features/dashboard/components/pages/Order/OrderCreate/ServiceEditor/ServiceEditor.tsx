@@ -20,14 +20,14 @@ const ServiceEditor = ({
       ? [
           {
             name: "order.tabs.services.one",
-            tabs: 0,
+            tab: 0,
             onClick: () => setTab(0),
           },
         ]
       : []),
     {
       name: "order.tabs.services.two",
-      tabs: 1,
+      tab: 1,
       onClick: () => setTab(1),
     },
   ];

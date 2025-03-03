@@ -11,7 +11,6 @@ import {
   postInstructionDocumentRequest,
   postOrderCreateRequest,
   postOrderUpdateRequest,
-  postSalesManagerApprovalRequest,
   postSendOrderRequest,
 } from "@/features/dashboard/services/order.service.ts";
 import {
@@ -51,12 +50,12 @@ const OrderCreate = () => {
   const OrderTabs = [
     {
       name: "order.tabs.create.one",
-      tabs: 0,
+      tab: 0,
       onClick: () => setTab(0),
     },
     {
       name: "order.tabs.create.two",
-      tabs: 1,
+      tab: 1,
       onClick: () => setTab(1),
     },
   ];
@@ -194,36 +193,6 @@ const OrderCreate = () => {
     setLoader(false);
   };
 
-  // post CommercialManager Manager
-  const postCommercialManagerApproval = async () => {
-    setLoader(true);
-    const formData = formCreator([
-      {
-        name: "data",
-        data: JSON.stringify(order?.orderDetail),
-      },
-      {
-        name: "receiver",
-        data: order.receiver || "",
-      },
-      {
-        name: "shipper",
-        data: order.shipper || "",
-      },
-    ]);
-
-    const { status, data } = await postSalesManagerApprovalRequest(
-      formData,
-      Number(order.id),
-    );
-    if (status === 200) {
-      toast.success(errorMessageHandler(data));
-      navigate(`/${i18n.language}/order`);
-    } else toast.error(errorMessageHandler(data));
-
-    setLoader(false);
-  };
-
   // post Buyer Pad code
   const postBuyerAddPadCode = async () => {
     setLoader(true);
@@ -231,7 +200,7 @@ const OrderCreate = () => {
       {
         name: "data",
         data: JSON.stringify(order?.orderDetail),
-      },
+      }
     ]);
 
     const { status, data } = await postBuyerAddPadCodeRequest(
@@ -296,20 +265,6 @@ const OrderCreate = () => {
               />
             )}
 
-          {[Roles.admin, Roles.commercial_manager].includes(
-            auth.role as Roles,
-          ) &&
-            order.status === "AwaitingSalesManagerApproval" && (
-              <Button
-                icon={ConfirmTableIcon}
-                text={t("order.buttons.confirm")}
-                viewType={"dark-green"}
-                onClick={async () => {
-                  await postCommercialManagerApproval();
-                }}
-              />
-            )}
-
           {[
             Roles.user,
             Roles.admin,
@@ -359,7 +314,7 @@ const OrderCreate = () => {
         </div>
       </div>
 
-      {![Roles.user, Roles.buyer_manager].includes(auth.role as Roles) && (
+      {![Roles.user].includes(auth.role as Roles) && (
         <ServiceEditor order={order} setOrder={setOrder} active={tab === 0} />
       )}
     </div>

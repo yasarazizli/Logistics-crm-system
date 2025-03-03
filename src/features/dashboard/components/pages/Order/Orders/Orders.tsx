@@ -67,6 +67,12 @@ const Orders = () => {
   const [response, setResponse] = useState<TableResponseType>();
   const [pageHelper, setPageHelper] = useState({
     render: false,
+    reRender: () => {
+      setPageHelper((prevState) => ({
+        ...prevState,
+        render: !prevState.render,
+      }));
+    },
     tabs: [
       // User
       ...([Roles.user].includes(auth?.role as Roles)
@@ -135,7 +141,6 @@ const Orders = () => {
           ]
         : []),
     ],
-
     activeTab: auth.role === "user" ? 2 : auth.role === "accountant" ? 3 : 2,
     buttons: [
       {
@@ -161,11 +166,10 @@ const Orders = () => {
     );
 
     if (status === 200) {
-      console.log(data);
       setResponse(data);
-      setLoader(false);
-    }
-    toast.error(errorMessageHandler(data));
+    } else toast.error(errorMessageHandler(data));
+
+    setLoader(false);
   };
 
   const postUserOrderApproved = async (orderId: number, isApprove: boolean) => {
@@ -223,17 +227,9 @@ const Orders = () => {
           }
           tabs={pageHelper.tabs}
           activeTabs={pageHelper.activeTab}
-          onFilter={() => {
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-          }}
+          onFilter={pageHelper.reRender}
           onClear={() => {
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
+            pageHelper.reRender();
             resetFilterInputs();
           }}
         >
@@ -261,12 +257,7 @@ const Orders = () => {
                     .rows
                 }
                 activeTab={pageHelper.activeTab}
-                render={() => {
-                  setPageHelper((prevState) => ({
-                    ...prevState,
-                    render: !prevState.render,
-                  }));
-                }}
+                render={pageHelper.reRender}
               />
             ))}
           </Table>
@@ -287,7 +278,7 @@ const Orders = () => {
 
       {modals.order_reject_user && (
         <Modal
-          title={"Hs Kodu Daxil Edin"}
+          title={"Reject Message"}
           modalClose={() => {
             setModals((prevState) => ({
               ...prevState,

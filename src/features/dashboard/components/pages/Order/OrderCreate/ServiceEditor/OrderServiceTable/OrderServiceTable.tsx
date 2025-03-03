@@ -8,6 +8,8 @@ import {
   EditServiceIcon,
 } from "@/assets/icons/order.vectors.tsx";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import { Roles } from "@/features/dashboard/constants/enum.constant.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 type OrderServiceTableProps = {
   edit: number | null;
@@ -22,6 +24,7 @@ const OrderServiceTable = ({
 }: OrderServiceTableProps) => {
   const { darkMode } = useContext(ThemeContext);
   const { store, getData } = useContext(DataContext);
+  const { auth } = useContext(AuthContext);
   const [render, setRender] = useState(false);
   useEffect(() => {
     getData(["vendors"], 0).catch(() => {});
@@ -118,9 +121,13 @@ const OrderServiceTable = ({
             <td>Miqdar</td>
             <td>Alış (1 kont)</td>
             <td>Alış</td>
-            <td>Satış (1 kont)</td>
-            <td>Satış</td>
-            <td>Profit</td>
+            {![Roles.buyer_manager].includes(auth.role as Roles) && (
+              <>
+                <td>Satış (1 kont)</td>
+                <td>Satış</td>
+                <td>Profit</td>
+              </>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -134,6 +141,7 @@ const OrderServiceTable = ({
                 className={`${edit === index && styles.active}`}
                 key={`service_${service.key_id}_${index}`}
               >
+                {/* Done,Delete,Edit */}
                 <td>
                   <div className={styles.buttons}>
                     {edit === index ? (
@@ -168,6 +176,7 @@ const OrderServiceTable = ({
                   </div>
                 </td>
 
+                {/* Service Selected */}
                 <td>
                   <select
                     disabled={edit !== index}
@@ -188,6 +197,8 @@ const OrderServiceTable = ({
                       ))}
                   </select>
                 </td>
+
+                {/* Vendor Name */}
                 <td>
                   {(store?.services &&
                     store?.vendors?.find(
@@ -195,6 +206,8 @@ const OrderServiceTable = ({
                     )?.name) ||
                     "-"}
                 </td>
+
+                {/* Service Count */}
                 <td>
                   <input
                     value={Number(service.count)}
@@ -208,38 +221,52 @@ const OrderServiceTable = ({
                     disabled={edit !== index}
                   />
                 </td>
+
+                {/* Service Buy 1 count price */}
                 <td>{(selectedService?.selling_price || 0).toFixed(2)}</td>
+
+                {/* Service Buy total Price */}
                 <td>
-                  $
+                  ${" "}
                   {(
                     (selectedService?.selling_price || 0) *
                     Number(service.count)
                   ).toFixed(2)}
                 </td>
-                <td>
-                  <input
-                    value={Number(service.selling_price)}
-                    onChange={(event) => {
-                      const value = Number(
-                        event.target.value.match(/\d+/g)?.[0] || NaN,
-                      );
-                      if (isNaN(value)) event.target.value = "0";
-                      serviceEditor(event, index, "selling_price");
-                    }}
-                    disabled={edit !== index}
-                  />
-                </td>
-                <td>
-                  $ {Number(service.selling_price) * Number(service.count)}
-                </td>
-                <td>
-                  ${" "}
-                  {(
-                    (Number(service.selling_price) -
-                      (selectedService?.selling_price || 0)) *
-                    Number(service.count)
-                  ).toFixed(2)}
-                </td>
+
+                {![Roles.buyer_manager].includes(auth.role as Roles) && (
+                  <>
+                    {/* Service Selling 1 count Price */}
+                    <td>
+                      <input
+                        value={Number(service.selling_price)}
+                        onChange={(event) => {
+                          const value = Number(
+                            event.target.value.match(/\d+/g)?.[0] || NaN,
+                          );
+                          if (isNaN(value)) event.target.value = "0";
+                          serviceEditor(event, index, "selling_price");
+                        }}
+                        disabled={edit !== index}
+                      />
+                    </td>
+
+                    {/* Service Selling total Price */}
+                    <td>
+                      $ {Number(service.selling_price) * Number(service.count)}
+                    </td>
+
+                    {/* Profit */}
+                    <td>
+                      ${" "}
+                      {(
+                        (Number(service.selling_price) -
+                          (selectedService?.selling_price || 0)) *
+                        Number(service.count)
+                      ).toFixed(2)}
+                    </td>
+                  </>
+                )}
               </tr>
             );
           })}
@@ -250,9 +277,13 @@ const OrderServiceTable = ({
             <td></td>
             <td></td>
             <td></td>
-            <td>$ {total.buy.toFixed(2)}</td>
-            <td></td>
-            <td>$ {total.sale.toFixed(2)}</td>
+            {![Roles.buyer_manager].includes(auth.role as Roles) && (
+              <>
+                <td>$ {total.buy.toFixed(2)}</td>
+                <td></td>
+                <td>$ {total.sale.toFixed(2)}</td>
+              </>
+            )}
             <td>$ {total.profit.toFixed(2)}</td>
           </tr>
         </tbody>

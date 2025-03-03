@@ -135,22 +135,6 @@ export const postInstructionDocumentRequest = async (
     });
 };
 
-// Sales Maneger Orderi tesdiqleyir
-export const postSalesManagerApprovalRequest = async (
-  formData: FormData,
-  id: number,
-) => {
-  return await axios
-    .post(`${apiUrl}/commercial/add-ex-re-order/?id=${id}`, formData, {
-      headers: {
-        Authorization: getCookie("allianceToken"),
-      },
-    })
-    .catch((err) => {
-      return err.response;
-    });
-};
-
 // Buyer Ordere Padcode elave edir
 export const postBuyerAddPadCodeRequest = async (
   formData: FormData,

@@ -20,7 +20,6 @@ const OrderParticipants = ({ order, setOrder }: OrderEditorProps) => {
         <Input
           label={t("order.route_editor.order_participants.receiver")}
           placeholder={t("order.route_editor.order_participants.receiver")}
-          disabled={!(order.status === "AwaitingSalesManagerApproval")}
           value={order.receiver}
           onChange={(event) => {
             setOrder((prevState) => ({
@@ -33,7 +32,6 @@ const OrderParticipants = ({ order, setOrder }: OrderEditorProps) => {
         <Input
           label={t("order.route_editor.order_participants.shipper")}
           placeholder={t("order.route_editor.order_participants.shipper")}
-          disabled={!(order.status === "AwaitingSalesManagerApproval")}
           value={order.shipper}
           onChange={(event) => {
             setOrder((prevState) => ({
