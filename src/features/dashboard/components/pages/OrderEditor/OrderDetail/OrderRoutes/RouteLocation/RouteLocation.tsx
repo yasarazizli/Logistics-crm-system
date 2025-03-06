@@ -41,6 +41,7 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
       const country = store.countries?.find(
         (data) => data.value === Number(route[`${position}_country_id`]),
       );
+
       const station = store.stations?.[route[`${position}_country_id`]]?.find(
         (data) => data.value === Number(route[`${position}_station_id`]),
       );
@@ -77,7 +78,7 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
         <Input
           label={label}
           placeholder={label}
-          defaultValue={addressCreator()}
+          value={addressCreator()}
           onClick={() => {
             setDropdown((prevState) => {
               return !prevState;
@@ -139,7 +140,6 @@ const RouteLocation = ({ label, route, position, setLocation }: any) => {
               }}
               isSearchable
               isSearch={(searchValue) => {
-                console.log(store.stations?.[route[`${position}_country_id`]]);
                 setStations({
                   [route[`${position}_country_id`]]:
                     store.stations?.[route[`${position}_country_id`]]?.filter(
