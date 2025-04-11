@@ -167,6 +167,10 @@ const Users = () => {
     getAllUsers().catch(() => {});
   }, [page, pageHelper.render, pageHelper.activeTab]);
 
+  useEffect(() => {
+    console.log(innerHeight - 70 - 124);
+  }, []);
+
   return (
     <>
       {/* Page Content START */}

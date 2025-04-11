@@ -42,6 +42,25 @@ export const userFilterConstants = {
   },
 };
 
+// Worker Filter
+export const workerFilterConstants = {
+  name: {
+    name: "Ad",
+    params: "name",
+    value: "",
+  },
+  email: {
+    name: "Mail",
+    params: "mail",
+    value: "",
+  },
+  phone: {
+    name: "Telefon",
+    params: "phone",
+    value: "",
+  },
+};
+
 // Orders Filter
 export const orderFilterConstants = {
   name: {
@@ -76,21 +95,20 @@ export const orderFilterConstants = {
   },
 };
 
-// Worker Filter
-export const workerFilterConstants = {
+export const servicesFilterConstants = {
   name: {
     name: "Ad",
     params: "name",
     value: "",
   },
-  email: {
-    name: "Mail",
-    params: "mail",
+  start_date: {
+    name: "start_date",
+    params: "start_date",
     value: "",
   },
-  phone: {
-    name: "Telefon",
-    params: "phone",
+  end_date: {
+    name: "end_date",
+    params: "end_date",
     value: "",
   },
 };

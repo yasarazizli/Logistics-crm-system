@@ -16,14 +16,18 @@ import ServiceCreated from "@/features/dashboard/components/shared/Modals/Servic
 import ServicesTableRow from "@/features/dashboard/components/pages/Services/ServicesTableRow.tsx";
 import { ServiceModel } from "@/features/dashboard/models/service.model.ts";
 import { getServicesTableHeaders } from "@/features/dashboard/constants/tableHeader.constant.tsx";
-import { ContractStatus } from "@/features/dashboard/constants/enum.constant.tsx";
+import {
+  ContractStatus,
+  Roles,
+} from "@/features/dashboard/constants/enum.constant.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAllServicesRequest } from "@/features/dashboard/services/services.service.ts";
-import { userFilterConstants } from "@/features/dashboard/constants/filters.constant.tsx";
+import { servicesFilterConstants } from "@/features/dashboard/constants/filters.constant.tsx";
 import ServiceContractApproval from "@/features/dashboard/components/shared/Modals/Services/ServiceContractApproval.tsx";
 import DeleteServiceContract from "@/features/dashboard/components/shared/Modals/Services/DeleteServiceContract.tsx";
 import PageTitle from "@/features/dashboard/components/shared/PageTitle/PageTitle.tsx";
 import AddSellingPrice from "@/features/dashboard/components/shared/Modals/Services/AddSellingPrice.tsx";
+import MonitoringPending from "@/features/dashboard/components/shared/Modals/Services/MonitoringPending.tsx";
 
 const Services = () => {
   // React
@@ -37,46 +41,66 @@ const Services = () => {
   // Hooks
   const { page } = usePageChanger();
   const { filterInputsData, setFilterInputsData, resetFilterInputs } =
-    useFilterInputsChanger({ ...userFilterConstants });
+    useFilterInputsChanger({ ...servicesFilterConstants });
 
   // States
   const [pageHelper, setPageHelper] = useState<PageHelperStateType>({
     response: null,
     render: false,
     tabs: [
-      {
-        name: "services.tabs.one",
-        tab: 0,
-        onClick: () => {
-          setPageHelper((prevState) => ({
-            ...prevState,
-            activeTab: 0,
-          }));
-          navigate(`${location.pathname}?page=${1}`);
-        },
-      },
-      {
-        name: "services.tabs.two",
-        tab: 1,
-        onClick: () => {
-          setPageHelper((prevState) => ({
-            ...prevState,
-            activeTab: 1,
-          }));
-          navigate(`${location.pathname}?page=${1}`);
-        },
-      },
-      {
-        name: "services.tabs.three",
-        tab: 2,
-        onClick: () => {
-          setPageHelper((prevState) => ({
-            ...prevState,
-            activeTab: 2,
-          }));
-          navigate(`${location.pathname}?page=${1}`);
-        },
-      },
+      // Admin, Commercial Directory, Lawyer, Buyers
+      ...([
+        Roles.commercial_directory,
+        Roles.lawyer,
+        Roles.buyer_manager,
+      ].includes(auth?.role as Roles)
+        ? [
+            {
+              name: "services.tabs.one",
+              tab: 0,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 0,
+                }));
+                navigate(`${location.pathname}?page=${1}`);
+              },
+            },
+            {
+              name: "services.tabs.two",
+              tab: 1,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 1,
+                }));
+                navigate(`${location.pathname}?page=${1}`);
+              },
+            },
+            {
+              name: "services.tabs.three",
+              tab: 2,
+              onClick: () => {
+                setPageHelper((prevState) => ({
+                  ...prevState,
+                  activeTab: 2,
+                }));
+                navigate(`${location.pathname}?page=${1}`);
+              },
+            },
+          ]
+        : []),
+
+      // Monitoring
+      ...([Roles.monitoring].includes(auth?.role as Roles)
+        ? [
+            {
+              name: "services.tabs.two",
+              tab: 0,
+              onClick: () => {},
+            },
+          ]
+        : []),
     ],
     activeTab: 0,
     buttons: [
@@ -97,33 +121,41 @@ const Services = () => {
     service_contract_verified: ServiceModel | null;
     service_contract_deleted: ServiceModel | null;
     service_selling_price: ServiceModel | null;
+    service_monitoring_pending: ServiceModel | null;
   }>({
     service_create: false,
     service_contract_verified: null,
     service_contract_deleted: null,
     service_selling_price: null,
+    service_monitoring_pending: null,
   });
 
   // Functions
   const getAllServices = async () => {
     setLoader(true);
 
-    const contractStatus = [
-      "admin",
-      "lawyer",
-      "buyer_manager",
-      "commercial_directory",
-    ].includes(auth.role)
-      ? ContractStatus[pageHelper.activeTab]
-      : "verified";
+    let contractStatus;
+
+    if (Roles.monitoring === auth.role) {
+      contractStatus = "monitoring";
+    } else {
+      contractStatus = [
+        "admin",
+        "lawyer",
+        "buyer_manager",
+        "commercial_directory",
+      ].includes(auth.role)
+        ? ContractStatus[pageHelper.activeTab]
+        : "verified";
+    }
 
     const { status, data } = await getAllServicesRequest(
       page,
       10,
-      "",
+      filterInputsData.name.value,
+      filterInputsData.start_date.value,
+      filterInputsData.end_date.value,
       contractStatus,
-      "",
-      "",
     );
 
     if (status === 200) {
@@ -196,6 +228,8 @@ const Services = () => {
           </Table>
         </div>
       </div>
+
+      {/* Modals */}
       {modals.service_create && (
         <ServiceCreated
           modalClose={() => {
@@ -250,6 +284,22 @@ const Services = () => {
             setModals((prevState) => ({
               ...prevState,
               service_selling_price: null,
+            }));
+            setPageHelper((prevState) => ({
+              ...prevState,
+              render: !prevState.render,
+            }));
+          }}
+        />
+      )}
+
+      {modals.service_monitoring_pending && (
+        <MonitoringPending
+          service={modals.service_monitoring_pending}
+          modalClose={() => {
+            setModals((prevState) => ({
+              ...prevState,
+              service_monitoring_pending: null,
             }));
             setPageHelper((prevState) => ({
               ...prevState,

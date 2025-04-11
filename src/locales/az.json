@@ -125,16 +125,16 @@
     "title": "Ana səhifə"
   },
   "users": {
-    "title": "İstifadəçilər",
+    "title": "Müştərilər",
     "buttons": {
-      "create": "İstifadəçi yarat"
+      "create": "Müştəri yarat"
     },
     "modals": {
       "creat_user": {
-        "title": "İstifadəçi yaradın"
+        "title": "Müştəri yaradın"
       },
       "delete_user": {
-        "title": "İstifadəçisi siləmə",
+        "title": "Müştərisini siləmə",
         "subtitle": "İstifadəçisini siləməyə əminsiniz?"
       },
       "add_contract": {
@@ -310,6 +310,14 @@
           "contract_start_date": "Müqavilənin başlama tarixi",
           "contract_end_date": "Müqavilənin bitmə tarixi",
           "contract_language": "Müqavilənin dili"
+        }
+      },
+      "monitoring_approve": {
+        "title": "Xidmət təsdiqlə",
+        "subtitle": "xidmət qitmətin təsdiqləməyə əminsiniz?",
+        "buttons": {
+          "approve": "Təsdiqlə",
+          "reject": "Ləğv et"
         }
       },
       "contract_verified": {

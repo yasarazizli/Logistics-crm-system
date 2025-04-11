@@ -47,7 +47,13 @@ export const navigation = [
     name: "services.title",
     path: "services",
     icon: ServiceIcon,
-    roles: ["admin", "lawyer", "buyer_manager", "commercial_directory"],
+    roles: [
+      "admin",
+      "lawyer",
+      "buyer_manager",
+      "commercial_directory",
+      "monitoring",
+    ],
   },
 
   // Settings

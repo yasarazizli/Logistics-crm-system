@@ -159,6 +159,8 @@ const Orders = () => {
     setLoader(true);
     const { status, data } = await getAllOrdersRequest(
       page,
+      7,
+      "",
       filterInputsData.name.value,
       filterInputsData.email.value,
       filterInputsData.phone.value,

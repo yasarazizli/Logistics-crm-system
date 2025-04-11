@@ -5,8 +5,6 @@ import { registerInputsRefModel } from "@/features/auth/models/auth.model.ts";
 
 import styles from "./PriceQuotation.module.scss";
 
-import Input from "@/components/Input/Input.tsx";
-import { dateToInputFormat } from "@/libs/date.ts";
 import Button from "@/components/Button/Button.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { postUnAuthorizedOrderRequest } from "@/features/auth/services/auth.service.ts";
@@ -101,42 +99,6 @@ const PriceQuotation = () => {
           >
             <ArrowLeftIcon /> Geri
           </p>
-
-          <section className={styles.section}>
-            <div className={styles.grid}>
-              <Input
-                type={"date"}
-                label={"Sifarişin başlama tarixi"}
-                value={
-                  order.start_time === null
-                    ? ""
-                    : dateToInputFormat(order.start_time)
-                }
-                onChange={(event) => {
-                  setOrder((prevState) => ({
-                    ...prevState,
-                    start_time: new Date(event.target.value).toISOString(),
-                  }));
-                }}
-              />
-              <Input
-                type={"date"}
-                label={"Sifarişin bitmə tarixi"}
-                min={order.start_time}
-                value={
-                  order.end_time === null
-                    ? ""
-                    : dateToInputFormat(order.end_time)
-                }
-                onChange={(event) => {
-                  setOrder((prevState) => ({
-                    ...prevState,
-                    end_time: new Date(event.target.value).toISOString(),
-                  }));
-                }}
-              />
-            </div>
-          </section>
           <OrderDetail order={order} setOrder={setOrder} />
           <Button text={"compilite order"} onClick={postUnAuthorizedOrder} />
         </main>

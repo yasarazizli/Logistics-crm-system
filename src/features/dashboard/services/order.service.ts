@@ -5,6 +5,8 @@ const apiUrl = import.meta.env.VITE_API_URL;
 // Get All Orders
 export const getAllOrdersRequest = async (
   page: number,
+  pageSize: number,
+  id: string,
   name: string,
   email: string,
   phone: string,
@@ -12,7 +14,7 @@ export const getAllOrdersRequest = async (
 ) => {
   return await axios
     .get(
-      `${apiUrl}/commercial/get-all-order/?page=${page}&pageSize=10&full_name=${name}&email=${email}&phone=${phone}&order_status=${order_status}`,
+      `${apiUrl}/commercial/get-all-order/?page=${page}&pageSize=${pageSize}&id=${id}&full_name=${name}&email=${email}&phone=${phone}&order_status=${order_status}`,
       {
         headers: {
           Authorization: getCookie("allianceToken"),

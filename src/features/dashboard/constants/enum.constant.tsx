@@ -3,6 +3,7 @@ export enum ContractStatus {
   verified,
   unverified,
   empty,
+  monitoring,
 }
 
 // Roles Enum
@@ -15,6 +16,7 @@ export enum Roles {
   admin = "admin",
   user = "user",
   director = "director",
+  monitoring = "monitoring",
 }
 
 // Transport Type

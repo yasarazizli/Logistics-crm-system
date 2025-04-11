@@ -301,6 +301,14 @@
           "contract_language": "Contract Language"
         }
       },
+      "monitoring_approve": {
+        "title": "Approve Service",
+        "subtitle": "Are you sure you want to approve the service cost?",
+        "buttons": {
+          "approve": "Approve",
+          "reject": "Cancel"
+        }
+      },
       "contract_verified": {
         "title": "Service Contract Verification",
         "subtitle": "Are you sure you want to verify the service contract?",

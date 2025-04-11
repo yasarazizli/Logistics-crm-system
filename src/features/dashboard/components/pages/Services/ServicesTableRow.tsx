@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
 import Tools from "@/components/Tools/Tools.tsx";
 import { DownloadIcon } from "@/assets/icons/shared.vectors.tsx";
+import { Roles } from "@/features/dashboard/constants/enum.constant.tsx";
 
 const ServicesTableRow = ({
   service,
@@ -21,6 +22,7 @@ const ServicesTableRow = ({
       service_contract_verified: ServiceModel | null;
       service_contract_deleted: ServiceModel | null;
       service_selling_price: ServiceModel | null;
+      service_monitoring_pending: ServiceModel | null;
     }>
   >;
 }) => {
@@ -113,6 +115,29 @@ const ServicesTableRow = ({
                   }));
                 },
                 text: "Qiymət Təyin et",
+              },
+            ]}
+          />
+        </td>
+      )}
+
+      {[Roles.monitoring].includes(auth.role as Roles) && (
+        <td>
+          <Tools
+            isMore
+            icons={[
+              {
+                type: "approve",
+                onClick: () => {
+                  setModals((prevState) => ({
+                    ...prevState,
+                    service_monitoring_pending: service,
+                  }));
+                },
+              },
+              {
+                type: "reject",
+                onClick: () => {},
               },
             ]}
           />

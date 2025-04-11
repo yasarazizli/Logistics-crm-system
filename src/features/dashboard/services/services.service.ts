@@ -9,9 +9,9 @@ export const getAllServicesRequest = async (
   page?: string | number,
   pageSize?: string | number,
   name?: string,
-  contract_status?: string,
   start_date?: string,
   end_date?: string,
+  contract_status?: string,
 ) => {
   const params = {
     page: page || "",
@@ -66,6 +66,19 @@ export const postAddMissingServicesRequest = async (formData: FormData) => {
 export const getServiceVerifiedContractRequest = async (id: number) => {
   return await axios
     .get(`${apiUrl}/lawyer/verified-vendor-service/?id=${id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+// role:Admin,Lawyer | Service Verified Contract
+export const getServiceMonitoringPendingRequest = async (id: number) => {
+  return await axios
+    .get(`${apiUrl}/buyers/monitoring-pending/?id=${id}`, {
       headers: {
         Authorization: getCookie("allianceToken"),
       },
