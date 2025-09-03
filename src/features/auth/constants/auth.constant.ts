@@ -1,5 +1,4 @@
 import {
-  ArchiveIcon,
   CompanyIcon,
   NameIcon,
   PasswordIcon,
@@ -10,24 +9,10 @@ import { MailIcon } from "@/assets/icons/shared.vectors.tsx";
 
 import { ChangeEvent } from "react";
 
-// Login
-export const loginTabs = [
-  {
-    name: "login.tabs.login",
-    tab: 0,
-    link: "login",
-  },
-  {
-    name: "login.tabs.sign__up",
-    tab: 1,
-    link: "register",
-  },
-];
-
 export const loginInputs = [
   {
-    label: "login.inputs.email.label",
-    placeholder: "login.inputs.email.placeholder",
+    label: "Username",
+    placeholder: "Mail",
     icon: MailIcon,
     type: "email",
     inputRefName: "email",
@@ -44,18 +29,18 @@ export const loginInputs = [
 // Login
 export const registerCompanyInputs = [
   {
-    label: "register.inputs.full__name.label",
-    placeholder: "register.inputs.full__name.placeholder",
-    icon: NameIcon,
-    inputRefName: "full_name",
-    type: "text",
-    onChange: () => {},
-  },
-  {
     label: "register.inputs.company.label",
     placeholder: "register.inputs.company.placeholder",
     icon: CompanyIcon,
     inputRefName: "company_name",
+    type: "text",
+    onChange: () => {},
+  },
+  {
+    label: "register.inputs.full__name.label",
+    placeholder: "register.inputs.full__name.placeholder",
+    icon: NameIcon,
+    inputRefName: "full_name",
     type: "text",
     onChange: () => {},
   },
@@ -91,14 +76,6 @@ export const registerCompanyInputs = [
     type: "password",
     onChange: () => {},
   },
-  {
-    label: "register.inputs.tin__code.label",
-    placeholder: "register.inputs.tin__code.placeholder",
-    icon: ArchiveIcon,
-    inputRefName: "identity_number",
-    type: "text",
-    onChange: () => {},
-  },
 ];
 
 export const registerIndividualInputs = [
@@ -106,7 +83,7 @@ export const registerIndividualInputs = [
     label: "register.inputs.full__name.label",
     placeholder: "register.inputs.full__name.placeholder",
     icon: NameIcon,
-    inputRefName: "name",
+    inputRefName: "full_name",
     type: "text",
     onChange: () => {},
   },
@@ -142,14 +119,6 @@ export const registerIndividualInputs = [
     icon: PasswordIcon,
     inputRefName: "confirm__password",
     type: "password",
-    onChange: () => {},
-  },
-  {
-    label: "register.inputs.fin__code.label",
-    placeholder: "register.inputs.fin__code.placeholder",
-    icon: ArchiveIcon,
-    inputRefName: "code",
-    type: "text",
     onChange: () => {},
   },
 ];

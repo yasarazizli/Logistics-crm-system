@@ -23,7 +23,7 @@ const BasicModal = ({
           <Button
             text={closeTitle}
             onClick={modalClose}
-            viewType={"dark-green"}
+            viewType={"dark__blue"}
           />
           <Button text={doneTitle} onClick={doneClick} />
         </div>

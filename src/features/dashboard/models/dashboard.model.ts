@@ -48,7 +48,6 @@ export interface RouteModel {
   transport_id: number;
   type: string;
 
-  // Bildiklerim
   start_country_id: number;
   start_city_id: number;
   start_address: string;

@@ -10,9 +10,8 @@
       "two": "Completed"
     }
   },
-
   "login": {
-    "title": "Login",
+    "title": "Sign-in",
     "tabs": {
       "login": "Login",
       "sign__up": "Register"
@@ -29,8 +28,8 @@
     },
     "buttons": {
       "forget": "Forgot Password?",
-      "sign__in": "Sign In",
-      "quotation": "Request a Quote"
+      "sign__in": "Sign-in",
+      "quotation": "Ask Price Quotation"
     }
   },
   "register": {
@@ -41,7 +40,7 @@
     },
     "inputs": {
       "full__name": {
-        "label": "Full Name",
+        "label": "Name surname",
         "placeholder": "Full Name"
       },
       "company": {
@@ -49,19 +48,19 @@
         "placeholder": "Company Name"
       },
       "email": {
-        "label": "Email Address",
+        "label": "E-mail",
         "placeholder": "example@example.com"
       },
       "phone": {
-        "label": "Phone Number",
-        "placeholder": "+994-123-45-67"
+        "label": "Phone",
+        "placeholder": "Phone number"
       },
       "password": {
         "label": "Password",
         "placeholder": "**************"
       },
       "re__password": {
-        "label": "Confirm Password",
+        "label": "Re-Password",
         "placeholder": "**************"
       },
       "tin__code": {
@@ -74,33 +73,50 @@
       }
     },
     "buttons": {
-      "redirect": "Back to Login",
-      "next": "Next"
+      "redirect": "Back to Home",
+      "next": "Sign-in"
     }
   },
   "forget": {
-    "title": ""
+    "title": "Forgot Password",
+    "subtitle": "Enter your e-mail to receive identification mail",
+    "buttons": {
+      "send": "Send identification mail"
+    }
   },
-
   "shared": {
     "buttons": {
+      "back": "Back",
+      "title": "Enter your e-mail",
+      "subtitle": "Enter your e-mail to recieve identification mail.",
       "filter": "Filter",
       "save": "Save",
+      "add": "Add payment",
       "cancel": "Cancel",
       "manager": "Assign Commercial Manager",
       "accountant": "Assign Accountant",
-      "search": "Search"
+      "search": "Search",
+      "send": "Send identification mail",
+      "update": "Edit Worker"
     },
     "tabs": {
       "one": "Verified Contracts",
       "two": "Contracts Pending Approval",
-      "three": "Without Contracts"
+      "three": "Without Contracts",
+      "four": "Order Confirmation",
+      "five": "Payments"
     },
     "inputs": {
+      "email": "Email",
+      "password": "password",
+      "confirm_password": "Re-Password",
       "file": {},
       "selected": {
-        "default": "Selected Value"
-      }
+        "default": "Selected Value",
+        "country": "Required Service Country",
+        "city": "Required Service City"
+      },
+      "textarea": "Description"
     },
     "roles": {
       "lawyer": "Lawyer",
@@ -126,7 +142,17 @@
   },
   "users": {
     "title": "Users",
+    "buttons": {
+      "create": "Create User"
+    },
     "modals": {
+      "creat_user": {
+        "title": "Create User"
+      },
+      "delete_user": {
+        "title": "User Deletion",
+        "subtitle": "Are you sure you want to delete the user?"
+      },
       "add_contract": {
         "title": "Add Contract",
         "subtitle": "Save after adding the contract"
@@ -191,6 +217,63 @@
     }
   },
   "workers": {
+    "roles": {
+      "admin": "Admin",
+      "user": "User",
+      "buyer_manager": "Buyers Manager",
+      "buyer_directory": "Buyers Director",
+      "commercial_directory": "Commercial Directory",
+      "commercial_manager": "Commercial Manager",
+      "commercial_specialist": "Commercial Specialist",
+      "lawyer": "Lawyer",
+      "accountant": "Accountant",
+      "monitoring": "Monitoring"
+    },
+    "language": {
+      "English": "English",
+      "Azerbaijan": "Azerbaijan",
+      "Russian": "Russian"
+    },
+
+    "payment": {
+      "prepay": "Pre Pay",
+      "postpay": "Post Pay"
+    },
+
+    "transaction": {
+      "add": "Add",
+      "reduce": "reduce"
+    },
+
+    "verified": {
+      "verified": "Confirmed contracts",
+      "unverified": "Unconfirmed",
+      "empty": "Without contract"
+    },
+
+    "status": {
+      "pending": "Pending",
+      "offered": "Offered",
+      "ordered": "Ordered",
+      "completed": "Completed",
+      "draft": "Draft",
+      "rejected": "Rejected",
+      "price": "Balance:",
+      "contract" : "Contract status:"
+    },
+
+    "contract": {
+      "start__time": "Contract Start Date",
+      "start__time__placeholder": "gg/aa/yyyy",
+      "start__time__end": "Contract End Date",
+      "payment__name": "Payment Method",
+      "payment__placeholder": "Select",
+      "interest__rate": "Interest rate",
+      "payment__rate": "Payment rate",
+      "maximum": "Maximum Credit Limit",
+      "delete": ""
+    },
+
     "title": "Workers",
     "tabs": {
       "one": "Lawyer",
@@ -201,23 +284,82 @@
     },
     "buttons": {
       "create": "Add Worker",
+      "update": "Edit Worker",
       "delete": "Delete Worker"
     },
     "modals": {
       "create": {
-        "title": "Add Worker",
+        "title": "Add HS Code",
+        "title__user": "Create User",
+        "title__1": "Add Country",
+        "title__2": "Add Station",
+        "title__3": "Add City",
+        "title__4": "Add Employees",
+        "verify": "Verify Contract",
+        "add": "Add Port",
+        "add__balance": "Balance transaction",
+        "balance": "Add Balance",
+        "contract": "Add Contract",
+        "update": "Edit Hs Code",
+        "update__1": "Edit Country",
+        "update__2": "Edit Station",
+        "update__3": "Edit City",
+        "update__4": "Edit Employees",
+        "update__port": "Edir Port",
         "inputs": {
           "full_name": {
-            "label": "Full Name",
-            "placeholder": "Full Name"
+            "label": "Cargo Name",
+            "placeholder": "Lorem",
+            "placeholder__balance": "12300$",
+            "placeholder__invoice": "Drop your files",
+            "label__1": "Country Name",
+            "label__2": "Station Name",
+            "label__3": "City Name",
+            "label__4": "Full name",
+            "label__port": "Port Name",
+            "label__balance": "Write amount",
+            "label__invoice": "Upload invoice",
+            "label__contract": "Upload your file",
+            "contract__number": "Contract Number",
+            "contract__placeholder": "+994 55 123 45 67"
           },
-          "email": {
-            "label": "Email Address",
-            "placeholder": "example@example.com"
+
+          "transaction": {
+            "title": "Transaction",
+            "title__amount": "Amount",
+            "title__note": "Note",
+            "title__invoice": "Upload invoice",
+            "title__placeholder": "Top up balance",
+            "amount__placeholder": "Your amount here",
+            "note__placeholder": "Your note here",
+            "invoice__placeholder": "Your note here"
           },
-          "phone": {
-            "label": "Phone Number",
-            "placeholder": "+994-123-45-67"
+
+            "employee": {
+              "title": "E-mail",
+              "title__1": "Phone number",
+              "title__2": "FIN Code",
+              "title__3": "Password",
+              "title__5": "Repassword",
+              "placeholder__1":"+994 55 123 45 67",
+              "placeholder__2":"123456"
+            },
+          "hs__code": {
+            "label": "HS Code",
+            "placeholder": "123456",
+            "label__1": "Code"
+          },
+          "description": {
+            "label": "Description",
+            "label__1": "Lat",
+            "label__2": "Long",
+            "label__3": "Pole",
+            "label__4": "Country",
+            "label__5": "Role",
+            "language": "Contract Language",
+            "language__placeholder": "Language",
+            "placeholder": "Ipsum",
+            "placeholder__1": "Lorem"
           },
           "password": {
             "label": "Password",
@@ -234,8 +376,20 @@
         }
       },
       "delete": {
-        "title": "Worker Deletion",
-        "subtitle": "Are you sure you want to delete the worker?",
+        "title": "Hs Code Deletion",
+        "title__1": "Country Deletion",
+        "title__2": "Station Deletion",
+        "title__3": "City Deletion",
+        "title__4": "Employees Deletion",
+        "title__port": "Port Deletion",
+        "lawyer": "Contract Deletion",
+        "subtitle": "Are you sure about deleting HS Code?",
+        "subtitle__1": "Are you sure about deleting Country?",
+        "subtitle__2": "Are you sure about deleting Station?",
+        "subtitle__3": "Are you sure about deleting City?",
+        "subtitle__4": "Are you sure about deleting Employees?",
+        "lawyer__subtitle": "Are you sure about deleting Contract?",
+        "subtitle__port": "Are you sure about deleting Port?",
         "buttons": {
           "approve": "Delete",
           "reject": "Cancel"
@@ -292,43 +446,55 @@
       "three": "Deactivated Contracts"
     },
     "modals": {
+      "title": "Add Vendor",
+      "title_services": "Add Services",
       "create": {
-        "title": "Add Service",
-        "inputs": {
-          "contract_name": "Service Name",
-          "contract_start_date": "Contract Start Date",
-          "contract_end_date": "Contract End Date",
-          "contract_language": "Contract Language"
-        }
-      },
-      "monitoring_approve": {
-        "title": "Approve Service",
-        "subtitle": "Are you sure you want to approve the service cost?",
-        "buttons": {
-          "approve": "Approve",
-          "reject": "Cancel"
-        }
-      },
-      "contract_verified": {
-        "title": "Service Contract Verification",
-        "subtitle": "Are you sure you want to verify the service contract?",
-        "buttons": {
-          "approve": "Verify",
-          "reject": "Cancel"
-        }
-      },
-      "contract_delete": {
-        "title": "Service Contract Deletion",
-        "subtitle": "Are you sure you want to delete the service contract?",
-        "buttons": {
-          "approve": "Delete",
-          "reject": "Cancel"
-        }
+        "vendor_label": "Vendor name",
+        "vendor_placeholder": "Name",
+        "started": "Contract Start date",
+        "ended": "Contract End date",
+        "vendor_select": "Select vendor",
+        "service_name": "Service Name",
+        "hs_code": "QNQ/ HS Code",
+        "hs_code_placeholder": "Search",
+        "select_country": "Select country",
+        "value": "Value",
+        "select_city": "From",
+        "select_city__2": "To",
+        "transport__type": "Transport type",
+        "transport__mode": "Transport mode",
+        "contract__date": "Contract Expired date",
+        "protocol__date": "Protocol Expired date",
+        "per__unit": "Purchase price per unit",
+        "per__ton": "Purchase price per ton",
+        "contract_language": "Select contract language",
+        "contract__file": "Upload contract file",
+        "upload__file": "Upload protocol file",
+        "file__placeholder": "Drop your file here or browser",
+        "location": "Location"
       }
+    },
+
+    "vendor": {
+      "verified": "Verified contracts",
+      "empty":"Contracts Pending Approval",
+      "unverified": "Deactivated contract"
     }
+
   },
-  "order": {
-    "title": "Order",
+  "main": {
+    "title": "Users",
+    "lawyer": "Users",
+    "cd_services": "Services",
+    "title__2": "Vendors",
+    "title__3": "Employees",
+    "title__4": "Services",
+    "title__5": "Orders",
+    "title__6": "Balance Activities",
+    "title__7": "My Tasks",
+    "title__8": "Controls",
+    "log__out": "Log Out",
+    "setting": "Settings",
     "tabs": {
       "list": {
         "one": "Unconfirmed",
@@ -428,7 +594,145 @@
       }
     }
   },
+  "order": {
+    "title": "Order",
+    "tabs": {
+      "list": {
+        "one": "Unconfirmed",
+        "two": "Pending Confirmation",
+        "three": "Unverified",
+        "four": "Order Confirmation",
+        "five": "Payments"
+      },
+      "create": {
+        "one": "Basic Information",
+        "two": "Order Details"
+      },
+      "services": {
+        "one": "Order Services",
+        "two": "Service Request"
+      }
+    },
+    "buttons": {
+      "create": "Create Order",
+      "send_instruction_document": "Send Instructions",
+      "confirm": "Confirm",
+      "save": "Save",
+      "send": "Send",
+      "back": "Back"
+    },
+    "client_editor": {
+      "buttons": {
+        "new_user": "Add New User"
+      },
+      "search": {
+        "label": "Search User",
+        "placeholder": "Username or Email",
+        "result": "Results",
+        "empty": "No results found"
+      },
+      "user_card": {
+        "title": "User Details",
+        "inputs": {
+          "name": {
+            "label": "Customer Name",
+            "placeholder": "Customer Name"
+          },
+          "tin": {
+            "label": "TIN",
+            "placeholder": "TIN"
+          },
+          "phone": {
+            "label": "Contact Number",
+            "placeholder": "+994-123-45-67"
+          },
+          "email": {
+            "label": "Email Address",
+            "placeholder": "example@example.com"
+          }
+        }
+      }
+    },
+    "route_editor": {
+      "title": "Order Details",
+      "order_date": {
+        "title": "Order Start-End Date",
+        "inputs": {
+          "date_start": "Order Start Date",
+          "date_end": "Order End Date"
+        }
+      },
+      "order_participants": {
+        "title": "Order Participants",
+        "shipper": "Shipper",
+        "receiver": "Receiver",
+        "expeditor": "Expeditor"
+      },
+      "order_main_route": {
+        "title": "Full Route",
+        "inputs": {
+          "date": {
+            "loading_place": "Loading Place",
+            "discharging_place": "Discharging Place"
+          }
+        }
+      }
+    },
+    "services": {
+      "provider": {
+        "buttons": {
+          "add_service": "Add New Service"
+        }
+      },
+      "request": {
+        "title": "Send Request",
+        "inputs": {
+          "selected": {
+            "country": "Required Service Country",
+            "city": "Required Service City"
+          },
+          "textarea": "Description",
+          "button": "Send Request"
+        }
+      }
+    }
+  },
   "location": {
     "title": "Address"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+
+  "price" : {
+    "title": "Price quotation"
+  },
+
+  "expand" : {
+    "cargo":"My cargo is dangerous",
+    "title": "Drop your images here or",
+    "title__2": "upload from computer",
+    "title__3": "Maximum size: 3MB"
+},
+
+  "cd" : {
+    "full_name": "Name surname",
+
+    "modal" : {
+      "title": "Select the Manager",
+      "label": "Manager",
+      "title_1": "Select the Accountant",
+      "label_1": "Accountant",
+      "price": "Selling price",
+      "input_1": "Per ton",
+      "placeholder": "Price",
+      "input_2": "Pet unit",
+      "confirm": "Do you want to confirm?"
+    }
+
   }
+
 }

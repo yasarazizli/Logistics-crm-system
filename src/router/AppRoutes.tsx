@@ -11,23 +11,31 @@ import SuccessPage from "../features/auth/pages/SuccessPage.tsx";
 import PriceQuotation from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.tsx";
 
 // Utils Pages
-import HomePage from "@/features/dashboard/pages/HomePage.tsx";
-import UsersPage from "@/features/dashboard/pages/UsersPage.tsx";
-import ProfilePage from "@/features/dashboard/pages/ProfilePage.tsx";
+
+import ProfilePage from "@/features/dashboard/pages/Others/ProfilePage.tsx";
 
 import { allowedLanguage } from "@/components/Language/language.constant.tsx";
 import { useContext, useEffect } from "react";
 import NotFoundPage from "@/features/not-found/page/NotFoundPage.tsx";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { useTranslation } from "react-i18next";
-import VendorsPage from "@/features/dashboard/pages/VendorsPage.tsx";
-import SettingsPage from "@/features/dashboard/pages/SettingsPage.tsx";
-import OrdersPage from "@/features/dashboard/pages/OrdersPage.tsx";
-import OrderCreatePage from "@/features/dashboard/pages/OrderCreatePage.tsx";
-import ServicesPage from "@/features/dashboard/pages/ServicesPage.tsx";
-import WorkersPage from "@/features/dashboard/pages/WorkersPage.tsx";
-import BalanceActivitiesPage from "@/features/dashboard/pages/BalanceActivitiesPage.tsx";
-import TasksPage from "@/features/dashboard/pages/TasksPage.tsx";
+
+import EmailSuccessPage from "@/features/auth/pages/EmailSuccessPage.tsx";
+import RegisterSuccessPage from "@/features/auth/pages/RegisterSuccessPage.tsx";
+import ControlsPage from "@/features/dashboard/pages/Controls/ControlsPage.tsx";
+import HsCodePage from "@/features/dashboard/pages/Controls/HsCodePage.tsx";
+import CountryPage from "@/features/dashboard/pages/Controls/CountryPage.tsx";
+import StationPage from "@/features/dashboard/pages/Controls/StationPage.tsx";
+import CityPage from "@/features/dashboard/pages/Controls/CityPage.tsx";
+import EmployeesPage from "@/features/dashboard/pages/Employees/EmployeesPage.tsx";
+import PortPage from "@/features/dashboard/pages/Controls/PortPage.tsx";
+import UsersPage from "@/features/dashboard/pages/Others/UsersPage.tsx";
+import LawyerPage from "@/features/dashboard/pages/Lawyer/LawyerPage.tsx";
+import AccountantUserPage from "@/features/dashboard/pages/Accountant/AccountantUserPage.tsx";
+import ServicesPage from "@/features/dashboard/pages/Services/ServicesPage.tsx";
+import VendorPage from "@/features/dashboard/pages/Vendor/VendorPage.tsx";
+import CommercialDirectoryUserPage from "@/features/dashboard/pages/CommercialDirectory/CommercialDirectoryUser/CommercialDirectoryUserPage.tsx";
+import CommercialDirectoryServicesPage from "@/features/dashboard/pages/CommercialDirectory/CommercialDirectoryServices/CommercialDirectoryServicesPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -37,7 +45,7 @@ const AppRoutes = () => {
   useEffect(() => {
     if (location.pathname === `/`) {
       if (auth.isAuth) {
-        navigate(`/${i18n.language}/home`);
+        navigate(`/${i18n.language}/users`);
       } else {
         navigate(`/${i18n.language}/auth/login`);
       }
@@ -76,29 +84,35 @@ const AppRoutes = () => {
         <Route path="register" element={<RegisterPage />} />
         <Route path="forget" element={<ForgetPage />} />
         <Route path="success" element={<SuccessPage />} />
+        <Route path="emailsuccess" element={<EmailSuccessPage />} />
+        <Route path="registersuccess" element={<RegisterSuccessPage />} />
         <Route path="price/quotation" element={<PriceQuotation />} />
       </Route>
 
       {/* Privet Route */}
       <Route path="/:lang" element={<PrivateRoute />}>
-        <Route path="home" element={<HomePage />} />
-
         <Route path="users" element={<UsersPage />} />
-        <Route path="workers" element={<WorkersPage />} />
-
-        <Route path="order">
-          <Route index element={<OrdersPage />} />
-          <Route path="create" element={<OrderCreatePage />} />
-          <Route path="update" element={<OrderCreatePage />} />
+        <Route path="lawyer/users" element={<LawyerPage />} />
+        <Route path="accountant/users" element={<AccountantUserPage />} />
+        <Route
+          path="commercial/directory/users"
+          element={<CommercialDirectoryUserPage />}
+        />
+        <Route
+          path="commercial/directory/services"
+          element={<CommercialDirectoryServicesPage />}
+        />
+        <Route path="controls">
+          <Route index element={<ControlsPage />} />
+          <Route path="hscode" element={<HsCodePage />} />
+          <Route path="country" element={<CountryPage />} />
+          <Route path="station" element={<StationPage />} />
+          <Route path="port" element={<PortPage />} />
+          <Route path="city" element={<CityPage />} />
         </Route>
-
-        <Route path="vendors" element={<VendorsPage />} />
+        <Route path="employees" element={<EmployeesPage />} />
         <Route path="services" element={<ServicesPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="balance" element={<BalanceActivitiesPage />} />
-
-        <Route path="tasks" element={<TasksPage />} />
-
+        <Route path="vendors" element={<VendorPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 

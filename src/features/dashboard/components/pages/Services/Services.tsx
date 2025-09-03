@@ -1,314 +1,265 @@
 import { useContext, useEffect, useState } from "react";
-import styles from "@/features/dashboard/components/pages/Dashboard.module.scss";
-import Filter from "@/components/Filter/Filter.tsx";
-
-import { useNavigate } from "react-router-dom";
-
-import FilterPopup from "@/features/dashboard/components/shared/Filter/FilterPopup.tsx";
-import Table from "@/components/Table/Table.tsx";
-import { AuthContext } from "@/contexts/AuthContext.tsx";
-import { useFilterInputsChanger } from "@/hooks/useFilterInputsChanger.ts";
-
-import { usePageChanger } from "@/hooks/usePageChanger.ts";
-import { useTranslation } from "react-i18next";
-import { PageHelperStateType } from "@/features/dashboard/models/shared.model.ts";
-import ServiceCreated from "@/features/dashboard/components/shared/Modals/Services/ServiceCreated.tsx";
-import ServicesTableRow from "@/features/dashboard/components/pages/Services/ServicesTableRow.tsx";
-import { ServiceModel } from "@/features/dashboard/models/service.model.ts";
-import { getServicesTableHeaders } from "@/features/dashboard/constants/tableHeader.constant.tsx";
-import {
-  ContractStatus,
-  Roles,
-} from "@/features/dashboard/constants/enum.constant.tsx";
+import styles from "../Controls/HsCode/HsCode.module.scss";
+import Button from "@/components/Button/Button.tsx";
+import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
+import { useDebounce } from "@/hooks/useDebounce";
+import { FileIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
-import { getAllServicesRequest } from "@/features/dashboard/services/services.service.ts";
-import { servicesFilterConstants } from "@/features/dashboard/constants/filters.constant.tsx";
-import ServiceContractApproval from "@/features/dashboard/components/shared/Modals/Services/ServiceContractApproval.tsx";
-import DeleteServiceContract from "@/features/dashboard/components/shared/Modals/Services/DeleteServiceContract.tsx";
-import PageTitle from "@/features/dashboard/components/shared/PageTitle/PageTitle.tsx";
-import AddSellingPrice from "@/features/dashboard/components/shared/Modals/Services/AddSellingPrice.tsx";
-import MonitoringPending from "@/features/dashboard/components/shared/Modals/Services/MonitoringPending.tsx";
+import { getAllServices } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
+import CreateVendor from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateVendor.tsx";
+import CreateServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateServices.tsx";
+
+interface Service {
+  id: number;
+  country: string;
+  location: string;
+  vendor: string;
+  service: string;
+  transport_mode: string;
+  from: string;
+  to: string;
+  transport_type: string;
+  purchase_price_ton: number;
+  purchase_price_unit: number;
+  min_selling_price?: number;
+  contract?: string;
+  contract_expired?: string;
+  protocol?: string;
+  protocol_expired?: string;
+}
+
+const filterKeys = [
+  "country_name",
+  "location",
+  "vendor_name",
+  "service_name",
+  "transport_mode",
+  "from_name",
+  "to_name",
+  "transport_type",
+] as const;
 
 const Services = () => {
-  // React
-  const navigate = useNavigate();
   const { setLoader } = useContext(LoaderContext);
-  const { i18n, t } = useTranslation();
-
-  // Contexts
-  const { auth } = useContext(AuthContext);
-
-  // Hooks
-  const { page } = usePageChanger();
-  const { filterInputsData, setFilterInputsData, resetFilterInputs } =
-    useFilterInputsChanger({ ...servicesFilterConstants });
-
-  // States
-  const [pageHelper, setPageHelper] = useState<PageHelperStateType>({
-    response: null,
-    render: false,
-    tabs: [
-      // Admin, Commercial Directory, Lawyer, Buyers
-      ...([
-        Roles.commercial_directory,
-        Roles.lawyer,
-        Roles.buyer_manager,
-      ].includes(auth?.role as Roles)
-        ? [
-            {
-              name: "services.tabs.one",
-              tab: 0,
-              onClick: () => {
-                setPageHelper((prevState) => ({
-                  ...prevState,
-                  activeTab: 0,
-                }));
-                navigate(`${location.pathname}?page=${1}`);
-              },
-            },
-            {
-              name: "services.tabs.two",
-              tab: 1,
-              onClick: () => {
-                setPageHelper((prevState) => ({
-                  ...prevState,
-                  activeTab: 1,
-                }));
-                navigate(`${location.pathname}?page=${1}`);
-              },
-            },
-            {
-              name: "services.tabs.three",
-              tab: 2,
-              onClick: () => {
-                setPageHelper((prevState) => ({
-                  ...prevState,
-                  activeTab: 2,
-                }));
-                navigate(`${location.pathname}?page=${1}`);
-              },
-            },
-          ]
-        : []),
-
-      // Monitoring
-      ...([Roles.monitoring].includes(auth?.role as Roles)
-        ? [
-            {
-              name: "services.tabs.two",
-              tab: 0,
-              onClick: () => {},
-            },
-          ]
-        : []),
-    ],
-    activeTab: 0,
-    buttons: [
-      {
-        title: t("services.buttons.create"),
-        onClick: () => {
-          setModals((prevState) => ({
-            ...prevState,
-            service_create: true,
-          }));
-        },
-      },
-    ],
+  const [filters, setFilters] = useState({
+    country_name: "",
+    vendor_name: "",
+    location: "",
+    service_name: "",
+    transport_mode: "",
+    from_name: "",
+    to_name: "",
+    transport_type: "",
   });
 
-  const [modals, setModals] = useState<{
-    service_create: boolean;
-    service_contract_verified: ServiceModel | null;
-    service_contract_deleted: ServiceModel | null;
-    service_selling_price: ServiceModel | null;
-    service_monitoring_pending: ServiceModel | null;
-  }>({
-    service_create: false,
-    service_contract_verified: null,
-    service_contract_deleted: null,
-    service_selling_price: null,
-    service_monitoring_pending: null,
-  });
+  const [modal, setModal] = useState<
+    null | { type: "create" } | { type: "add" }
+  >(null);
 
-  // Functions
-  const getAllServices = async () => {
-    setLoader(true);
+  const [pageHelper, setPageHelper] = useState({ render: false });
 
-    let contractStatus;
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
-    if (Roles.monitoring === auth.role) {
-      contractStatus = "monitoring";
-    } else {
-      contractStatus = [
-        "admin",
-        "lawyer",
-        "buyer_manager",
-        "commercial_directory",
-      ].includes(auth.role)
-        ? ContractStatus[pageHelper.activeTab]
-        : "verified";
-    }
-
-    const { status, data } = await getAllServicesRequest(
-      page,
-      10,
-      filterInputsData.name.value,
-      filterInputsData.start_date.value,
-      filterInputsData.end_date.value,
-      contractStatus,
-    );
-
-    if (status === 200) {
-      setPageHelper((prevState) => ({
-        ...prevState,
-        response: data,
-      }));
-    }
-
-    setLoader(false);
+  const debouncedFilters = {
+    country_name: useDebounce(filters.country_name, 700),
+    vendor_name: useDebounce(filters.vendor_name, 700),
+    location: useDebounce(filters.location, 700),
+    service_name: useDebounce(filters.service_name, 700),
+    transport_mode: useDebounce(filters.transport_mode, 700),
+    from_name: useDebounce(filters.from_name, 700),
+    to_name: useDebounce(filters.to_name, 700),
+    transport_type: useDebounce(filters.transport_type, 700),
   };
 
-  // useEffects
+  const [data, setData] = useState<Service[]>([]);
+  const [total, setTotal] = useState(0);
+
   useEffect(() => {
-    getAllServices().catch(() => {});
-  }, [pageHelper.activeTab, page, pageHelper.render]);
+    setLoader(true);
+    const fetchData = async () => {
+      const response = await getAllServices({
+        ...debouncedFilters,
+        page,
+        pageSize,
+      });
+
+      if (response?.status === 200) {
+        setData(response.data?.data || []);
+        setTotal(response.data?.count || 0);
+      }
+      setLoader(false);
+    };
+    fetchData();
+    setLoader(false);
+  }, [page, pageHelper.render, ...Object.values(debouncedFilters)]);
+
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    key: string,
+  ) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: e.target.value,
+    }));
+    setPage(1);
+  };
+
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
-    <>
-      <div className={styles.dashboard}>
-        <PageTitle title={t("services.title")} />
-
-        <Filter
-          buttons={
-            ["admin", "buyer_manager"].includes(auth.role)
-              ? pageHelper.buttons
-              : []
-          }
-          tabs={pageHelper.tabs}
-          activeTabs={pageHelper.activeTab}
-          onFilter={() => {
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-          }}
-          onClear={() => {
-            resetFilterInputs();
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-          }}
-        >
-          <FilterPopup
-            inputsState={filterInputsData}
-            setInputsState={setFilterInputsData}
+    <div className={styles.hscode}>
+      <div className={styles.title__btn}>
+        <h1>Services</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
+          <Button
+            text="Add vendor"
+            viewType="green__light"
+            icon={PlusIcon}
+            onClick={() => setModal({ type: "add" })}
           />
-        </Filter>
-
-        <div className={styles.dashboard__table}>
-          <Table
-            dataCount={pageHelper.response?.page_count}
-            tableRow={getServicesTableHeaders(
-              pageHelper.activeTab,
-              i18n.language,
-              auth.role,
-            )}
-          >
-            {pageHelper.response?.service?.map(
-              (service: ServiceModel, index: number) => (
-                <ServicesTableRow
-                  key={`row_data_${index}`}
-                  activeTab={pageHelper.activeTab}
-                  service={service}
-                  setModals={setModals}
-                />
-              ),
-            )}
-          </Table>
+          <Button
+            text="Add Services"
+            viewType="green__light"
+            icon={PlusIcon}
+            onClick={() => setModal({ type: "create" })}
+          />
         </div>
       </div>
 
-      {/* Modals */}
-      {modals.service_create && (
-        <ServiceCreated
-          modalClose={() => {
-            setModals((prevState) => ({
-              ...prevState,
-              service_create: false,
-            }));
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-          }}
-        />
-      )}
+      <div className={styles.table}>
+        <Table
+          headers={[
+            { name: "Country" },
+            { name: "Location" },
+            { name: "Vendor" },
+            { name: "Service" },
+            { name: "Transport Mode" },
+            { name: "From" },
+            { name: "To" },
+            { name: "Transport Type" },
+            { name: "Purchase Price Per Unity" },
+            { name: "Purchase Price Per Ton" },
+            { name: "Contract File" },
+            { name: "Contract Date" },
+            { name: "Protocol" },
+            { name: "Protocol Date" },
+          ]}
+          filters={
+            <>
+              {filterKeys.map((key) => (
+                <td key={key}>
+                  <input
+                    placeholder={`Filter by ${key.replace("_", " ")}`}
+                    value={filters[key]}
+                    onChange={(e) => handleFilterChange(e, key)}
+                  />
+                </td>
+              ))}
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </>
+          }
+        >
+          {data.map((item) => (
+            <tr key={item.id}>
+              <td>{item.country}</td>
+              <td>{item.location}</td>
+              <td>{item.vendor}</td>
+              <td>{item.service}</td>
+              <td>{item.transport_mode}</td>
+              <td>{item.from}</td>
+              <td>{item.to}</td>
+              <td>{item.transport_type}</td>
+              <td>{item.purchase_price_ton}</td>
+              <td>{item.purchase_price_unit}</td>
+              <td>
+                <div className={styles.document}>
+                  File
+                  {item.contract ? (
+                    <a
+                      href={item.contract}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className={styles.file__icon}>
+                        <FileIcon />
+                      </div>
+                    </a>
+                  ) : (
+                    " - "
+                  )}
+                </div>
+              </td>
+              <td>
+                {item.contract_expired
+                  ? new Date(item.contract_expired).toISOString().split("T")[0]
+                  : "-"}
+              </td>
+              <td>
+                <div className={styles.document}>
+                  File
+                  {item.protocol ? (
+                    <a
+                      href={item.protocol}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className={styles.file__icon}>
+                        <FileIcon />
+                      </div>
+                    </a>
+                  ) : (
+                    " - "
+                  )}
+                </div>
+              </td>
+              <td>
+                {item.protocol_expired
+                  ? new Date(item.protocol_expired).toISOString().split("T")[0]
+                  : "-"}
+              </td>
+            </tr>
+          ))}
+        </Table>
 
-      {modals.service_contract_verified && (
-        <ServiceContractApproval
-          service={modals.service_contract_verified}
-          modalClose={() => {
-            setModals((prevState) => ({
-              ...prevState,
-              service_contract_verified: null,
-            }));
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-          }}
-        />
-      )}
+        <div className={styles.pagination}>
+          <div className={styles.pageNumbers}>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                onClick={() => setPage(pg)}
+                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
+              >
+                {pg}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-      {modals.service_contract_deleted && (
-        <DeleteServiceContract
-          service={modals.service_contract_deleted}
+      {modal?.type === "add" && (
+        <CreateVendor
           modalClose={() => {
-            setModals((prevState) => ({
-              ...prevState,
-              service_contract_deleted: null,
-            }));
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
           }}
         />
       )}
-
-      {modals.service_selling_price && (
-        <AddSellingPrice
-          service={modals.service_selling_price}
+      {modal?.type === "create" && (
+        <CreateServices
           modalClose={() => {
-            setModals((prevState) => ({
-              ...prevState,
-              service_selling_price: null,
-            }));
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
           }}
         />
       )}
-
-      {modals.service_monitoring_pending && (
-        <MonitoringPending
-          service={modals.service_monitoring_pending}
-          modalClose={() => {
-            setModals((prevState) => ({
-              ...prevState,
-              service_monitoring_pending: null,
-            }));
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-          }}
-        />
-      )}
-    </>
+    </div>
   );
 };
 

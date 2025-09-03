@@ -1,100 +1,100 @@
 import {
-  SalesIcon,
-  UsersIcon,
-  VendorIcon,
-  ServiceIcon,
-  WorkersIcon,
-  TasksIcon,
   BalanceActivitiesIcon,
-  SettingsIcon,
-  // RegionIcon,
-  // SalesIcon,
-  // CommercialIcon,
-  // BuyerIcon,
-  // FinancialIcon,
-  // VendorIcon,
-  // ServiceIcon,
-  // TemplatesIcon,
+  ControlsIcon,
+  HomeIcon,
+  HumansIcon,
+  LawyerIcon,
+  OrdersIcon,
+  ServiceIcon,
+  TasksIcon,
+  VendorIcon,
 } from "@/assets/icons/sidebar.vectors.tsx";
 
 export const navigation = [
-  // Users
   {
-    name: "users.title",
+    name: "main.title",
     path: "users",
-    icon: UsersIcon,
-    roles: ["admin", "lawyer", "accountant", "commercial_directory"],
+    icon: HomeIcon,
+    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
   },
-
-  // Workers
   {
-    name: "workers.title",
-    path: "workers",
-    icon: WorkersIcon,
-    roles: ["admin"],
-  },
-
-  // Vendors
-  {
-    name: "vendors.title",
+    name: "main.title__2",
     path: "vendors",
-    icon: VendorIcon,
-    roles: ["admin", "lawyer", "buyer_manager"],
+    icon: HumansIcon,
+    roles: ["admin", "buyer_manager"],
   },
-
-  // Services
   {
-    name: "services.title",
+    name: "main.title__3",
+    path: "employees",
+    icon: VendorIcon,
+    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+  },
+  {
+    name: "main.title__4",
     path: "services",
     icon: ServiceIcon,
-    roles: [
-      "admin",
-      "lawyer",
-      "buyer_manager",
-      "commercial_directory",
-      "monitoring",
-    ],
+    roles: ["admin", "buyer_manager"],
   },
-
-  // Settings
   {
-    name: "settings.title",
-    path: "settings",
-    icon: SettingsIcon,
-    roles: ["admin"],
+    name: "main.title__5",
+    path: "orders",
+    icon: OrdersIcon,
+    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
   },
-
-  // Orders
   {
-    name: "order.title",
-    path: "order",
-    icon: SalesIcon,
-    roles: [
-      "admin",
-      "user",
-      "commercial_manager",
-      "accountant",
-
-      "directory",
-      "commercial_directory",
-      "accountant",
-      "buyer_manager",
-    ],
-  },
-
-  // Balance Activity
-  {
-    name: "Balans Fəaliyyətləri",
+    name: "main.title__6",
     path: "balance",
     icon: BalanceActivitiesIcon,
-    roles: ["admin", "accountant"],
+    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
   },
-
-  // Tasks
   {
-    name: "Tasklarım",
+    name: "main.title__7",
     path: "tasks",
     icon: TasksIcon,
-    roles: ["admin", "buyer_manager"],
+    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+  },
+  {
+    name: "main.title__8",
+    path: "controls",
+    icon: ControlsIcon,
+    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+  },
+
+  // lawyer
+  {
+    name: "main.lawyer",
+    path: "lawyer/users",
+    icon: LawyerIcon,
+    roles: ["lawyer"],
+  },
+
+  // User
+  {
+    name: "main.lawyer",
+    path: "users",
+    icon: LawyerIcon,
+    roles: ["user"],
+  },
+
+  //Accountant
+  {
+    name: "main.lawyer",
+    path: "accountant/users",
+    icon: LawyerIcon,
+    roles: ["accountant"],
+  },
+
+  // Commercial Directory
+  {
+    name: "main.lawyer",
+    path: "commercial/directory/users",
+    icon: LawyerIcon,
+    roles: ["commercial_directory"],
+  },
+  {
+    name: "main.cd_services",
+    path: "commercial/directory/services",
+    icon: ServiceIcon,
+    roles: ["commercial_directory"],
   },
 ];

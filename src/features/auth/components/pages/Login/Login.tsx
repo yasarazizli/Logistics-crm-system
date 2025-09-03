@@ -1,10 +1,5 @@
 import styles from "./Login.module.scss";
-import Tabs from "@/components/Tabs/Tabs.tsx";
-
-import {
-  loginInputs,
-  loginTabs,
-} from "@/features/auth/constants/auth.constant.ts";
+import { loginInputs } from "@/features/auth/constants/auth.constant.ts";
 import Input from "@/components/Input/Input.tsx";
 import { AuthPageIcon } from "@/assets/images/auth/auth.vector.tsx";
 import { FormEvent, useContext, useRef } from "react";
@@ -51,7 +46,26 @@ const Login = () => {
         user: data,
       });
       setCookie("allianceToken", data?.token, 15);
-      navigate(`/${i18n.language}/home`);
+      switch (data.role) {
+        case "lawyer":
+          navigate(`/${i18n.language}/lawyer/users`);
+          break;
+        case "admin":
+          navigate(`/${i18n.language}/users`);
+          break;
+        case "user":
+          navigate(`/${i18n.language}/users`);
+          break;
+        case "accountant":
+          navigate(`/${i18n.language}/accountant/users`);
+          break;
+        case "buyer_manager":
+          navigate(`/${i18n.language}/services`);
+          break;
+        case "commercial_directory":
+          navigate(`/${i18n.language}/commercial/directory/users`);
+          break;
+      }
     } else toast.error(errorMessageHandler(data));
 
     setLoader(false);
@@ -59,9 +73,7 @@ const Login = () => {
 
   return (
     <div className={styles.login}>
-      <div className={styles.login__tabs}>
-        <Tabs tabs={loginTabs} active={0} />
-      </div>
+      <div className={styles.login__tabs}></div>
 
       <form className={styles.login__form} onSubmit={login}>
         <div className={styles.login__form__head}>
@@ -83,12 +95,14 @@ const Login = () => {
           />
         ))}
 
-        <Link
-          to={`/${i18n.language}/auth/forget`}
-          className={styles.login__form__redirect}
-        >
-          {t("login.buttons.forget")}
-        </Link>
+        <div className={styles.login__form__forget}>
+          <Link
+            to={`/${i18n.language}/auth/forget`}
+            className={styles.login__form__redirect}
+          >
+            {t("login.buttons.forget")}
+          </Link>
+        </div>
 
         <div className={styles.login__buttons}>
           <Button text={t("login.buttons.sign__in")} type={"submit"} />
@@ -100,6 +114,10 @@ const Login = () => {
               navigate(`/${i18n.language}/auth/price/quotation`);
             }}
           />
+        </div>
+        <div className={styles.login__check}>
+          <span>Don’t have an account?</span>
+          <Link to={`/${i18n.language}/auth/register`}>Sign-up</Link>
         </div>
       </form>
     </div>

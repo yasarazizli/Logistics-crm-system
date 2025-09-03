@@ -1,238 +1,325 @@
-// React
-import { useContext, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-
-// Types
-import { UserModel } from "@/features/dashboard/models/dashboard.model.ts";
-import { PageHelperStateType } from "@/features/dashboard/models/shared.model.ts";
-
-// Constants
-import { ContractStatus } from "@/features/dashboard/constants/enum.constant.tsx";
-import { getUsersTableHeaders } from "@/features/dashboard/constants/tableHeader.constant.tsx";
-
-// Contexts & Hooks & Request
-import { AuthContext } from "@/contexts/AuthContext.tsx";
+import { useContext, useEffect, useRef, useState } from "react";
+import styles from "../Controls/HsCode/HsCode.module.scss";
+import Button from "@/components/Button/Button.tsx";
+import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
+import { useDebounce } from "@/hooks/useDebounce";
+import {
+  DeleteIcon,
+  GreenAddIcon,
+  PenIcon,
+  PlusIcon,
+  YellowPlusIcon,
+} from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
-import { useFilterInputsChanger } from "@/hooks/useFilterInputsChanger.ts";
-import { usePageChanger } from "@/hooks/usePageChanger.ts";
-import { getAllUsersRequest } from "@/features/dashboard/services/user.service.ts";
+import { getEmployees } from "@/features/dashboard/services/Employees/employees.service.ts";
+import CreateEmployees from "@/features/dashboard/components/shared/Modals/Employees/CreateEmployees.tsx";
+import UpdateEmployees from "@/features/dashboard/components/shared/Modals/Employees/UpdateEmployees.tsx";
+import DeleteEmployees from "@/features/dashboard/components/shared/Modals/Employees/DeleteEmployees.tsx";
+import { useTranslation } from "react-i18next";
+import { checkRequest } from "@/features/auth/services/auth.service.ts";
+import AddBalance from "@/features/dashboard/components/shared/Modals/Users/AddBalance.tsx";
+import AddContract from "@/features/dashboard/components/shared/Modals/Users/AddContract.tsx";
 
-// Components
-import PageTitle from "@/features/dashboard/components/shared/PageTitle/PageTitle.tsx";
-import Table from "@/components/Table/Table.tsx";
-import UsersTableRow from "@/features/dashboard/components/pages/Users/UsersTableRow.tsx";
-import Filter from "@/components/Filter/Filter.tsx";
-import FilterPopup from "@/features/dashboard/components/shared/Filter/FilterPopup.tsx";
+const filterKeys = ["fullname", "email", "phone"] as const;
 
-// Styles
-import styles from "@/features/dashboard/components/pages/Dashboard.module.scss";
-import { userFilterConstants } from "@/features/dashboard/constants/filters.constant.tsx";
-import UserModals from "@/features/dashboard/components/pages/Users/UserModals.tsx";
-
-export interface UserModalsProps {
-  create: boolean;
-  update: UserModel | null;
-  delete: UserModel | null;
-  appoint_accountant: number | null;
-  appoint_commercial_manager: number | null;
-  contract_add: number | null;
-  contract_verification: number | null;
-  contract_delete: number | null;
-  balance_sheet_transaction: number | null;
+export interface Employee {
+  id: number;
+  full_name: string;
+  email: string;
+  phone: string;
+  fin_code: string;
+  role: string;
 }
 
 const Users = () => {
-  // React
-  const { page } = usePageChanger();
-  const { t, i18n } = useTranslation();
-
-  // Contexts
+  const dataRef = useRef<any>(null);
   const { setLoader } = useContext(LoaderContext);
-  const { auth } = useContext(AuthContext);
-
-  // Page Helper
-  const [pageHelper, setPageHelper] = useState<PageHelperStateType>({
-    response: null,
-    render: false,
-    tabs: [
-      ...(["admin", "lawyer", "accountant"].includes(auth.role)
-        ? [
-            {
-              name: "shared.tabs.one",
-              tab: 0,
-              onClick: () => {
-                setPageHelper((prevState) => ({
-                  ...prevState,
-                  activeTab: 0,
-                }));
-              },
-            },
-          ]
-        : []),
-      ...(["admin", "lawyer"].includes(auth.role)
-        ? [
-            {
-              name: "shared.tabs.two",
-              tab: 1,
-              onClick: () => {
-                setPageHelper((prevState) => ({
-                  ...prevState,
-                  activeTab: 1,
-                }));
-              },
-            },
-          ]
-        : []),
-      ...(["admin", "lawyer"].includes(auth.role)
-        ? [
-            {
-              name: "shared.tabs.three",
-              tab: 2,
-              onClick: () => {
-                setPageHelper((prevState) => ({
-                  ...prevState,
-                  activeTab: 2,
-                }));
-              },
-            },
-          ]
-        : []),
-    ],
-    activeTab: 0,
-    buttons: [
-      {
-        title: "users.buttons.create",
-        onClick: () => {
-          setModals((prevState) => ({
-            ...prevState,
-            create: true,
-          }));
-        },
-      },
-    ],
+  const { t } = useTranslation();
+  const [filters, setFilters] = useState({
+    status: "",
+    role: "",
+    fullname: "",
+    email: "",
+    phone: "",
   });
 
-  // Modals
-  const [modals, setModals] = useState<UserModalsProps>({
-    appoint_accountant: null,
-    appoint_commercial_manager: null,
-    contract_add: null,
-    contract_verification: null,
-    contract_delete: null,
-    balance_sheet_transaction: null,
-    create: false,
-    update: null,
-    delete: null,
-  });
+  const [modal, setModal] = useState<
+    | null
+    | { type: "create" }
+    | { type: "update"; id: number; employee: Employee }
+    | { type: "delete"; id: number }
+    | { type: "add" }
+    | { type: "contract"; id: number }
+  >(null);
 
-  // Filter Inputs
-  const { filterInputsData, setFilterInputsData, resetFilterInputs } =
-    useFilterInputsChanger({ ...userFilterConstants });
+  const [pageHelper, setPageHelper] = useState({ render: false });
 
-  // Get All User
-  const getAllUsers = async () => {
-    setLoader(true);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
-    const contractStatus = ["admin", "lawyer"].includes(auth.role)
-      ? ContractStatus[pageHelper.activeTab]
-      : ["commercial_directory"].includes(auth.role)
-        ? "all"
-        : "verified";
-
-    const { status, data } = await getAllUsersRequest(
-      page,
-      10,
-      filterInputsData.name.value,
-      filterInputsData.email.value,
-      filterInputsData.phone.value,
-      filterInputsData.identity_number.value,
-      filterInputsData.company_name.value,
-      filterInputsData.manager.value,
-      filterInputsData.start_date.value,
-      filterInputsData.end_date.value,
-      contractStatus,
-    );
-
-    if (status === 200) {
-      setPageHelper((prevState) => ({
-        ...prevState,
-        response: data,
-      }));
-    }
-    setLoader(false);
+  const debouncedFilters = {
+    fullname: useDebounce(filters.fullname, 700),
+    email: useDebounce(filters.email, 700),
+    phone: useDebounce(filters.phone, 700),
+    role: filters.role,
   };
 
-  // Effects
-  useEffect(() => {
-    getAllUsers().catch(() => {});
-  }, [page, pageHelper.render, pageHelper.activeTab]);
+  const [data, setData] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    console.log(innerHeight - 70 - 124);
+    setLoader(true);
+    const fetchData = async () => {
+      const response = await getEmployees(
+        page,
+        pageSize,
+        debouncedFilters.fullname,
+        debouncedFilters.email,
+        debouncedFilters.phone,
+        debouncedFilters.role,
+      );
+      if (response?.status === 200) {
+        console.log("data", response.data?.employee);
+        console.log("data", response.data);
+        setData(response.data?.employee || []);
+        setTotal(response.data?.count || 0);
+      }
+    };
+    fetchData();
+    setLoader(false);
+  }, [page, pageHelper.render, ...Object.values(debouncedFilters)]);
+
+  useEffect(() => {
+    setLoader(true);
+    const checkData = async () => {
+      const response = await checkRequest();
+      if (response?.status === 200) {
+        console.log("checkData", response.data);
+        dataRef.current = response.data;
+      }
+    };
+    checkData();
+    setLoader(false);
   }, []);
 
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    key: string,
+  ) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: e.target.value,
+    }));
+    setPage(1);
+  };
+
+  const addModal = modal?.type === "add" && (
+    <AddBalance
+      modalClose={() => {
+        setModal(null);
+        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+      }}
+    />
+  );
+
+  const addPopaps = modal?.type === "contract" && (
+    <AddContract
+      id={modal.id}
+      modalClose={() => {
+        setModal(null);
+        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+      }}
+    />
+  );
+
+  const createModal = modal?.type === "create" && (
+    <CreateEmployees
+      modalClose={() => {
+        setModal(null);
+        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+      }}
+    />
+  );
+
+  const updateModal = modal?.type === "update" && (
+    <UpdateEmployees
+      employee={modal.employee}
+      id={modal.id}
+      modalClose={() => {
+        setModal(null);
+        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+      }}
+    />
+  );
+
+  const deleteModal = modal?.type === "delete" && (
+    <DeleteEmployees
+      id={modal.id}
+      modalClose={() => {
+        setModal(null);
+        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+      }}
+    />
+  );
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  const status = [
+    "pending",
+    "offered",
+    "ordered",
+    "completed",
+    "draft",
+    "rejected",
+  ];
+
+  const statusColors: Record<string, string> = {
+    pending: "#F5E233",
+    offered: "#F5E233",
+    ordered: "#1D7321",
+    completed: "#1D7321",
+    draft: "#808080",
+    rejected: "#F74156",
+  };
+
   return (
-    <>
-      {/* Page Content START */}
-      <div className={styles.dashboard}>
-        <PageTitle title={t("users.title")} />
+    <div className={styles.hscode}>
+      <div className={styles.title__btn}>
+        <h1>Users</h1>
+      </div>
 
-        <Filter
-          tabs={pageHelper.tabs}
-          activeTabs={pageHelper.activeTab}
-          buttons={pageHelper.buttons}
-          onFilter={() => {
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-          }}
-          onClear={() => {
-            setPageHelper((prevState) => ({
-              ...prevState,
-              render: !prevState.render,
-            }));
-            resetFilterInputs();
-          }}
-        >
-          <FilterPopup
-            inputsState={filterInputsData}
-            setInputsState={setFilterInputsData}
-          />
-        </Filter>
-
-        <div className={styles.dashboard__table}>
-          <Table
-            dataCount={pageHelper.response?.page_count}
-            tableRow={getUsersTableHeaders(
-              pageHelper.activeTab,
-              i18n.language,
-              auth.role,
-            )}
+      <div className={styles.balance}>
+        <div className={styles.rolesWrapper}>
+          {status.map((stat) => (
+            <button
+              key={stat}
+              onClick={() => {
+                setFilters((prev) => ({ ...prev, status: stat }));
+                setPage(1);
+              }}
+              className={`${styles.statusButton} ${
+                filters.status === stat ? styles.activeStatus : ""
+              }`}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "9999px",
+                  backgroundColor: statusColors[stat],
+                }}
+              />
+              {t(`workers.status.${stat}`)}
+            </button>
+          ))}
+        </div>
+        <div className={styles.btn}>
+          <div
+            className={styles.status}
+            onClick={() =>
+              setModal({ type: "contract", id: dataRef.current.id })
+            }
           >
-            {pageHelper.response?.users?.map(
-              (user: UserModel, index: number) => (
-                <UsersTableRow
-                  key={`table_row_${index}${user.id}`}
-                  user={user}
-                  setModals={setModals}
-                  activeTab={pageHelper.activeTab}
-                />
-              ),
-            )}
-          </Table>
+            <p>
+              {t("workers.status.contract")}
+              {dataRef.current?.contract_status}
+              <GreenAddIcon />
+            </p>
+          </div>
+          <div
+            className={styles.price}
+            onClick={() => setModal({ type: "add" })}
+          >
+            <YellowPlusIcon />
+            <p>
+              {t("workers.status.price")}
+              {dataRef.current?.balance} AZN
+            </p>
+          </div>
+          <Button
+            text="Add Order"
+            viewType="green__light"
+            icon={PlusIcon}
+            onClick={() => setModal({ type: "create" })}
+          />
         </div>
       </div>
-      {/* Page Content END */}
 
-      {/* ------------ Modals ------------ */}
-      <UserModals
-        modals={modals}
-        setModals={setModals}
-        setPageHelper={setPageHelper}
-      />
-      {/* --------------------------------- */}
-    </>
+      <div className={styles.table}>
+        <Table
+          headers={[
+            { name: "Full Name" },
+            { name: "E-mail" },
+            { name: "Phone Number" },
+            { name: "Role" },
+            { name: "" },
+          ]}
+          filters={
+            <>
+              {filterKeys.map((key) => (
+                <td key={key}>
+                  <input
+                    placeholder={`Filter by ${key}`}
+                    value={filters[key]}
+                    onChange={(e) => handleFilterChange(e, key)}
+                  />
+                </td>
+              ))}
+              <td></td>
+              <td></td>
+            </>
+          }
+        >
+          {data.map((item) => (
+            <tr key={item.id}>
+              <td>{item.full_name}</td>
+              <td>{item.email}</td>
+              <td>{item.phone}</td>
+              <td> {t(`workers.roles.${item.role}`)}</td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__1}
+                    onClick={() => setModal({ type: "delete", id: item.id })}
+                  >
+                    <DeleteIcon />
+                  </div>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() =>
+                      setModal({ type: "update", id: item.id, employee: item })
+                    }
+                  >
+                    <PenIcon />
+                  </div>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </Table>
+
+        <div className={styles.pagination}>
+          <div className={styles.pageNumbers}>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                onClick={() => setPage(pg)}
+                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
+              >
+                {pg}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {addPopaps}
+      {addModal}
+      {createModal}
+      {updateModal}
+      {deleteModal}
+    </div>
   );
 };
 

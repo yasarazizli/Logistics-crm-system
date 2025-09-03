@@ -3,6 +3,26 @@
 .register {
   padding: 24px 0 0;
 
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .logo {
+      display: flex;
+      width: 64px;
+      height: 64px;
+      padding: 17.28px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 14.4px;
+      border-radius: 8.64px;
+      background: var(--Green-200, rgba(29, 115, 107, 0.22));
+    }
+
+  }
+
   &__title {
     font-size: 32px;
     font-style: normal;
@@ -27,28 +47,45 @@
     }
 
     &.individual {
-      & > *:nth-child(1),
-      & > *:nth-child(6),
-      & > *:nth-child(7) {
+      & > *:nth-child(6), {
         grid-column: span 2;
       }
     }
   }
 
   &__buttons {
-    margin: 72px 0 0;
+    width: 100%;
+    margin: 32px 0 0;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 24px;
     align-items: center;
     &__redirect {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 4px;
       color: vars.$primary-black-color;
+
+      span {
+        color: var(--Text-primary, #000);
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+      }
+
+      a {
+        color: #436BFD;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+      }
+
     }
 
     button {
-      width: 50%;
+      width: 100%;
     }
   }
 

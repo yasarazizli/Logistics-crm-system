@@ -2,7 +2,7 @@
 
 .not__found {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   color: vars.$primary-black-color;
   background: vars.$primary-white-color;
 
@@ -20,17 +20,18 @@
     flex-direction: column;
     align-items: center;
     &__title {
-      text-align: center;
-      font-size: 100px;
+      color: #000;
+      font-size: 48px;
       font-style: normal;
-      font-weight: 400;
+      font-weight: 600;
       line-height: normal;
+      letter-spacing: 0.24px;
     }
     &__subtitle {
-      margin: 0 0 24px;
-      font-size: 36px;
+      color: #ABABAB;
+      font-size: 16px;
       font-style: normal;
-      font-weight: 400;
+      font-weight: 500;
       line-height: normal;
     }
   }
@@ -40,3 +41,18 @@
     color: vars.$primary-white-color;
   }
 }
+
+.back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+    a {
+      color: #1D736B;
+    }
+    svg{
+      path{
+        fill: #1D736B;
+      }
+    }
+  }

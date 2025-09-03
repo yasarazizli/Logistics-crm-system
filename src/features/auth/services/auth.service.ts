@@ -50,16 +50,6 @@ export const registerVerifyResponse = async (token: string) => {
       return err.response;
     });
 };
-
-// Register & Un Authorized Order Create
-export const postUnAuthorizedOrderRequest = async (formData: FormData) => {
-  return await axios
-    .post(`${apiUrl}/commercial/price-quotation/`, formData)
-    .catch((err) => {
-      return err.response;
-    });
-};
-
 // Change Password
 export const postChangePasswordRequest = async (formData: FormData) => {
   return await axios
@@ -82,10 +72,10 @@ export const postForgetPasswordRequest = async (formData: FormData) => {
     });
 };
 
-//
+// Reset Password
 export const postResetPasswordRequest = async (formData: FormData) => {
   return await axios
-    .post(`${apiUrl}/accounts/reset-password/`, formData)
+    .put(`${apiUrl}/accounts/reset-password/`, formData)
     .catch((err) => {
       return err.response;
     });

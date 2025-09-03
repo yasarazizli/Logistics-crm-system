@@ -1,35 +1,35 @@
 import styles from "@/features/not-found/component/NotFound.module.scss";
-import notFound from "@/assets/images/shared/not-found-icon.png";
-import Button from "@/components/Button/Button.tsx";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 import { useContext } from "react";
 
+import AuthLayout from "@/features/auth/components/layout/AuthLayout.tsx";
+import {
+  ArrowBackIcon,
+  NotFoundIcon,
+} from "@/assets/images/auth/auth.vector.tsx";
+
 const NotFound = () => {
   const { i18n } = useTranslation();
-  const navigate = useNavigate();
   const { darkMode } = useContext(ThemeContext);
 
   return (
-    <div className={`${styles.not__found} ${darkMode && styles.dark}`}>
-      <div className={styles.not__found__content}>
-        <h1 className={styles.not__found__content__title}>404</h1>
-        <p className={styles.not__found__content__subtitle}>
-          We’re working on it!
-        </p>
-        <Button
-          text={"Home"}
-          onClick={() => {
-            console.log(`/${i18n.language}/home`);
-            navigate(`/${i18n.language}/home`);
-          }}
-        />
+    <AuthLayout>
+      <div className={`${styles.not__found} ${darkMode && styles.dark}`}>
+        <div className={styles.not__found__content}>
+          <NotFoundIcon />
+          <h1 className={styles.not__found__content__title}>404</h1>
+          <p className={styles.not__found__content__subtitle}>
+            Page you are looking for is not found
+          </p>
+        </div>
       </div>
-      <div className={styles.not__found__img}>
-        <img src={notFound} alt="Not Found" />
+      <div className={styles.back}>
+        <ArrowBackIcon />
+        <Link to={`/${i18n.language}/home`}>Back to home</Link>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

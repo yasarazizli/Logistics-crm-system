@@ -8,19 +8,25 @@
   &__content {
     width: 40%;
     height: 100%;
-    padding: 40px 80px;
-    overflow: auto;
+    padding: 80px;
 
     &__title {
+      position: absolute;
       font-size: 22px;
       font-style: normal;
       font-weight: 500;
       line-height: 28px;
-      margin: 0 0 32px;
+      margin: 50px 47px;
+
       a {
         color: vars.$primary-black-color;
       }
     }
+
+      svg {
+        height: auto;
+        fill: vars.$primary-black-color;
+      }
   }
 
   &__placeholder {
@@ -29,7 +35,7 @@
     background: vars.$primary-color;
     user-select: none;
 
-    &__switcher{
+    &__switcher {
       position: absolute;
       top: 40px;
       right: 40px;
@@ -37,41 +43,44 @@
     }
 
     &__background {
-      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
   }
 
   &.active {
     .auth__content {
-      width: 60%;
+      width: 50%;
       order: 1;
     }
 
     .auth__placeholder {
-      width: 40%;
+      width: 50%;
 
-      &__switcher{
+      &__switcher {
         left: 40px;
       }
-
     }
   }
 
-  &.dark{
+  &.dark {
     background: vars.$primary-black-color;
     color: vars.$primary-white-color;
 
-    .auth__content{
-
-      &__title{
-        a{
+    .auth__content {
+      &__title {
+        a {
           color: vars.$primary-white-color;
         }
+      }
+
+      .logo svg {
+        fill: vars.$primary-white-color;
       }
     }
   }
 }
+

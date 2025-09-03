@@ -1,0 +1,138 @@
+import { useEffect, useState } from "react";
+import Select, { StylesConfig } from "react-select";
+import axios from "axios";
+import styles from "./SelectList.module.scss";
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
+interface Option {
+  label: string;
+  value: number;
+}
+
+interface DataItem {
+  id: number;
+  cargo: string;
+  code: string;
+}
+
+interface SelectListProps {
+  selectedCargo: Option | null;
+  setSelectedCargo: (option: Option | null) => void;
+  selectedCode: Option | null;
+  setSelectedCode: (option: Option | null) => void;
+}
+
+const SelectList = ({
+  selectedCargo,
+  setSelectedCargo,
+  selectedCode,
+  setSelectedCode,
+}: SelectListProps) => {
+  const [data, setData] = useState<DataItem[]>([]);
+  const [cargoOptions, setCargoOptions] = useState<Option[]>([]);
+  const [codeOptions, setCodeOptions] = useState<Option[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/geography/all-hs/`);
+        const apiData = response.data.data;
+        setData(apiData);
+
+        setCargoOptions(
+          apiData.map((item: DataItem) => ({
+            label: item.cargo,
+            value: item.id,
+          })),
+        );
+
+        setCodeOptions(
+          apiData.map((item: DataItem) => ({
+            label: item.code,
+            value: item.id,
+          })),
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleCargoChange = (option: Option | null) => {
+    setSelectedCargo(option);
+    if (option) {
+      const matched = data.find((d) => d.id === option.value);
+      if (matched) setSelectedCode({ label: matched.code, value: matched.id });
+    } else {
+      setSelectedCode(null);
+    }
+  };
+
+  const handleCodeChange = (option: Option | null) => {
+    setSelectedCode(option);
+    if (option) {
+      const matched = data.find((d) => d.id === option.value);
+      if (matched)
+        setSelectedCargo({ label: matched.cargo, value: matched.id });
+    } else {
+      setSelectedCargo(null);
+    }
+  };
+
+  const customStyles: StylesConfig<Option, false> = {
+    control: (provided) => ({
+      ...provided,
+      borderRadius: 6,
+      border: "1px solid #E7E7E7",
+      backgroundColor: "#F5F5F5",
+      height: "53px",
+      fontFamily: "Manrope",
+      fontSize: "16px",
+      fontWeight: 500,
+      boxShadow: "none",
+      "&:hover": {
+        border: "1px solid #E7E7E7",
+      },
+    }),
+    valueContainer: (provided) => ({ ...provided, padding: "15px 10px" }),
+    input: (provided) => ({
+      ...provided,
+      margin: 0,
+      padding: 0,
+      color: "#000",
+    }),
+    singleValue: (provided) => ({ ...provided, color: "#000" }),
+    placeholder: (provided) => ({ ...provided, color: "rgba(0,0,0,0.48)" }),
+    indicatorSeparator: () => ({ display: "none" }),
+    dropdownIndicator: () => ({ display: "none" }),
+  };
+
+  return (
+    <div className={styles.all__select}>
+      <div className={styles.select}>
+        <label>Cargo Name</label>
+        <Select
+          options={cargoOptions}
+          value={selectedCargo}
+          onChange={handleCargoChange}
+          placeholder="Cargo Name"
+          styles={customStyles}
+        />
+      </div>
+      <div className={styles.select}>
+        <label>HS Code</label>
+        <Select
+          options={codeOptions}
+          value={selectedCode}
+          onChange={handleCodeChange}
+          placeholder="HS Code"
+          styles={customStyles}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default SelectList;

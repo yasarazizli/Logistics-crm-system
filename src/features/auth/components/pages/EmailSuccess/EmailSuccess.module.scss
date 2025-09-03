@@ -1,0 +1,91 @@
+.success {
+  width: 100%;
+  height: calc(100% - 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &__logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 77.5px;
+      background: var(--Green-500, #1D736B);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &__title {
+      color: #000;
+      font-family: Manrope;
+      font-size: 26px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      letter-spacing: 0.13px;
+
+      .emailLink {
+        color: #3498db;
+        text-decoration: underline;
+        font-weight: 500;
+
+        &:hover {
+          color: #1d6fa5;
+        }
+      }
+    }
+    &__subtitle {
+      display: flex;
+      gap: 4px;
+      color: #878787;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 24px;
+      &__link {
+        color: #1D736B;
+        text-decoration-line: underline;
+        text-decoration-style: solid;
+        text-decoration-skip-ink: none;
+        text-decoration-thickness: auto;
+        text-underline-offset: auto;
+        text-underline-position: from-font;
+      }
+    }
+  }
+  &__redirect {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    a {
+      color: #1D736B;
+    }
+    svg{
+      path{
+        fill: #1D736B;
+      }
+    }
+  }
+  &.dark{
+    .success__info{
+      &__title{
+        color: #fff;
+      }
+    }
+    .success__redirect{
+      a {
+        color: #ffffff;
+      }
+      svg{
+        path{
+          fill: #ffffff;
+        }
+      }
+    }
+  }
+}

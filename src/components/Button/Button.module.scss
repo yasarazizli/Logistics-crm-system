@@ -4,24 +4,46 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   height: 52px;
   border-radius: 8px;
   background: vars.$primary-color;
-  padding: 8px 24px;
+  padding: 12px 16px;
+  border: none;
+  cursor: pointer;
+
   & span {
     color: #fff;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
     line-height: 1.5;
   }
+
   &.dark__blue {
     background: vars.$secondary-color;
     & span {
       color: vars.$primary-white-color;
     }
   }
+
   &.red {
     background: vars.$primary-red-color;
+    & span {
+      color: vars.$primary-white-color;
+    }
+  }
+
+  &.green__light {
+    background: rgba(29, 115, 107, 0.22);
+
+    & span {
+      color: #1D736B;
+    }
+
+    .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 }

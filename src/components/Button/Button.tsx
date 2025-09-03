@@ -1,27 +1,33 @@
-import { ButtonHTMLAttributes, CSSProperties } from "react";
+import React from "react";
 import styles from "./Button.module.scss";
 
-type ButtonProps = {
+type Props = {
   text: string;
-  icon?: any;
-  textStyle?: CSSProperties;
-  viewType?: "dark-green" | "red";
-} & ButtonHTMLAttributes<HTMLButtonElement>;
+  onClick?: () => void;
+  viewType?: "dark__blue" | "red" | "green__light" | "dark-green";
+  icon?: React.ElementType;
+  type?: "button" | "submit";
+};
 
-const Button = ({
+const Button: React.FC<Props> = ({
   text,
-  textStyle,
+  onClick,
+  viewType = "",
   icon: Icon,
-  viewType,
-  ...props
-}: ButtonProps) => {
+  type = "button",
+}) => {
   return (
     <button
-      className={`${styles.button} ${viewType === "dark-green" && styles.dark__blue} ${viewType === "red" && styles.red}`}
-      {...props}
+      type={type}
+      onClick={onClick}
+      className={`${styles.button} ${viewType && styles[viewType]}`}
     >
-      {Icon && <Icon />}
-      <span style={textStyle}>{text}</span>
+      {Icon && (
+        <span className={styles.icon}>
+          <Icon />
+        </span>
+      )}
+      <span>{text}</span>
     </button>
   );
 };

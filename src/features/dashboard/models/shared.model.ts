@@ -1,7 +1,6 @@
 import { TaskModel, UserModel } from "./dashboard.model.ts";
 import { OrdersModel } from "@/features/dashboard/models/order.model.ts";
 import { VendorModel } from "@/features/dashboard/models/vendor.model.ts";
-import { ServiceModel } from "@/features/dashboard/models/service.model.ts";
 import { WorkerModel } from "@/features/dashboard/models/worker.model.ts";
 import { InvoicesModel } from "@/features/dashboard/models/balanceActivities.model.ts";
 
@@ -29,7 +28,6 @@ export interface TableResponseType {
   // News
   users?: UserModel[];
   vendors?: VendorModel[];
-  service?: ServiceModel[];
   workers?: WorkerModel[];
   orders?: OrdersModel[];
   invoices?: InvoicesModel[];

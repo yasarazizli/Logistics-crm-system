@@ -55,7 +55,6 @@ const Language = () => {
         }}
       >
         <LanguageIcon />
-        <p className={styles.title}>{i18n.language}</p>
       </div>
 
       <div

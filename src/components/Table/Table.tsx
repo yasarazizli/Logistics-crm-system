@@ -48,7 +48,6 @@ const Table = ({
 
       {!noPagination && totalPage > 1 && (
         <div className={styles.table__pagination}>
-          {/* Önceki Sayfa Düğmesi */}
           <button
             className={styles.nav__button}
             onClick={() => pageChanger(Number(currentPage) - 1)}

@@ -7,5 +7,4 @@ export interface registerInputsRefModel {
   phone: RefObject<HTMLInputElement>;
   password: RefObject<HTMLInputElement>;
   confirm__password: RefObject<HTMLInputElement>;
-  identity_number: RefObject<HTMLInputElement>;
 }

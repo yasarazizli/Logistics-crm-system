@@ -4,17 +4,15 @@ import {
   SuccessIcon,
 } from "@/assets/images/auth/auth.vector.tsx";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { useContext, useEffect, useState } from "react";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { registerVerifyResponse } from "@/features/auth/services/auth.service.ts";
 import { toast } from "react-toastify";
-import {ThemeContext} from "@/contexts/ThemeContext.tsx";
+import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 const Success = () => {
   const { setLoader } = useContext(LoaderContext);
-  const {darkMode} = useContext(ThemeContext);
-  const { t } = useTranslation();
+  const { darkMode } = useContext(ThemeContext);
   const queryParams = new URLSearchParams(location.search);
   const registerVerificationToken = queryParams.get("token");
   const [success, setSuccess] = useState<boolean>(false);
@@ -47,20 +45,18 @@ const Success = () => {
       <div className={styles.success__info}>
         <SuccessIcon />
         <h1 className={styles.success__info__title}>
-          {success
-            ? "User Tesdiqlendi"
-            : "Your registeration request has been taken"}
+          {success ? "" : "Your password has been successfully changed"}
         </h1>
         <p className={styles.success__info__subtitle}>
           {success
-            ? "User Tesdiqlendi"
-            : "Your account details will be sent to your email address"}
+            ? "Go back home and login."
+            : "Go back home and login with new password."}
         </p>
       </div>
 
       <div className={styles.success__redirect}>
         <ArrowBackIcon />
-        <Link to={"/en/auth/login"}>{t("auth.register.buttons.redirect")}</Link>
+        <Link to={"/en/auth/login"}>Back to home</Link>
       </div>
     </div>
   );

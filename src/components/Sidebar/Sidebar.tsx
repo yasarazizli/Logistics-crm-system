@@ -7,8 +7,8 @@ import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { logoutRequest } from "@/features/auth/services/auth.service.ts";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
-import { SiteDarkLogo, SiteLightLogo } from "@/assets/icons/logo.vectors.tsx";
-import { LogoutIcon, ProfileIcon } from "@/assets/icons/sidebar.vectors.tsx";
+import { SiteDarkLogo } from "@/assets/icons/logo.vectors.tsx";
+import { LogoutIcon, SettingIcon } from "@/assets/icons/sidebar.vectors.tsx";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -37,7 +37,7 @@ const Sidebar = () => {
   return (
     <div className={`${styles.sidebar} ${darkMode && styles.dark}`}>
       <Link className={styles.logo} to={`/${i18n.language}/home`}>
-        {darkMode ? <SiteDarkLogo /> : <SiteLightLogo />}
+        <SiteDarkLogo />
       </Link>
 
       <div className={styles.navigation}>
@@ -65,13 +65,13 @@ const Sidebar = () => {
         <div className={`${styles.navigation__list} ${styles.second}`}>
           <Link to={`/en/profile`}>
             <div className={`${styles.icon}`}>
-              <ProfileIcon />
-              <p>{t("profile.title")}</p>
+              <SettingIcon />
+              <p>{t("main.setting")}</p>
             </div>
           </Link>
           <button className={`${styles.icon}`} onClick={logOut}>
             <LogoutIcon />
-            <p>Çıxış edin</p>
+            <p>{t("main.log__out")}</p>
           </button>
         </div>
       </div>

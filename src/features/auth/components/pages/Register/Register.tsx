@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import { registerRequest } from "../../../services/auth.service.ts";
 import { registerInputsRefModel } from "@/features/auth/models/auth.model.ts";
 import { ThemeContext } from "@/contexts/ThemeContext.tsx";
-import { ArrowBackIcon } from "@/assets/icons/auth.vectors.tsx";
+import { AuthPageIcon } from "@/assets/images/auth/auth.vector.tsx";
 
 const Register = ({
   priceQuotation,
@@ -59,7 +59,6 @@ const Register = ({
     phone: useRef<HTMLInputElement>(null),
     password: useRef<HTMLInputElement>(null),
     confirm__password: useRef<HTMLInputElement>(null),
-    identity_number: useRef<HTMLInputElement>(null),
   };
 
   // Functions
@@ -75,16 +74,16 @@ const Register = ({
 
     const formData = formCreator([
       {
+        name: "company_name",
+        data: inputRefs.company_name.current?.value || "",
+      },
+      {
         name: "full_name",
         data: inputRefs.full_name.current?.value || "",
       },
       {
         name: "email",
         data: inputRefs.email.current?.value || "",
-      },
-      {
-        name: "company_name",
-        data: inputRefs.company_name.current?.value || "",
       },
       {
         name: "phone",
@@ -98,19 +97,11 @@ const Register = ({
         name: "confirm_password",
         data: inputRefs.confirm__password.current?.value || "",
       },
-      {
-        name: "password",
-        data: inputRefs.password.current?.value || "",
-      },
-      {
-        name: "identity_number",
-        data: inputRefs.identity_number.current?.value || "",
-      },
     ]);
     const { status } = await registerRequest(formData);
 
     if (status == 200) {
-      navigate(`/${i18n.language}/auth/success`);
+      navigate(`/${i18n.language}/auth/registersuccess`);
     } else toast.error("Failed");
 
     setLoader(false);
@@ -118,7 +109,12 @@ const Register = ({
 
   return (
     <div className={`${styles.register} ${darkMode && styles.dark}`}>
-      <h1 className={styles.register__title}>{t("register.title")}</h1>
+      <div className={styles.register__logo}>
+        <div className={styles.logo}>
+          <AuthPageIcon />
+        </div>
+        <h1 className={styles.register__title}>{t("register.title")}</h1>
+      </div>
 
       <div className={styles.register__tabs}>
         <Tabs tabs={tabs} active={activeTab} />
@@ -160,14 +156,11 @@ const Register = ({
           ))}
 
         <div className={styles.register__buttons}>
-          <Link
-            to={`/${i18n.language}/auth/login`}
-            className={styles.register__buttons__redirect}
-          >
-            <ArrowBackIcon />
-            {t("register.buttons.redirect")}
-          </Link>
           <Button text={t("register.buttons.next")} />
+          <div className={styles.register__buttons__redirect}>
+            <span>Already have an account?</span>
+            <Link to={`/${i18n.language}/auth/login`}>Sign in</Link>
+          </div>
         </div>
       </form>
     </div>

@@ -49,7 +49,7 @@ const Forget = () => {
 
     if (status === 200) {
       toast.success(errorMessageHandler(data));
-      navigate(`/${i18n.language}/auth/success`);
+      navigate(`/${i18n.language}/auth/emailsuccess`);
     } else toast.error(errorMessageHandler(data));
 
     setLoader(false);
@@ -97,24 +97,32 @@ const Forget = () => {
         <div className={styles.head__logo}>
           <AuthPageIcon />
         </div>
-        <h1 className={styles.head__title}>{t("forget.title")}</h1>
+        <h1 className={styles.head__title}>
+          {!resetPasswordVerificationToken
+            ? "Enter your e-mail"
+            : "Create your password"}
+        </h1>
       </div>
 
       <div className={styles.forget__info}>
-        <p className={styles.forget__info__subtitle}>{t("forget.subtitle")}</p>
+        <p className={styles.forget__info__subtitle}>
+          {!resetPasswordVerificationToken
+            ? "Enter your e-mail to recieve identification mail."
+            : ""}
+        </p>
       </div>
 
       {!resetPasswordVerificationToken && (
         <form className={styles.forget__form} onSubmit={postForgetPassword}>
           <Input
             label={t("shared.inputs.email")}
-            placeholder={"you@site.com"}
+            placeholder={"example@example.com"}
             type="email"
             required
             icon={MailIcon}
             inputRef={inputRefs.mail}
           />
-          <Button text={t("forget.buttons.send")} type={"submit"} />
+          <Button text={t("shared.buttons.send")} type={"submit"} />
         </form>
       )}
 
@@ -138,7 +146,11 @@ const Forget = () => {
             inputRef={inputRefs.confirm_password}
           />
 
-          <Button text={t("forget.buttons.send")} type={"submit"} />
+          {!resetPasswordVerificationToken ? (
+            <Button text={t("shared.buttons.send")} type={"submit"} />
+          ) : (
+            <Button text={"Change password"} />
+          )}
         </form>
       )}
     </div>

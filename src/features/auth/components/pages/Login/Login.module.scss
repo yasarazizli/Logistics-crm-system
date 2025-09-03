@@ -16,14 +16,16 @@
       gap: 18px;
 
       & .head__logo{
-        width: 50px;
-        height: 50px;
-
-        display: grid;
-        place-items: center;
-
-        background: vars.$secondary-color;
-        border-radius: vars.$border-radius;
+        display: flex;
+        width: 64px;
+        height: 64px;
+        padding: 17.28px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 14.4px;
+        border-radius: 8.64px;
+        background: var(--Green-200, rgba(29, 115, 107, 0.22));
       }
 
       & .head__title{
@@ -35,14 +37,22 @@
       }
     }
 
-    &__redirect {
-      text-align: end;
-      color: vars.$primary-color;
-      font-size: 16px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: normal;
+    .login__form__forget {
+      display: flex;
+      align-items: center;
+      justify-content: end;
+
+      a {
+        text-align: end;
+        color: #436BFD;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        cursor: pointer;
+      }
     }
+
   }
 
   &__buttons {
@@ -50,5 +60,29 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  &__check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    span {
+      color: var(--Text-primary, #000);
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+    }
+
+    a {
+      color: #436BFD;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+    }
+
   }
 }

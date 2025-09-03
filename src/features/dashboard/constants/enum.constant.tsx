@@ -15,8 +15,8 @@ export enum Roles {
   commercial_directory = "commercial_director",
   admin = "admin",
   user = "user",
-  director = "director",
   monitoring = "monitoring",
+  buyer_directory = "buyer_director",
 }
 
 // Transport Type

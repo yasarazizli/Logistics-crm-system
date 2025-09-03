@@ -1,108 +1,142 @@
-import Register from "@/features/auth/components/pages/Register/Register.tsx";
-import AuthLayout from "@/features/auth/components/layout/AuthLayout.tsx";
-import { useContext, useState } from "react";
-import { registerInputsRefModel } from "@/features/auth/models/auth.model.ts";
-
 import styles from "./PriceQuotation.module.scss";
-
-import Button from "@/components/Button/Button.tsx";
-import { LoaderContext } from "@/contexts/LoaderContext.tsx";
-import { postUnAuthorizedOrderRequest } from "@/features/auth/services/auth.service.ts";
-import { formCreator } from "@/libs/form.ts";
-import { useNavigate } from "react-router-dom";
+import Header from "@/components/Header/Header.tsx";
 import { useTranslation } from "react-i18next";
-import { defaultOrderValue } from "@/features/dashboard/constants/order.constant.tsx";
-import { ArrowLeftIcon } from "@/assets/images/auth/auth.vector.tsx";
-import { OrderModel } from "@/features/dashboard/models/order.model.ts";
-import OrderDetail from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.tsx";
+import SelectList from "@/features/dashboard/components/shared/SelectList/SelectList.tsx";
+import Input from "@/components/Input/Input.tsx";
+import { useState } from "react";
+import axios from "axios";
+import ExpandableSection from "@/features/dashboard/components/shared/ExpandableSection/ExpandableSetion.tsx";
+import PackagingForm, {
+  PackagingData,
+} from "@/features/dashboard/components/shared/PackagingForm/PackagingForm.tsx";
+import Button from "@/components/Button/Button.tsx";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const PriceQuotation = () => {
-  const { i18n } = useTranslation();
-  const navigate = useNavigate();
-  const { setLoader } = useContext(LoaderContext);
+  const { t } = useTranslation();
 
-  const [steps, setSteps] = useState<number>(0);
-  const [order, setOrder] = useState<OrderModel>({ ...defaultOrderValue });
+  const [selectedCargo, setSelectedCargo] = useState<{
+    label: string;
+    value: number;
+  } | null>(null);
+  const [selectedCode, setSelectedCode] = useState<{
+    label: string;
+    value: number;
+  } | null>(null);
+  const [totalWeight, setTotalWeight] = useState<string>("");
 
-  const [user, setUser] = useState<{
-    full_name: string;
-    company_name: string;
-    email: string;
-    phone: string;
-    password: string;
-    identity_number: string;
-    confirm_password: string;
-  }>({
-    full_name: "",
-    company_name: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirm_password: "",
-    identity_number: "",
+  const [unCode, setUnCode] = useState("");
+  const [msDs, setMsDs] = useState("");
+  const [msDsPictures, setMsDsPictures] = useState<string[]>([]);
+
+  const [packagingData, setPackagingData] = useState<PackagingData>({
+    packing_type: "Container",
+    total_quantity: 0,
+    net_weight: 0,
+    gross_weight: 0,
   });
 
-  const postUnAuthorizedOrder = async () => {
-    setLoader(true);
-    const formData = formCreator([
-      {
-        name: "order",
-        data: JSON.stringify(order),
-      },
-      {
-        name: "user",
-        data: JSON.stringify(user),
-      },
-    ]);
-    const { status } = await postUnAuthorizedOrderRequest(formData);
-    if (status == 200) {
-      navigate(`/${i18n.language}/auth/success`);
+  const handleSubmit = async () => {
+    if (!selectedCode || !totalWeight || !unCode) {
+      alert("Please fill all required fields");
+      return;
     }
-    console.log(order);
-    setLoader(false);
+
+    const data = {
+      hs_code_id: selectedCode.value,
+      cargo_name: selectedCargo?.label || "",
+      total_weight: parseFloat(totalWeight),
+      un_code: unCode,
+      ms_ds: msDs,
+      ms_ds_pictures: msDsPictures[0] || "",
+      packing: packagingData,
+    };
+
+    try {
+      const response = await axios.post(`${apiUrl}/your-endpoint/`, data);
+      console.log("Server response:", response.data);
+      alert("Data sent successfully!");
+    } catch (error) {
+      console.error("Error sending data:", error);
+      alert("Failed to send data");
+    }
+  };
+
+  const handlePackagingDataChange = (data: PackagingData) => {
+    setPackagingData(data);
   };
 
   return (
-    <div style={{ background: "black" }}>
-      {steps === 0 && (
-        <AuthLayout changeSide>
-          <Register
-            priceQuotation={(inputRefs: registerInputsRefModel) => {
-              setUser({
-                full_name: inputRefs.full_name.current?.value || "",
-                company_name: inputRefs.company_name.current?.value || "",
-                email: inputRefs.email.current?.value || "",
-                phone: inputRefs.phone.current?.value || "",
-                password: inputRefs.password.current?.value || "",
-                confirm_password:
-                  inputRefs.confirm__password.current?.value || "",
-                identity_number: inputRefs.identity_number.current?.value || "",
-              });
-              setSteps(1);
-            }}
+    <div className={styles.price__quotation}>
+      <Header />
+      <div className={styles.price}>
+        <div className={styles.input__name}>
+          <h1 className={styles.title}>{t("price.title")}</h1>
+          <div className={styles.input__list}>
+            <SelectList
+              selectedCargo={selectedCargo}
+              setSelectedCargo={setSelectedCargo}
+              selectedCode={selectedCode}
+              setSelectedCode={setSelectedCode}
+            />
+            <div className={styles.input}>
+              <Input
+                label="Total Weight"
+                placeholder="Weight"
+                value={totalWeight}
+                onChange={(e) => setTotalWeight(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+        <div className={styles.expendable}>
+          <ExpandableSection
+            unCode={unCode}
+            setUnCode={setUnCode}
+            msDs={msDs}
+            setMsDs={setMsDs}
+            msDsPictures={msDsPictures}
+            setMsDsPictures={setMsDsPictures}
           />
-        </AuthLayout>
-      )}
+        </div>
 
-      {steps === 1 && (
-        <main className={styles.price__quotation}>
-          <h1 className={styles.price__quotation__title}>Quotation</h1>
+        <PackagingForm onDataChange={handlePackagingDataChange} />
 
-          <p
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-            onClick={() => {
-              setSteps(0);
-            }}
-          >
-            <ArrowLeftIcon /> Geri
-          </p>
-          <OrderDetail order={order} setOrder={setOrder} />
-          <Button text={"compilite order"} onClick={postUnAuthorizedOrder} />
-        </main>
-      )}
+        <div>
+          <h1 className={styles.period}>Period of Transportation</h1>
+          <div className={styles.date}>
+            <Input
+              type={"date"}
+              label={"Start Date"}
+              style={{ height: "52px" }}
+            />
+            <Input
+              type={"date"}
+              label={"End Date"}
+              style={{ height: "52px" }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Input
+            type={"text"}
+            label={"Note"}
+            placeholder={"Your note here"}
+            style={{ height: "100px" }}
+          />
+        </div>
+
+        <div className={styles.button}>
+          <Button onClick={handleSubmit} text="Save" viewType="green__light" />
+          <Button
+            onClick={handleSubmit}
+            text="Send to Commercial Manager"
+            viewType="dark-green"
+          />
+        </div>
+      </div>
     </div>
   );
 };
