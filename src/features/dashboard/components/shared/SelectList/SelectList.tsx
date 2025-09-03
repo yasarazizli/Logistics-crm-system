@@ -105,6 +105,16 @@ const SelectList = ({
     }),
     singleValue: (provided) => ({ ...provided, color: "#000" }),
     placeholder: (provided) => ({ ...provided, color: "rgba(0,0,0,0.48)" }),
+
+    clearIndicator: (provided) => ({
+      ...provided,
+      cursor: "pointer",
+      padding: "0 8px",
+      color: "#000000",
+      ":hover": {
+        color: "#000",
+      },
+    }),
     indicatorSeparator: () => ({ display: "none" }),
     dropdownIndicator: () => ({ display: "none" }),
   };
@@ -119,6 +129,7 @@ const SelectList = ({
           onChange={handleCargoChange}
           placeholder="Cargo Name"
           styles={customStyles}
+          isClearable
         />
       </div>
       <div className={styles.select}>
@@ -129,6 +140,7 @@ const SelectList = ({
           onChange={handleCodeChange}
           placeholder="HS Code"
           styles={customStyles}
+          isClearable
         />
       </div>
     </div>

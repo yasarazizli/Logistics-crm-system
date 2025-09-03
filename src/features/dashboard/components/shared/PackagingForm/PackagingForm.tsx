@@ -8,7 +8,7 @@ import {
   GetAllStationCode,
 } from "@/features/dashboard/services/PriceQuotation/pricequotation.services.ts";
 import { FromToIcon } from "@/assets/icons/shared.vectors.tsx";
-import Select, { StylesConfig } from "react-select";
+import Select, { SingleValue, StylesConfig } from "react-select";
 
 export interface PackagingData {
   packing_type: string;
@@ -21,6 +21,11 @@ export interface PackagingData {
   height?: number;
   length?: number;
   packaging_type?: string;
+}
+
+interface OptionType {
+  value: string;
+  label: string;
 }
 
 export interface TransportationData {
@@ -412,14 +417,15 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
       fontSize: "14px",
       fontWeight: 500,
       boxShadow: "none",
-      cursor: "pointer",
+      color: "#7b7979",
       "&:hover": {
         border: "1px solid #E7E7E7",
       },
     }),
     valueContainer: (provided) => ({
       ...provided,
-      padding: "15px 10px",
+      padding: "10px 10px",
+      overflow: "visible",
     }),
     input: (provided) => ({
       ...provided,
@@ -430,13 +436,86 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
     singleValue: (provided) => ({
       ...provided,
       color: "#000",
+      overflow: "visible",
     }),
-    placeholder: (provided) => ({
+    placeholder: (provided) => ({ ...provided, color: "rgba(0,0,0,0.48)" }),
+
+    clearIndicator: (provided) => ({
       ...provided,
-      color: "rgba(0,0,0,0.48)",
+      cursor: "pointer",
+      color: "#000000",
+      ":hover": {
+        color: "#000",
+      },
     }),
     indicatorSeparator: () => ({ display: "none" }),
+    dropdownIndicator: () => ({ display: "none" }),
   };
+
+  const containerOptions: OptionType[] = [
+    { value: "Container", label: "Container" },
+    { value: "Break_Bulk", label: "Break Bulk" },
+    { value: "Bulk", label: "Bulk" },
+    { value: "Oversize_Cargo", label: "Oversize Cargo" },
+  ];
+
+  const sizeOptions: OptionType[] = [
+    { value: "20", label: "20" },
+    { value: "40", label: "40" },
+    { value: "45", label: "45" },
+    { value: "other", label: "Other" },
+  ];
+
+  const transportationOptions: OptionType[] = [
+    { value: "Rail", label: "Rail" },
+    { value: "Road", label: "Road" },
+    { value: "Sea", label: "Sea" },
+    { value: "Multimodal", label: "Multimodal" },
+  ];
+
+  const wagonOptionsForSelect: OptionType[] =
+    wagonOptions[transportationType as "Rail" | "Road" | "Sea"]?.map(
+      (w: string) => ({ value: w, label: w }),
+    ) || [];
+
+  const getTypeOptions = (type: string): OptionType[] => {
+    if (type === "Break_Bulk") {
+      return [
+        { value: "Bag", label: "Bag" },
+        { value: "Big Bag", label: "Big Bag" },
+        { value: "Box/Crate", label: "Box/Crate" },
+        { value: "Pallet", label: "Pallet" },
+        { value: "Drums/Barrel", label: "Drums/Barrel" },
+        { value: "IBC Tank", label: "IBC Tank" },
+        { value: "Other", label: "Other" },
+      ];
+    } else if (type === "Bulk") {
+      return [
+        { value: "Bulk Dry", label: "Bulk Dry" },
+        { value: "Bulk Liquid", label: "Bulk Liquid" },
+        { value: "Other", label: "Other" },
+      ];
+    } else {
+      return [
+        { value: "Standart DC", label: "Standart DC" },
+        { value: "Standart HC", label: "Standart HC" },
+        { value: "Reefer DC", label: "Reefer DC" },
+        { value: "Reefer HC", label: "Reefer HC" },
+        { value: "Open Top", label: "Open Top" },
+        { value: "Flatrack", label: "Flatrack" },
+        { value: "Bulk", label: "Bulk" },
+        { value: "Flexi Tank", label: "Flexi Tank" },
+        { value: "Other", label: "Other" },
+      ];
+    }
+  };
+
+  useEffect(() => {
+    const newOptions = getTypeOptions(selectedOption1);
+    if (!newOptions.find((opt) => opt.value === selectedOption3)) {
+      setSelectedOption3(newOptions[0].value);
+    }
+  }, [selectedOption1]);
 
   return (
     <div className={styles.packing}>
@@ -453,16 +532,18 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
         <div style={{ width: "100%" }}>
           <div className={styles.selectWrapper}>
             <label className={styles.label}>Container</label>
-            <select
-              className={styles.select}
-              value={selectedOption1}
-              onChange={(e) => setSelectedOption1(e.target.value)}
-            >
-              <option value="Container">Container</option>
-              <option value="Break_Bulk">Break_Bulk</option>
-              <option value="Bulk">Bulk</option>
-              <option value="Oversize_Cargo">Oversize_Cargo</option>
-            </select>
+            <Select
+              value={containerOptions.find(
+                (option) => option.value === selectedOption1,
+              )}
+              onChange={(option: SingleValue<OptionType>) =>
+                setSelectedOption1(option ? option.value : "")
+              }
+              options={containerOptions}
+              styles={customStyles}
+              isClearable
+              placeholder="Select Container Type"
+            />
           </div>
 
           <div style={{ marginTop: "20px" }}>
@@ -482,56 +563,35 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
         {selectedOption1 === "Container" && (
           <div className={styles.selectWrapper}>
             <label className={styles.label}>Size</label>
-            <select
-              className={styles.select}
-              value={selectedOption2}
-              onChange={(e) => setSelectedOption2(e.target.value)}
-            >
-              <option value="20">20</option>
-              <option value="40">40</option>
-              <option value="45">45</option>
-              <option value="other">other</option>
-            </select>
+            <Select<OptionType, false>
+              value={sizeOptions.find(
+                (option) => option.value === selectedOption2,
+              )}
+              onChange={(option: SingleValue<OptionType>) =>
+                setSelectedOption2(option ? option.value : "")
+              }
+              options={sizeOptions}
+              styles={customStyles}
+              isClearable
+              placeholder="Select Size"
+            />
           </div>
         )}
 
         <div className={styles.selectWrapper}>
           <label className={styles.label}>Type</label>
-          <select
-            className={styles.select}
-            value={selectedOption3}
-            onChange={(e) => setSelectedOption3(e.target.value)}
-          >
-            {selectedOption1 === "Break_Bulk" ? (
-              <>
-                <option value="Bag">Bag</option>
-                <option value="Big Bag">Big Bag</option>
-                <option value="Box/Crate">Box/Crate</option>
-                <option value="Pallet">Pallet</option>
-                <option value="Drums/Barrel">Drums/Barrel</option>
-                <option value="IBC Tank">IBC Tank</option>
-                <option value="Other">Other</option>
-              </>
-            ) : selectedOption1 === "Bulk" ? (
-              <>
-                <option value="Bulk Dry">Bulk Dry</option>
-                <option value="Bulk Liquid">Bulk Liquid</option>
-                <option value="Other">Other</option>
-              </>
-            ) : (
-              <>
-                <option value="Standart DC">Standart DC</option>
-                <option value="Standart HC">Standart HC</option>
-                <option value="Reefer DC">Reefer DC</option>
-                <option value="Reefer HC">Reefer HC</option>
-                <option value="Open Top">Open Top</option>
-                <option value="Flatrack">Flatrack</option>
-                <option value="Bulk">Bulk</option>
-                <option value="Flexi Tank">Flexi Tank</option>
-                <option value="Other">Other</option>
-              </>
+          <Select<OptionType, false>
+            value={getTypeOptions(selectedOption1).find(
+              (option) => option.value === selectedOption3,
             )}
-          </select>
+            onChange={(option: SingleValue<OptionType>) =>
+              setSelectedOption3(option ? option.value : "")
+            }
+            options={getTypeOptions(selectedOption1)}
+            styles={customStyles}
+            isClearable
+            placeholder="Select Type"
+          />
         </div>
       </div>
 
@@ -812,17 +872,19 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
         <div
           style={{
             marginTop: "20px",
-            padding: "15px",
-            width: "350px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            gap: "20px",
           }}
         >
           <div
             style={{
+              border: "1px solid #ddd",
+              borderRadius: "8px",
               display: "flex",
+              padding: "15px",
+              backgroundColor: "#F5F5F5",
               alignItems: "center",
-              marginBottom: showPackingTypeInput ? "15px" : "0",
             }}
           >
             <label className={styles.checkbox}>
@@ -842,12 +904,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
           </div>
 
           {showPackingTypeInput && (
-            <Input
-              type="text"
-              placeholder="In Row"
-              value={packingType}
-              onChange={handlePackingTypeChange}
-            />
+            <div style={{ width: "350px" }}>
+              <Input
+                type="text"
+                placeholder="In Row"
+                value={packingType}
+                onChange={handlePackingTypeChange}
+              />
+            </div>
           )}
         </div>
       )}
@@ -866,16 +930,18 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
           <div className={styles.selected}>
             <label className={styles.label}>Transportation type</label>
             <div className={styles.selectWrapper}>
-              <select
-                className={styles.select}
-                value={transportationType}
-                onChange={(e) => setTransportationType(e.target.value)}
-              >
-                <option value="Rail">Rail</option>
-                <option value="Road">Road</option>
-                <option value="Sea">Sea</option>
-                <option value="Multimodal">Multimodal</option>
-              </select>
+              <Select<OptionType, false>
+                value={transportationOptions.find(
+                  (option) => option.value === transportationType,
+                )}
+                onChange={(option: SingleValue<OptionType>) =>
+                  setTransportationType(option ? option.value : "")
+                }
+                options={transportationOptions}
+                styles={customStyles}
+                isClearable
+                placeholder="Select Transportation"
+              />
             </div>
           </div>
 
@@ -883,20 +949,18 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
             <div className={styles.selected}>
               <label className={styles.label}>Wagon type</label>
               <div className={styles.selectWrapper}>
-                <select
-                  className={styles.select}
-                  value={wagonType}
-                  onChange={(e) => setWagonType(e.target.value)}
-                >
-                  <option value="">Select Wagon Type</option>
-                  {wagonOptions[
-                    transportationType as "Rail" | "Road" | "Sea"
-                  ]?.map((w: string) => (
-                    <option key={w} value={w}>
-                      {w}
-                    </option>
-                  ))}
-                </select>
+                <Select<OptionType, false>
+                  value={wagonOptionsForSelect.find(
+                    (option) => option.value === wagonType,
+                  )}
+                  onChange={(option: SingleValue<OptionType>) =>
+                    setWagonType(option ? option.value : "")
+                  }
+                  options={wagonOptionsForSelect}
+                  styles={customStyles}
+                  placeholder="Select Wagon Type"
+                  isClearable
+                />
               </div>
             </div>
           )}
@@ -984,61 +1048,69 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                   {openDropdown === `from-${index}` && (
                     <div className={styles.full_dropdown}>
                       {/* Country */}
-                      <select
-                        className={styles.select}
-                        value={route.from.country}
-                        onChange={(e) =>
-                          handleCountryChange(index, "from", e.target.value)
+                      <Select<OptionType, false>
+                        placeholder="Select Country"
+                        options={countries.map((c) => ({
+                          value: c.name,
+                          label: c.name,
+                        }))}
+                        value={
+                          route.from.country
+                            ? {
+                                value: route.from.country,
+                                label: route.from.country,
+                              }
+                            : null
                         }
-                      >
-                        <option value="">Select Country</option>
-                        {countries.map((c) => (
-                          <option key={c.id} value={c.name}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(selected) =>
+                          handleCountryChange(
+                            index,
+                            "from",
+                            selected?.value || "",
+                          )
+                        }
+                        styles={customStyles}
+                        isClearable
+                      />
 
                       {/* City */}
-                      <select
-                        className={styles.select}
-                        value={route.from.city}
-                        onChange={(e) =>
+                      <Select<OptionType, false>
+                        placeholder="Select City"
+                        options={route.fromCities.map((c) => ({
+                          value: c.name,
+                          label: c.name,
+                        }))}
+                        value={
+                          route.from.city
+                            ? { value: route.from.city, label: route.from.city }
+                            : null
+                        }
+                        onChange={(selected) =>
                           handleFieldChange(
                             index,
                             "from",
                             "city",
-                            e.target.value,
+                            selected?.value || "",
                           )
                         }
-                        disabled={!route.from.country}
-                      >
-                        <option value="">Select City</option>
-                        {route.fromCities.map((city: City) => (
-                          <option key={city.value} value={city.name}>
-                            {city.name}
-                          </option>
-                        ))}
-                      </select>
+                        styles={customStyles}
+                        isClearable
+                        isDisabled={!route.from.country}
+                      />
 
                       {/* HS / Port / Address */}
                       {transportationType === "Rail" && (
-                        <Select
-                          styles={customStyles}
+                        <Select<OptionType, false>
                           placeholder="Select Station Code"
-                          value={
-                            route.fromStationCodes
-                              .map((hs) => ({
-                                value: hs.value,
-                                label: hs.name,
-                              }))
-                              .find((opt) => opt.value === route.from.hs) ||
-                            null
-                          }
                           options={route.fromStationCodes.map((hs) => ({
                             value: hs.value,
                             label: hs.name,
                           }))}
+                          value={
+                            route.from.hs
+                              ? { value: route.from.hs, label: route.from.hs }
+                              : null
+                          }
                           onChange={(selected) =>
                             handleFieldChange(
                               index,
@@ -1047,29 +1119,37 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                               selected?.value || "",
                             )
                           }
+                          styles={customStyles}
+                          isClearable
                         />
                       )}
 
                       {transportationType === "Sea" && (
-                        <select
-                          className={styles.select}
-                          value={route.from.port}
-                          onChange={(e) =>
+                        <Select<OptionType, false>
+                          placeholder="Select Port"
+                          options={route.fromPorts.map((p) => ({
+                            value: p.name,
+                            label: p.name,
+                          }))}
+                          value={
+                            route.from.port
+                              ? {
+                                  value: route.from.port,
+                                  label: route.from.port,
+                                }
+                              : null
+                          }
+                          onChange={(selected) =>
                             handleFieldChange(
                               index,
                               "from",
                               "port",
-                              e.target.value,
+                              selected?.value || "",
                             )
                           }
-                        >
-                          <option value="">Select Port</option>
-                          {route.fromPorts.map((p) => (
-                            <option key={p.id} value={p.name}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </select>
+                          styles={customStyles}
+                          isClearable
+                        />
                       )}
 
                       {(transportationType === "Road" ||
@@ -1142,55 +1222,69 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                   {openDropdown === `to-${index}` && (
                     <div className={styles.full_dropdown}>
                       {/* Country */}
-                      <select
-                        className={styles.select}
-                        value={route.to.country}
-                        onChange={(e) =>
-                          handleCountryChange(index, "to", e.target.value)
+                      <Select<OptionType, false>
+                        placeholder="Select Country"
+                        options={countries.map((c) => ({
+                          value: c.name,
+                          label: c.name,
+                        }))}
+                        value={
+                          route.to.country
+                            ? {
+                                value: route.to.country,
+                                label: route.to.country,
+                              }
+                            : null
                         }
-                      >
-                        <option value="">Select Country</option>
-                        {countries.map((c) => (
-                          <option key={c.id} value={c.name}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(selected) =>
+                          handleCountryChange(
+                            index,
+                            "to",
+                            selected?.value || "",
+                          )
+                        }
+                        styles={customStyles}
+                        isClearable
+                      />
 
                       {/* City */}
-                      <select
-                        className={styles.select}
-                        value={route.to.city}
-                        onChange={(e) =>
-                          handleFieldChange(index, "to", "city", e.target.value)
+                      <Select<OptionType, false>
+                        placeholder="Select City"
+                        options={route.toCities.map((c) => ({
+                          value: c.name,
+                          label: c.name,
+                        }))}
+                        value={
+                          route.to.city
+                            ? { value: route.to.city, label: route.to.city }
+                            : null
                         }
-                        disabled={!route.to.country}
-                      >
-                        <option value="">Select City</option>
-                        {route.toCities.map((city: City) => (
-                          <option key={city.value} value={city.name}>
-                            {city.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(selected) =>
+                          handleFieldChange(
+                            index,
+                            "to",
+                            "city",
+                            selected?.value || "",
+                          )
+                        }
+                        isDisabled={!route.to.country}
+                        styles={customStyles}
+                        isClearable
+                      />
 
                       {/* HS / Port / Address */}
                       {transportationType === "Rail" && (
-                        <Select
-                          styles={customStyles}
+                        <Select<OptionType, false>
                           placeholder="Select Station Code"
-                          value={
-                            route.toStationCodes
-                              .map((hs) => ({
-                                value: hs.value,
-                                label: hs.name,
-                              }))
-                              .find((opt) => opt.value === route.to.hs) || null
-                          }
                           options={route.toStationCodes.map((hs) => ({
                             value: hs.value,
                             label: hs.name,
                           }))}
+                          value={
+                            route.to.hs
+                              ? { value: route.to.hs, label: route.to.hs }
+                              : null
+                          }
                           onChange={(selected) =>
                             handleFieldChange(
                               index,
@@ -1199,29 +1293,34 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                               selected?.value || "",
                             )
                           }
+                          styles={customStyles}
+                          isClearable
                         />
                       )}
 
                       {transportationType === "Sea" && (
-                        <select
-                          className={styles.select}
-                          value={route.to.port}
-                          onChange={(e) =>
+                        <Select<OptionType, false>
+                          placeholder="Select Port"
+                          options={route.toPorts.map((p) => ({
+                            value: p.name,
+                            label: p.name,
+                          }))}
+                          value={
+                            route.to.port
+                              ? { value: route.to.port, label: route.to.port }
+                              : null
+                          }
+                          onChange={(selected) =>
                             handleFieldChange(
                               index,
                               "to",
                               "port",
-                              e.target.value,
+                              selected?.value || "",
                             )
                           }
-                        >
-                          <option value="">Select Port</option>
-                          {route.toPorts.map((p) => (
-                            <option key={p.id} value={p.name}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </select>
+                          styles={customStyles}
+                          isClearable
+                        />
                       )}
 
                       {(transportationType === "Road" ||

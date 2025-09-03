@@ -452,6 +452,8 @@
 
 
     .full_dropdown {
+      position: absolute;
+      z-index: 1;
       padding: 6px;
       width: 100%;
       margin-top: 7px;

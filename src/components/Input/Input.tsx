@@ -16,7 +16,7 @@ const Input = ({
   ...props
 }: InputProps) => {
   return (
-    <label
+    <div
       className={`${styles.input} ${props.type === "file" && styles.file} ${props.disabled && styles.disabled}`}
     >
       {label && <span style={textStyle}>{label}</span>}
@@ -28,7 +28,7 @@ const Input = ({
         )}
         <input ref={inputRef} {...props} />
       </div>
-    </label>
+    </div>
   );
 };
 

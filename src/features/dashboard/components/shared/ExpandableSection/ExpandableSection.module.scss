@@ -1,6 +1,9 @@
 .wrapper {
   width: 100%;
-  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 2rem auto 1rem auto;
   background-color: #fff;
   font-family: sans-serif;
 }
