@@ -1,15 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import styles from "./Tabs.module.scss";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 const Tabs = ({ tabs, active }: { tabs: Array<any>; active?: number }) => {
   const { t, i18n } = useTranslation();
-  const { darkMode } = useContext(ThemeContext);
 
   return (
-    <div className={`${styles.tabs} ${darkMode && styles.dark}`}>
+    <div className={styles.tabs}>
       {tabs &&
         tabs.map((tab, index) => {
           return (

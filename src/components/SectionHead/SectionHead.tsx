@@ -1,6 +1,4 @@
 import styles from "@/features/dashboard/components/pages/OrderEditor/OrderDetail/OrderDetail.module.scss";
-import { useContext } from "react";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 type SectionHeadProps = {
   icon?: any;
@@ -9,10 +7,9 @@ type SectionHeadProps = {
 };
 
 const SectionHead = ({ icon: Icon, name, size }: SectionHeadProps) => {
-  const { darkMode } = useContext(ThemeContext);
   return (
     <div
-      className={`${styles.section__head} ${size === "s" ? styles.small : size === "m" ? styles.medium : styles.large} ${darkMode && styles.dark}`}
+      className={`${styles.section__head} ${size === "s" ? styles.small : size === "m" ? styles.medium : styles.large}`}
     >
       {Icon && <Icon />}
       <p>{name}</p>

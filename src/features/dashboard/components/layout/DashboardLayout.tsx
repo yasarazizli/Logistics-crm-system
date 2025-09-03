@@ -1,19 +1,16 @@
-import React, { useContext } from "react";
+import React from "react";
 import Header from "@/components/Header/Header.tsx";
 import Sidebar from "@/components/Sidebar/Sidebar.tsx";
 
 import styles from "./DashboardLayout.module.scss";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 const DashboardLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const { darkMode } = useContext(ThemeContext);
-
   return (
-    <div className={`${styles.dashboard__layout} ${darkMode && styles.dark}`}>
+    <div className={styles.dashboard__layout}>
       <div className={styles.sidebar}>
         <Sidebar />
       </div>

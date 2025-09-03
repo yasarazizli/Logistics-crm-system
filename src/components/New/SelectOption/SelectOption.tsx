@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./SelectOption.module.scss";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 import { SelectOptionsArrowIcon } from "@/assets/icons/shared.vectors.tsx";
 import useClickOutside from "@/hooks/useClickOutside.ts";
 import { useTranslation } from "react-i18next";
@@ -34,7 +33,6 @@ const SelectOption = ({
   isSearch,
 }: SelectOptionProps) => {
   // Contexts
-  const { darkMode } = useContext(ThemeContext);
   const { t } = useTranslation();
 
   // Refs
@@ -55,7 +53,7 @@ const SelectOption = ({
   }, [clickedInside]);
 
   return (
-    <div className={`${styles.select__box} ${darkMode && styles.dark}`}>
+    <div className={styles.select__box}>
       {/* Label */}
       {label && <p>{label}</p>}
 

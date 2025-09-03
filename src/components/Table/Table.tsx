@@ -1,7 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import styles from "./Table.module.scss";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 const Table = ({
   tableRow,
@@ -17,7 +16,6 @@ const Table = ({
   children: React.ReactNode;
 }) => {
   const navigate = useNavigate();
-  const { darkMode } = useContext(ThemeContext);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const currentPage = Number(queryParams.get("page")) || 1;
@@ -32,7 +30,7 @@ const Table = ({
   };
 
   return (
-    <div className={`${styles.table} ${darkMode && styles.dark}`}>
+    <div className={styles.table}>
       <div className={styles.table__box}>
         <table>
           <thead>

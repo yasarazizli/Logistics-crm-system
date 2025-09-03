@@ -8,11 +8,9 @@ import { useContext, useEffect, useState } from "react";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { registerVerifyResponse } from "@/features/auth/services/auth.service.ts";
 import { toast } from "react-toastify";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 const Success = () => {
   const { setLoader } = useContext(LoaderContext);
-  const { darkMode } = useContext(ThemeContext);
   const queryParams = new URLSearchParams(location.search);
   const registerVerificationToken = queryParams.get("token");
   const [success, setSuccess] = useState<boolean>(false);
@@ -41,7 +39,7 @@ const Success = () => {
   }, []);
 
   return (
-    <div className={`${styles.success} ${darkMode && styles.dark}`}>
+    <div className={styles.success}>
       <div className={styles.success__info}>
         <SuccessIcon />
         <h1 className={styles.success__info__title}>

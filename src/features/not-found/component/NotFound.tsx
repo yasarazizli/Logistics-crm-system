@@ -1,9 +1,6 @@
 import styles from "@/features/not-found/component/NotFound.module.scss";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
-import { useContext } from "react";
-
 import AuthLayout from "@/features/auth/components/layout/AuthLayout.tsx";
 import {
   ArrowBackIcon,
@@ -12,11 +9,10 @@ import {
 
 const NotFound = () => {
   const { i18n } = useTranslation();
-  const { darkMode } = useContext(ThemeContext);
 
   return (
     <AuthLayout>
-      <div className={`${styles.not__found} ${darkMode && styles.dark}`}>
+      <div className={styles.not__found}>
         <div className={styles.not__found__content}>
           <NotFoundIcon />
           <h1 className={styles.not__found__content__title}>404</h1>

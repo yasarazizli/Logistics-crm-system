@@ -7,8 +7,7 @@ import {
 } from "@/assets/images/auth/auth.vector.tsx";
 import Input from "@/components/Input/Input.tsx";
 import Button from "@/components/Button/Button.tsx";
-import { FormEvent, useContext, useRef } from "react";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import { FormEvent, useRef, useContext } from "react";
 import { MailIcon } from "@/assets/icons/shared.vectors.tsx";
 import {
   postForgetPasswordRequest,
@@ -21,7 +20,6 @@ import { toast } from "react-toastify";
 
 const Forget = () => {
   const { setLoader } = useContext(LoaderContext);
-  const { darkMode } = useContext(ThemeContext);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -39,10 +37,7 @@ const Forget = () => {
     setLoader(true);
 
     const formData = formCreator([
-      {
-        name: "email",
-        data: inputRefs.mail.current?.value,
-      },
+      { name: "email", data: inputRefs.mail.current?.value },
     ]);
 
     const { data, status } = await postForgetPasswordRequest(formData);
@@ -60,14 +55,8 @@ const Forget = () => {
     setLoader(true);
 
     const formData = formCreator([
-      {
-        name: "token",
-        data: resetPasswordVerificationToken,
-      },
-      {
-        name: "password",
-        data: inputRefs.password.current?.value || "",
-      },
+      { name: "token", data: resetPasswordVerificationToken },
+      { name: "password", data: inputRefs.password.current?.value || "" },
       {
         name: "confirm_password",
         data: inputRefs.confirm_password.current?.value || "",
@@ -85,7 +74,7 @@ const Forget = () => {
   };
 
   return (
-    <div className={`${styles.forget} ${darkMode && styles.dark}`}>
+    <div className={styles.forget}>
       <Link
         to={`/${i18n.language}/auth/login`}
         className={styles.forget__redirect}
@@ -136,7 +125,6 @@ const Forget = () => {
             icon={MailIcon}
             inputRef={inputRefs.password}
           />
-
           <Input
             label={t("shared.inputs.confirm_password")}
             placeholder={"********"}
@@ -145,12 +133,7 @@ const Forget = () => {
             icon={MailIcon}
             inputRef={inputRefs.confirm_password}
           />
-
-          {!resetPasswordVerificationToken ? (
-            <Button text={t("shared.buttons.send")} type={"submit"} />
-          ) : (
-            <Button text={"Change password"} />
-          )}
+          <Button text={"Change password"} />
         </form>
       )}
     </div>

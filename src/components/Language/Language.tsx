@@ -1,5 +1,4 @@
-import styles from "./Language.module.scss";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useClickOutside from "@/hooks/useClickOutside.ts";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -10,12 +9,11 @@ import {
 } from "@/assets/icons/shared.vectors.tsx";
 import { LanguageIcon } from "@/assets/icons/header.vectors.tsx";
 import { allowedLanguage } from "@/components/Language/language.constant.tsx";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import styles from "./Language.module.scss";
 
 const Language = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const { darkMode } = useContext(ThemeContext);
 
   const boxRef = useRef<HTMLDivElement>(null);
   const clickedInside = useClickOutside(boxRef);
@@ -42,17 +40,14 @@ const Language = () => {
     }
 
     localStorage.setItem("allianceLanguage", newLang);
-
     setActive(false);
   };
 
   return (
-    <div className={`${styles.language} ${darkMode && styles.dark}`}>
+    <div className={styles.language}>
       <div
         className={styles.language__icon}
-        onClick={() => {
-          setActive((prevState) => !prevState);
-        }}
+        onClick={() => setActive((prevState) => !prevState)}
       >
         <LanguageIcon />
       </div>
@@ -61,33 +56,30 @@ const Language = () => {
         ref={boxRef}
         className={`${styles.language__content} ${active && styles.active}`}
       >
-        {/* Azerbaijan language option */}
         {i18n.language !== "az" && (
           <div
             onClick={() => changeLanguage("az")}
-            className={`${styles.language__content__option}`}
+            className={styles.language__content__option}
           >
             <AzerbaijanFlagIcon />
             <span>Azərbaycan</span>
           </div>
         )}
 
-        {/* English language option */}
         {i18n.language !== "en" && (
           <div
             onClick={() => changeLanguage("en")}
-            className={`${styles.language__content__option}`}
+            className={styles.language__content__option}
           >
             <BritishFlagIcon />
             <span>English</span>
           </div>
         )}
 
-        {/* Russian language option */}
         {i18n.language !== "ru" && (
           <div
             onClick={() => changeLanguage("ru")}
-            className={`${styles.language__content__option}`}
+            className={styles.language__content__option}
           >
             <RussianFlagIcon />
             <span>Русский</span>

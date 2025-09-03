@@ -1,39 +1,15 @@
-// React
 import { useContext } from "react";
-
-// Contexts
 import { AuthContext } from "@/contexts/AuthContext.tsx";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
-
-// Components
 import Language from "@/components/Language/Language.tsx";
-// import Switcher from "@/components/Switcher/Switcher.tsx";
-
-// Images & Icons
-import {
-  CompanyIcon,
-  // DarkModeIcon,
-  // LightModeIcon,
-} from "@/assets/icons/shared.vectors.tsx";
-
-// Styles
+import { CompanyIcon } from "@/assets/icons/shared.vectors.tsx";
 import styles from "@/components/Header/Header.module.scss";
 
 const Header = () => {
   const { auth } = useContext(AuthContext);
-  const { darkMode, setDarkMode } = useContext(ThemeContext);
-  console.log(setDarkMode);
 
   return (
-    <div className={`${styles.dashboard__header} ${darkMode && styles.dark}`}>
+    <div className={styles.dashboard__header}>
       <div className={styles.buttons}>
-        {/*<Switcher*/}
-        {/*  iconOne={DarkModeIcon}*/}
-        {/*  iconTwo={LightModeIcon}*/}
-        {/*  toggle={darkMode}*/}
-        {/*  onToggle={() => setDarkMode(!darkMode)}*/}
-        {/*/>*/}
-
         <div className={`${styles.button} ${styles.language}`}>
           <Language />
         </div>

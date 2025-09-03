@@ -1,12 +1,10 @@
 import styles from "./FileInput.module.scss";
-import { InputHTMLAttributes, useContext, useState } from "react";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
+import { InputHTMLAttributes, useState } from "react";
 
 const FileInput = ({
   inputRef,
   ...props
 }: { inputRef?: any } & InputHTMLAttributes<HTMLInputElement>) => {
-  const { darkMode } = useContext(ThemeContext);
   const [file, setFile] = useState<File | null>(null);
 
   function handleChange(e: any) {
@@ -15,8 +13,9 @@ const FileInput = ({
       setFile(e.target.files[0]);
     }
   }
+
   return (
-    <label className={`${styles.file__input} ${darkMode && styles.dark}`}>
+    <label className={styles.file__input}>
       <div className={styles.texts}>
         {file ? (
           <p className={styles.title}>

@@ -9,11 +9,9 @@ import { useContext, useEffect, useState } from "react";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { registerVerifyResponse } from "@/features/auth/services/auth.service.ts";
 import { toast } from "react-toastify";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 const EmailSuccess = () => {
   const { setLoader } = useContext(LoaderContext);
-  const { darkMode } = useContext(ThemeContext);
   const { t } = useTranslation();
   const queryParams = new URLSearchParams(location.search);
   const registerVerificationToken = queryParams.get("token");
@@ -43,7 +41,7 @@ const EmailSuccess = () => {
   }, []);
 
   return (
-    <div className={`${styles.success} ${darkMode && styles.dark}`}>
+    <div className={styles.success}>
       <div className={styles.success__info}>
         <div className={styles.success__info__logo}>
           <LetterIcon />

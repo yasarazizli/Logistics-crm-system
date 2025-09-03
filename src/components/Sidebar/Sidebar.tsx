@@ -6,7 +6,6 @@ import { FormEvent, useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { logoutRequest } from "@/features/auth/services/auth.service.ts";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 import { SiteDarkLogo } from "@/assets/icons/logo.vectors.tsx";
 import { LogoutIcon, SettingIcon } from "@/assets/icons/sidebar.vectors.tsx";
 
@@ -16,7 +15,6 @@ const Sidebar = () => {
   const { i18n, t } = useTranslation();
   const { auth, setAuth } = useContext(AuthContext);
   const { setLoader } = useContext(LoaderContext);
-  const { darkMode } = useContext(ThemeContext);
 
   const logOut = async (event: FormEvent) => {
     event.preventDefault();
@@ -35,7 +33,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`${styles.sidebar} ${darkMode && styles.dark}`}>
+    <div className={styles.sidebar}>
       <Link className={styles.logo} to={`/${i18n.language}/home`}>
         <SiteDarkLogo />
       </Link>

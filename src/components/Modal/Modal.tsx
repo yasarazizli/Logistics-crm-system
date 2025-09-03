@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React from "react";
 import styles from "@/components/Modal/Modal.module.scss";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 
 const Modal = ({
   title,
@@ -13,17 +12,15 @@ const Modal = ({
   modalClose: () => void;
   children?: React.ReactNode;
 }) => {
-  const { darkMode } = useContext(ThemeContext);
-
   return (
-    <div className={`${styles.modal} ${darkMode && styles.dark}`}>
+    <div className={styles.modal}>
       <div onClick={modalClose} className={styles.modal__outer}></div>
       <div className={styles.modal__inner}>
         <div className={styles.head}>
           {title && <p className={styles.title}>{title}</p>}
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </div>
-        <>{children}</>
+        {children}
       </div>
     </div>
   );

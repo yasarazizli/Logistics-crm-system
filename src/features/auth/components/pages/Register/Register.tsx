@@ -14,7 +14,6 @@ import { formCreator } from "@/libs/form.ts";
 import { toast } from "react-toastify";
 import { registerRequest } from "../../../services/auth.service.ts";
 import { registerInputsRefModel } from "@/features/auth/models/auth.model.ts";
-import { ThemeContext } from "@/contexts/ThemeContext.tsx";
 import { AuthPageIcon } from "@/assets/images/auth/auth.vector.tsx";
 
 const Register = ({
@@ -22,36 +21,21 @@ const Register = ({
 }: {
   priceQuotation?: (inputRefs: registerInputsRefModel) => void;
 }) => {
-  // React`s
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-
-  // Contexts
-  const { darkMode } = useContext(ThemeContext);
   const { setLoader } = useContext(LoaderContext);
 
-  // States
   const [activeTab, setActiveTab] = useState<number>(0);
 
-  // Constants
   const tabs = [
-    {
-      name: "register.tabs.company",
-      tab: 0,
-      onClick: () => {
-        setActiveTab(0);
-      },
-    },
+    { name: "register.tabs.company", tab: 0, onClick: () => setActiveTab(0) },
     {
       name: "register.tabs.individual",
       tab: 1,
-      onClick: () => {
-        setActiveTab(1);
-      },
+      onClick: () => setActiveTab(1),
     },
   ];
 
-  // Refs
   const inputRefs: registerInputsRefModel = {
     full_name: useRef<HTMLInputElement>(null),
     company_name: useRef<HTMLInputElement>(null),
@@ -61,7 +45,6 @@ const Register = ({
     confirm__password: useRef<HTMLInputElement>(null),
   };
 
-  // Functions
   const register = async (event: FormEvent) => {
     event.preventDefault();
 
@@ -77,38 +60,26 @@ const Register = ({
         name: "company_name",
         data: inputRefs.company_name.current?.value || "",
       },
-      {
-        name: "full_name",
-        data: inputRefs.full_name.current?.value || "",
-      },
-      {
-        name: "email",
-        data: inputRefs.email.current?.value || "",
-      },
-      {
-        name: "phone",
-        data: inputRefs.phone.current?.value || "",
-      },
-      {
-        name: "password",
-        data: inputRefs.password.current?.value || "",
-      },
+      { name: "full_name", data: inputRefs.full_name.current?.value || "" },
+      { name: "email", data: inputRefs.email.current?.value || "" },
+      { name: "phone", data: inputRefs.phone.current?.value || "" },
+      { name: "password", data: inputRefs.password.current?.value || "" },
       {
         name: "confirm_password",
         data: inputRefs.confirm__password.current?.value || "",
       },
     ]);
+
     const { status } = await registerRequest(formData);
 
-    if (status == 200) {
-      navigate(`/${i18n.language}/auth/registersuccess`);
-    } else toast.error("Failed");
+    if (status === 200) navigate(`/${i18n.language}/auth/registersuccess`);
+    else toast.error("Failed");
 
     setLoader(false);
   };
 
   return (
-    <div className={`${styles.register} ${darkMode && styles.dark}`}>
+    <div className={styles.register}>
       <div className={styles.register__logo}>
         <div className={styles.logo}>
           <AuthPageIcon />
