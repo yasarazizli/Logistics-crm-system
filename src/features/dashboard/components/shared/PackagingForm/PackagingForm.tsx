@@ -115,8 +115,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
 
   // Location data state
   const [countries, setCountries] = useState<Country[]>([]);
-  const [stationCodes, setStationCodes] = useState<StationCode[]>([]);
-  const [ports, setPorts] = useState<Port[]>([]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Routes state
@@ -126,24 +124,40 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
       to: { country: "", city: "", hs: "", address: "", port: "" },
       fromCities: [] as City[],
       toCities: [] as City[],
+      fromStationCodes: [] as StationCode[],
+      toStationCodes: [] as StationCode[],
+      fromPorts: [] as Port[],
+      toPorts: [] as Port[],
     },
     {
       from: { country: "", city: "", hs: "", address: "", port: "" },
       to: { country: "", city: "", hs: "", address: "", port: "" },
       fromCities: [] as City[],
       toCities: [] as City[],
+      fromStationCodes: [] as StationCode[],
+      toStationCodes: [] as StationCode[],
+      fromPorts: [] as Port[],
+      toPorts: [] as Port[],
     },
     {
       from: { country: "", city: "", hs: "", address: "", port: "" },
       to: { country: "", city: "", hs: "", address: "", port: "" },
       fromCities: [] as City[],
       toCities: [] as City[],
+      fromStationCodes: [] as StationCode[],
+      toStationCodes: [] as StationCode[],
+      fromPorts: [] as Port[],
+      toPorts: [] as Port[],
     },
     {
       from: { country: "", city: "", hs: "", address: "", port: "" },
       to: { country: "", city: "", hs: "", address: "", port: "" },
       fromCities: [] as City[],
       toCities: [] as City[],
+      fromStationCodes: [] as StationCode[],
+      toStationCodes: [] as StationCode[],
+      fromPorts: [] as Port[],
+      toPorts: [] as Port[],
     },
   ]);
 
@@ -209,8 +223,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
   // Load initial data
   useEffect(() => {
     GetAllCountry().then((res) => setCountries(res?.data?.data || []));
-    GetAllStationCode().then((res) => setStationCodes(res?.data || []));
-    GetAllPort().then((res) => setPorts(res?.data?.data || []));
   }, []);
 
   // Show packing type based on selections
@@ -222,7 +234,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
     );
   }, [selectedOption1, selectedOption3]);
 
-  // Update parent data when packaging changes
   useEffect(() => {
     updateParentData();
   }, [
@@ -312,12 +323,32 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
       const updated = [...prev];
       updated[index][type].country = country;
       updated[index][type].city = "";
+      updated[index][type].hs = "";
+      updated[index][type].port = "";
 
       GetAllCity(country).then((res) => {
         if (type === "from") {
           updated[index].fromCities = res?.data || [];
         } else {
           updated[index].toCities = res?.data || [];
+        }
+        setRoutes([...updated]);
+      });
+
+      GetAllStationCode(country).then((res) => {
+        if (type === "from") {
+          updated[index].fromStationCodes = res?.data || [];
+        } else {
+          updated[index].toStationCodes = res?.data || [];
+        }
+        setRoutes([...updated]);
+      });
+
+      GetAllPort(country).then((res) => {
+        if (type === "from") {
+          updated[index].fromPorts = res?.data?.data || [];
+        } else {
+          updated[index].toPorts = res?.data?.data || [];
         }
         setRoutes([...updated]);
       });
@@ -996,7 +1027,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                           styles={customStyles}
                           placeholder="Select Station Code"
                           value={
-                            stationCodes
+                            route.fromStationCodes
                               .map((hs) => ({
                                 value: hs.value,
                                 label: hs.name,
@@ -1004,7 +1035,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                               .find((opt) => opt.value === route.from.hs) ||
                             null
                           }
-                          options={stationCodes.map((hs) => ({
+                          options={route.fromStationCodes.map((hs) => ({
                             value: hs.value,
                             label: hs.name,
                           }))}
@@ -1033,7 +1064,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                           }
                         >
                           <option value="">Select Port</option>
-                          {ports.map((p) => (
+                          {route.fromPorts.map((p) => (
                             <option key={p.id} value={p.name}>
                               {p.name}
                             </option>
@@ -1149,14 +1180,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                           styles={customStyles}
                           placeholder="Select Station Code"
                           value={
-                            stationCodes
+                            route.toStationCodes
                               .map((hs) => ({
                                 value: hs.value,
                                 label: hs.name,
                               }))
                               .find((opt) => opt.value === route.to.hs) || null
                           }
-                          options={stationCodes.map((hs) => ({
+                          options={route.toStationCodes.map((hs) => ({
                             value: hs.value,
                             label: hs.name,
                           }))}
@@ -1185,7 +1216,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                           }
                         >
                           <option value="">Select Port</option>
-                          {ports.map((p) => (
+                          {route.toPorts.map((p) => (
                             <option key={p.id} value={p.name}>
                               {p.name}
                             </option>
