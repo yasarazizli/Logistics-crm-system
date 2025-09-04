@@ -16,7 +16,7 @@ const Header = () => {
 
         <div className={styles.special__button}>
           <CompanyIcon />
-          <span>{auth.user?.full_name}</span>
+          <span>{auth.user?.full_name || "Müştəri"}</span>
         </div>
       </div>
     </div>

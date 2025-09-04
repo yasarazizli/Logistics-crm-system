@@ -81,9 +81,9 @@ interface Port {
 
 const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
   // Packaging state
-  const [selectedOption1, setSelectedOption1] = useState("Container");
+  const [selectedOption1, setSelectedOption1] = useState("");
   const [selectedOption2, setSelectedOption2] = useState("20");
-  const [selectedOption3, setSelectedOption3] = useState("Standart DC");
+  const [selectedOption3, setSelectedOption3] = useState("");
   const [containerInputs, setContainerInputs] = useState({
     totalQuantity: "",
     netWeight: "",
@@ -460,7 +460,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
       backgroundColor: state.isSelected
         ? "#1D736B"
         : state.isFocused
-          ? "#beeabe"
+          ? "#aed2ae"
           : "white",
       color: state.isSelected ? "white" : "#000",
       ":active": {
@@ -529,10 +529,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
   };
 
   useEffect(() => {
-    const newOptions = getTypeOptions(selectedOption1);
-    if (!newOptions.find((opt) => opt.value === selectedOption3)) {
-      setSelectedOption3(newOptions[0].value);
-    }
+    setSelectedOption3("");
   }, [selectedOption1]);
 
   return (
@@ -599,9 +596,11 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
         <div className={styles.selectWrapper}>
           <label className={styles.label}>Type</label>
           <Select<OptionType, false>
-            value={getTypeOptions(selectedOption1).find(
-              (option) => option.value === selectedOption3,
-            )}
+            value={
+              getTypeOptions(selectedOption1).find(
+                (option) => option.value === selectedOption3,
+              ) || null
+            }
             onChange={(option: SingleValue<OptionType>) =>
               setSelectedOption3(option ? option.value : "")
             }
@@ -695,6 +694,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
             <div style={{ display: "flex", gap: "20px", padding: "16px" }}>
               <Input
                 type="number"
+                name="width"
                 label="Width"
                 placeholder="Enter width"
                 value={breakBulkInputs.width}
@@ -788,6 +788,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
               <Input
                 type="number"
                 label="Width"
+                name="width"
                 placeholder="Enter width"
                 value={generalInputs.width}
                 onChange={handleGeneralInputChange}
@@ -859,6 +860,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
               <Input
                 type="number"
                 label="Width"
+                name="width"
                 placeholder="Enter width"
                 value={generalInputs.width}
                 onChange={handleGeneralInputChange}
