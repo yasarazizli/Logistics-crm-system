@@ -450,6 +450,24 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
     }),
     indicatorSeparator: () => ({ display: "none" }),
     dropdownIndicator: () => ({ display: "none" }),
+
+    option: (provided, state) => ({
+      ...provided,
+      fontFamily: "Manrope",
+      fontSize: "14px",
+      fontWeight: 500,
+      cursor: "pointer",
+      backgroundColor: state.isSelected
+        ? "#1D736B"
+        : state.isFocused
+          ? "#beeabe"
+          : "white",
+      color: state.isSelected ? "white" : "#000",
+      ":active": {
+        backgroundColor: "#1D736B",
+        color: "white",
+      },
+    }),
   };
 
   const containerOptions: OptionType[] = [

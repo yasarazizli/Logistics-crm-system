@@ -89,27 +89,35 @@ const SelectList = ({
       backgroundColor: "#F5F5F5",
       height: "53px",
       fontFamily: "Manrope",
-      fontSize: "16px",
+      fontSize: "14px",
       fontWeight: 500,
       boxShadow: "none",
+      color: "#7b7979",
       "&:hover": {
         border: "1px solid #E7E7E7",
       },
     }),
-    valueContainer: (provided) => ({ ...provided, padding: "15px 10px" }),
+    valueContainer: (provided) => ({
+      ...provided,
+      padding: "10px 10px",
+      overflow: "visible",
+    }),
     input: (provided) => ({
       ...provided,
       margin: 0,
       padding: 0,
       color: "#000",
     }),
-    singleValue: (provided) => ({ ...provided, color: "#000" }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "#000",
+      overflow: "visible",
+    }),
     placeholder: (provided) => ({ ...provided, color: "rgba(0,0,0,0.48)" }),
 
     clearIndicator: (provided) => ({
       ...provided,
       cursor: "pointer",
-      padding: "0 8px",
       color: "#000000",
       ":hover": {
         color: "#000",
@@ -117,6 +125,24 @@ const SelectList = ({
     }),
     indicatorSeparator: () => ({ display: "none" }),
     dropdownIndicator: () => ({ display: "none" }),
+
+    option: (provided, state) => ({
+      ...provided,
+      fontFamily: "Manrope",
+      fontSize: "14px",
+      fontWeight: 500,
+      cursor: "pointer",
+      backgroundColor: state.isSelected
+        ? "#1D736B"
+        : state.isFocused
+          ? "#beeabe"
+          : "white",
+      color: state.isSelected ? "white" : "#000",
+      ":active": {
+        backgroundColor: "#1D736B",
+        color: "white",
+      },
+    }),
   };
 
   return (

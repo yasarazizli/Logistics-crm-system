@@ -52,6 +52,36 @@
       width: 100%;
       gap: 16px;
     }
+
+    .note {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .label {
+        color: #000;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+      }
+
+      .input {
+        display: flex;
+        padding: 16px 16px 96px 16px;
+        align-items: flex-start;
+        gap: 10px;
+        align-self: stretch;
+        border-radius: 6px;
+        border: 1px solid var(--stroke, #DEDEDE);
+        background: var(--background-light, #F5F5F5);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+
+    }
+
+
   }
 
   .button {

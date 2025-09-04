@@ -119,8 +119,13 @@ const PriceQuotation = () => {
           </div>
         </div>
 
-        <div style={{ marginTop: "20px" }}>
-          <Input type={"text"} label={"Note"} placeholder={"Your note here"} />
+        <div className={styles.note}>
+          <label className={styles.label}>Note</label>
+          <input
+            className={styles.input}
+            type={"text"}
+            placeholder={"Your note here"}
+          />
         </div>
 
         <div className={styles.button}>
