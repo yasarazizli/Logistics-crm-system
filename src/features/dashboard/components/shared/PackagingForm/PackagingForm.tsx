@@ -292,7 +292,18 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
         height: 0,
         length: 0,
       };
+    } else if (selectedOption1 === "Oversize_Cargo") {
+      packagingData = {
+        packing_type: "Oversize_Cargo",
+        total_quantity: parseInt(generalInputs.totalQuantity) || 0,
+        net_weight: parseFloat(generalInputs.netWeight) || 0,
+        gross_weight: parseFloat(generalInputs.grossWeight) || 0,
+        width: parseFloat(generalInputs.width) || 0,
+        height: parseFloat(generalInputs.height) || 0,
+        length: parseFloat(generalInputs.length) || 0,
+      };
     } else {
+      // General
       packagingData = {
         packing_type: selectedOption1,
         total_quantity: parseInt(generalInputs.totalQuantity) || 0,
@@ -513,6 +524,8 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
         { value: "Bulk Liquid", label: "Bulk Liquid" },
         { value: "Other", label: "Other" },
       ];
+    } else if (type === "Oversize_Cargo") {
+      return [];
     } else {
       return [
         { value: "Standart DC", label: "Standart DC" },
@@ -593,23 +606,25 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
           </div>
         )}
 
-        <div className={styles.selectWrapper}>
-          <label className={styles.label}>Type</label>
-          <Select<OptionType, false>
-            value={
-              getTypeOptions(selectedOption1).find(
-                (option) => option.value === selectedOption3,
-              ) || null
-            }
-            onChange={(option: SingleValue<OptionType>) =>
-              setSelectedOption3(option ? option.value : "")
-            }
-            options={getTypeOptions(selectedOption1)}
-            styles={customStyles}
-            isClearable
-            placeholder="Select Type"
-          />
-        </div>
+        {selectedOption1 !== "Oversize_Cargo" && (
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Type</label>
+            <Select<OptionType, false>
+              value={
+                getTypeOptions(selectedOption1).find(
+                  (option) => option.value === selectedOption3,
+                ) || null
+              }
+              onChange={(option: SingleValue<OptionType>) =>
+                setSelectedOption3(option ? option.value : "")
+              }
+              options={getTypeOptions(selectedOption1)}
+              styles={customStyles}
+              isClearable
+              placeholder="Select Type"
+            />
+          </div>
+        )}
       </div>
 
       {selectedOption1 === "Container" && (
@@ -736,7 +751,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
             type="number"
             className={styles.input}
             name="netWeight"
-            label="Net Weight"
+            label="Net Weight (m3 / lt)"
             value={bulkLiquidInputs.netWeight}
             onChange={handleBulkLiquidInputChange}
             placeholder="Net Weight"

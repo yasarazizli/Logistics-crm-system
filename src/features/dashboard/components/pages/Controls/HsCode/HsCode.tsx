@@ -62,24 +62,28 @@ const HsCode = () => {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    setLoader(true);
     const fetchData = async () => {
-      const response = await HsCodeRequest(
-        page,
-        pageSize,
-        debouncedFilters.cargo,
-        debouncedFilters.code,
-        debouncedFilters.description,
-        debouncedFilters.created,
-        debouncedFilters.updated,
-      );
-      if (response?.status === 200) {
-        setData(response.data?.data || []);
-        setTotal(response.data?.count || 0);
+      setLoader(true);
+      try {
+        const response = await HsCodeRequest(
+          page,
+          pageSize,
+          debouncedFilters.cargo,
+          debouncedFilters.code,
+          debouncedFilters.description,
+          debouncedFilters.created,
+          debouncedFilters.updated,
+        );
+        if (response?.status === 200) {
+          setData(response.data?.data || []);
+          setTotal(response.data?.count || 0);
+        }
+      } finally {
+        setLoader(false);
       }
     };
+
     fetchData();
-    setLoader(false);
   }, [page, pageHelper.render, ...Object.values(debouncedFilters)]);
 
   const handleFilterChange = (
