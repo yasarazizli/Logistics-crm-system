@@ -14,6 +14,7 @@ import { getAllUsers } from "@/features/dashboard/services/CommercialDirectory/c
 import CreateDirectory from "@/features/dashboard/components/shared/Modals/CommericalDirectory/CreateDirectory.tsx";
 import SelectManager from "@/features/dashboard/components/shared/Modals/CommericalDirectory/SelectManager.tsx";
 import SelectFinancer from "@/features/dashboard/components/shared/Modals/CommericalDirectory/SelectFinancer.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 interface CD {
   id: number;
@@ -238,19 +239,11 @@ const CommercialDirectory = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {modal?.type === "create" && (

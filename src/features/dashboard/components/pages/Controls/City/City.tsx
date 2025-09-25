@@ -13,6 +13,7 @@ import { CityRequest } from "@/features/dashboard/services/Controls/city.service
 import CreateCity from "@/features/dashboard/components/shared/Modals/City/CreateCity.tsx";
 import DeleteCity from "@/features/dashboard/components/shared/Modals/City/DeleteCity.tsx";
 import UpdateCity from "@/features/dashboard/components/shared/Modals/City/UpdateCity.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = ["city", "country"] as const;
 
@@ -173,19 +174,11 @@ const City = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {createModal}

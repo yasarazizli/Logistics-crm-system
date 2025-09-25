@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { checkRequest } from "@/features/auth/services/auth.service.ts";
 import AddBalance from "@/features/dashboard/components/shared/Modals/Users/AddBalance.tsx";
 import AddContract from "@/features/dashboard/components/shared/Modals/Users/AddContract.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = ["fullname", "email", "phone"] as const;
 
@@ -299,19 +300,11 @@ const Users = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {addPopaps}

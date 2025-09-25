@@ -13,6 +13,7 @@ import CreateHsCode from "@/features/dashboard/components/shared/Modals/HsCode/C
 import UpdateHsCode from "@/features/dashboard/components/shared/Modals/HsCode/UpdateHsCode.tsx";
 import DeleteHsCode from "@/features/dashboard/components/shared/Modals/HsCode/DeleteHsCode.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = [
   "cargo",
@@ -46,7 +47,6 @@ const HsCode = () => {
   >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
-
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -208,19 +208,11 @@ const HsCode = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {createModal}

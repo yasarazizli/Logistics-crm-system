@@ -8,15 +8,7 @@ import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { useTranslation } from "react-i18next";
 import { getVendorRequest } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import CreateVendor from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateVendor.tsx";
-
-export interface Employee {
-  id: number;
-  full_name: string;
-  email: string;
-  phone: string;
-  fin_code: string;
-  role: string;
-}
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const Vendor = () => {
   const { setLoader } = useContext(LoaderContext);
@@ -195,19 +187,11 @@ const Vendor = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {createModal}

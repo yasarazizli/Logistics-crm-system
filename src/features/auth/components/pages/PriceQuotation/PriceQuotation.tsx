@@ -3,18 +3,26 @@ import Header from "@/components/Header/Header.tsx";
 import { useTranslation } from "react-i18next";
 import SelectList from "@/features/dashboard/components/shared/SelectList/SelectList.tsx";
 import Input from "@/components/Input/Input.tsx";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axios from "axios";
 import ExpandableSection from "@/features/dashboard/components/shared/ExpandableSection/ExpandableSetion.tsx";
 import PackagingForm, {
   PackagingData,
+  RouteData,
 } from "@/features/dashboard/components/shared/PackagingForm/PackagingForm.tsx";
 import Button from "@/components/Button/Button.tsx";
+import { toast } from "react-toastify";
+import { errorMessageHandler } from "@/libs/error.ts";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const PriceQuotation = () => {
   const { t } = useTranslation();
+  const userData = localStorage.getItem("priceRegisterUser");
+  let user = {};
+  if (userData) {
+    user = JSON.parse(userData);
+  }
 
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
@@ -27,8 +35,9 @@ const PriceQuotation = () => {
   const [totalWeight, setTotalWeight] = useState<string>("");
 
   const [unCode, setUnCode] = useState("");
-  const [msDs, setMsDs] = useState("");
-  const [msDsPictures, setMsDsPictures] = useState<string[]>([]);
+  const [msDs, setMsDs] = useState<File | null>(null);
+  const [msDsPictures, setMsDsPictures] = useState<File[]>([]);
+  const [dangerous, setDangerous] = useState(false);
 
   const [packagingData, setPackagingData] = useState<PackagingData>({
     packing_type: "Container",
@@ -37,34 +46,100 @@ const PriceQuotation = () => {
     gross_weight: 0,
   });
 
-  const handleSubmit = async () => {
-    if (!selectedCode || !totalWeight || !unCode) {
-      alert("Please fill all required fields");
+  const [stackable, setStackable] = useState(false);
+  const [inRow, setInRow] = useState(0);
+  const [requestContainerProvision, setRequestContainerProvision] =
+    useState(false);
+  const [requestWagonProvision, setRequestWagonProvision] = useState(false);
+  const [transportationType, setTransportationType] = useState<string>("Rail");
+  const [wagonType, setWagonType] = useState<string>("");
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [note, setNote] = useState("");
+
+  const [routes, setRoutes] = useState<RouteData[]>([]);
+
+  const handleWagonTypeChange = (type: string) => setWagonType(type);
+  const handlePackagingDataChange = (data: PackagingData) =>
+    setPackagingData(data);
+  const handleRoutesChange = useCallback(
+    (newRoutes: RouteData[]) => setRoutes(newRoutes),
+    [],
+  );
+  const handleTransportationTypeChange = (type: string) =>
+    setTransportationType(type);
+
+  const handleSubmit = async (status: "draft" | "send") => {
+    if (!selectedCode || !totalWeight) {
+      alert("Lütfen tüm gerekli alanları doldurun");
       return;
     }
 
-    const data = {
+    const filteredRoutes = routes.filter(
+      (route) =>
+        route.start_country_id !== null ||
+        route.end_country_id !== null ||
+        route.start_address !== "" ||
+        route.end_address !== "",
+    );
+
+    const formattedRoutes = filteredRoutes.map((route, index) => ({
+      start_country_id: route.start_country_id,
+      start_city_id: route.start_city_id,
+      start_address: route.start_address,
+      start_station_id: route.start_station_id,
+      start_port_id: route.start_port_id,
+      end_country_id: route.end_country_id,
+      end_city_id: route.end_city_id,
+      end_address: route.end_address,
+      end_station_id: route.end_station_id,
+      end_port_id: route.end_port_id,
+      is_main: index === 0,
+      route_type: ["full", "requested", "container", "wagon"][index] || "full",
+    }));
+
+    const order = {
       hs_code_id: selectedCode.value,
-      cargo_name: selectedCargo?.label || "",
       total_weight: parseFloat(totalWeight),
       un_code: unCode,
-      ms_ds: msDs,
-      ms_ds_pictures: msDsPictures[0] || "",
+      dangerous,
       packing: packagingData,
+      stackable,
+      request_container_provision: requestContainerProvision,
+      request_wagon_provision: requestWagonProvision,
+      in_row: inRow,
+      start_date: startDate ? new Date(startDate).toISOString() : null,
+      end_date: endDate ? new Date(endDate).toISOString() : null,
+      transport_type: transportationType.toLowerCase(),
+      wagon_type: wagonType.toLowerCase(),
+      note,
+      routes: formattedRoutes,
     };
 
-    try {
-      const response = await axios.post(`${apiUrl}/your-endpoint/`, data);
-      console.log("Server response:", response.data);
-      alert("Data sent successfully!");
-    } catch (error) {
-      console.error("Error sending data:", error);
-      alert("Failed to send data");
-    }
-  };
+    const formData = new FormData();
+    formData.append("user", JSON.stringify(user));
+    formData.append("order", JSON.stringify(order));
+    formData.append("btn_status:", status);
 
-  const handlePackagingDataChange = (data: PackagingData) => {
-    setPackagingData(data);
+    if (msDs) formData.append("msds_file", msDs);
+    msDsPictures.forEach((file, index) =>
+      formData.append(`cargo_image_${index}`, file),
+    );
+
+    const response = await axios.post(
+      `${apiUrl}/commercial/price-quotation/`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+    if (response && response.status === 200) {
+      console.log("Sunucu yanıtı:", response.data);
+      toast.success(errorMessageHandler(response.data));
+    } else {
+      toast.error(errorMessageHandler(response.data));
+    }
   };
 
   return (
@@ -86,10 +161,12 @@ const PriceQuotation = () => {
                 placeholder="Weight"
                 value={totalWeight}
                 onChange={(e) => setTotalWeight(e.target.value)}
+                required
               />
             </div>
           </div>
         </div>
+
         <div className={styles.expendable}>
           <ExpandableSection
             unCode={unCode}
@@ -98,23 +175,38 @@ const PriceQuotation = () => {
             setMsDs={setMsDs}
             msDsPictures={msDsPictures}
             setMsDsPictures={setMsDsPictures}
+            dangerous={dangerous}
+            setDangerous={setDangerous}
           />
         </div>
 
-        <PackagingForm onDataChange={handlePackagingDataChange} />
+        <PackagingForm
+          onDataChange={handlePackagingDataChange}
+          onRoutesChange={handleRoutesChange}
+          onStackableChange={setStackable}
+          onInRowChange={setInRow}
+          onContainerProvisionChange={setRequestContainerProvision}
+          onWagonProvisionChange={setRequestWagonProvision}
+          onTransportationTypeChange={handleTransportationTypeChange}
+          onWagonTypeChange={handleWagonTypeChange}
+        />
 
         <div>
-          <h1 className={styles.period}>Period of Transportation</h1>
+          <h1 className={styles.period}>Transport Period</h1>
           <div className={styles.date}>
             <Input
-              type={"date"}
-              label={"Start Date"}
+              type="date"
+              label="Start Date"
               style={{ height: "52px" }}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
             />
             <Input
-              type={"date"}
-              label={"End Date"}
+              type="date"
+              label="End Date"
               style={{ height: "52px" }}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
         </div>
@@ -123,16 +215,22 @@ const PriceQuotation = () => {
           <label className={styles.label}>Note</label>
           <input
             className={styles.input}
-            type={"text"}
-            placeholder={"Your note here"}
+            type="text"
+            placeholder="Your note here"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
           />
         </div>
 
         <div className={styles.button}>
-          <Button onClick={handleSubmit} text="Save" viewType="green__light" />
           <Button
-            onClick={handleSubmit}
-            text="Send to Commercial Manager"
+            onClick={() => handleSubmit("draft")}
+            text="Save as draft"
+            viewType="green__light"
+          />
+          <Button
+            onClick={() => handleSubmit("send")}
+            text="Send"
             viewType="dark-green"
           />
         </div>

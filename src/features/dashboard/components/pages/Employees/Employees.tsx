@@ -14,6 +14,7 @@ import CreateEmployees from "@/features/dashboard/components/shared/Modals/Emplo
 import UpdateEmployees from "@/features/dashboard/components/shared/Modals/Employees/UpdateEmployees.tsx";
 import DeleteEmployees from "@/features/dashboard/components/shared/Modals/Employees/DeleteEmployees.tsx";
 import { useTranslation } from "react-i18next";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = ["fullname", "email", "phone"] as const;
 
@@ -218,19 +219,11 @@ const Employees = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {createModal}

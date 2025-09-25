@@ -13,6 +13,7 @@ import { PortRequest } from "@/features/dashboard/services/Controls/port.service
 import CreatePort from "@/features/dashboard/components/shared/Modals/Port/CreatePort.tsx";
 import UpdatePort from "@/features/dashboard/components/shared/Modals/Port/UpdatePort.tsx";
 import DeletePort from "@/features/dashboard/components/shared/Modals/Port/DeletePort.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = ["port", "country"] as const;
 
@@ -172,19 +173,11 @@ const Port = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {createModal}

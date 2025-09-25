@@ -13,6 +13,7 @@ import { StationRequest } from "@/features/dashboard/services/Controls/station.s
 import CreateStation from "@/features/dashboard/components/shared/Modals/Station/CreateStation.tsx";
 import UpdateStation from "@/features/dashboard/components/shared/Modals/Station/UpdateStation.tsx";
 import DeleteStation from "@/features/dashboard/components/shared/Modals/Station/DeleteStation.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = ["name", "code", "country"] as const;
 
@@ -189,19 +190,11 @@ const Station = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {createModal}

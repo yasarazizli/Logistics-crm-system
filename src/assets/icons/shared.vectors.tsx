@@ -503,14 +503,14 @@ export const ImageIcon = () => {
         d="M8.84137 12.495L17.7705 11.0068V38.0888L13.8414 38.916C11.2104 39.4699 8.63764 37.7549 8.13665 35.1133L4.91455 18.1241C4.41279 15.4784 6.18518 12.9377 8.84137 12.495Z"
         fill="#808080"
         stroke="white"
-        stroke-opacity="0.24"
+        strokeOpacity="0.24"
         strokeWidth="0.8"
       />
       <path
         d="M55.1586 12.495L46.2295 11.0068V38.0888L50.1586 38.916C52.7896 39.4699 55.3624 37.7549 55.8634 35.1133L59.0854 18.1241C59.5872 15.4784 57.8148 12.9377 55.1586 12.495Z"
         fill="#808080"
         stroke="white"
-        stroke-opacity="0.24"
+        strokeOpacity="0.24"
         strokeWidth="0.8"
       />
       <g filter="url(#filter0_dd_2661_2278)">
@@ -529,7 +529,7 @@ export const ImageIcon = () => {
           height="35.0033"
           rx="4.4"
           stroke="white"
-          stroke-opacity="0.24"
+          strokeOpacity="0.24"
           strokeWidth="0.8"
         />
       </g>
@@ -546,9 +546,9 @@ export const ImageIcon = () => {
           width="35.0951"
           height="41.4032"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -640,7 +640,7 @@ export const VectorIcon = () => {
       viewBox="0 0 20 20"
       fill="none"
     >
-      <g clip-path="url(#clip0_3418_4289)">
+      <g clipPath="url(#clip0_3418_4289)">
         <path
           d="M5.61544 14.9636L0.941406 10.2896L2.12025 9.13139L5.63612 12.6473L6.79428 13.8054L5.61544 14.9636ZM10.2895 14.9636L5.61544 10.2896L6.7736 9.11071L10.2895 12.6266L17.9003 5.01576L19.0584 6.19461L10.2895 14.9636ZM10.2895 10.2896L9.11062 9.13139L13.2056 5.03644L14.3844 6.19461L10.2895 10.2896Z"
           fill="#009E08"
@@ -982,7 +982,7 @@ export const FromToIcon = () => {
       viewBox="0 0 16 16"
       fill="none"
     >
-      <g clip-path="url(#clip0_2279_5311)">
+      <g clipPath="url(#clip0_2279_5311)">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -995,6 +995,47 @@ export const FromToIcon = () => {
           <rect width="16" height="16" fill="white" />
         </clipPath>
       </defs>
+    </svg>
+  );
+};
+
+export const PdfIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 11V17L11 15"
+        stroke="#1D736B"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 17L7 15"
+        stroke="#1D736B"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14"
+        stroke="#1D736B"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M22 10H18C15 10 14 9 14 6V2L22 10Z"
+        stroke="#1D736B"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 };

@@ -8,6 +8,7 @@ import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAllServices } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import CreateVendor from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateVendor.tsx";
 import CreateServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateServices.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 interface Service {
   id: number;
@@ -228,19 +229,11 @@ const Services = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {modal?.type === "add" && (

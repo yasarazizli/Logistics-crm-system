@@ -7,10 +7,12 @@ import Input from "@/components/Input/Input.tsx";
 interface ExpandableSectionProps {
   unCode: string;
   setUnCode: (value: string) => void;
-  msDs: string;
-  setMsDs: (value: string) => void;
-  msDsPictures: string[];
-  setMsDsPictures: (pictures: string[]) => void;
+  msDs: File | null;
+  setMsDs: (file: File | null) => void;
+  msDsPictures: File[];
+  setMsDsPictures: (files: File[]) => void;
+  dangerous: boolean;
+  setDangerous: (value: boolean) => void;
 }
 
 const ExpandableSection = ({
@@ -20,9 +22,11 @@ const ExpandableSection = ({
   setMsDs,
   msDsPictures,
   setMsDsPictures,
+  dangerous,
+  setDangerous,
 }: ExpandableSectionProps) => {
   const { t } = useTranslation();
-  const [open, seOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const msdsFileRef = useRef<HTMLInputElement | null>(null);
   const msdsPicturesRef = useRef<HTMLInputElement | null>(null);
@@ -30,18 +34,12 @@ const ExpandableSection = ({
   const handleMsDsDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setMsDs(url);
-    }
+    if (file) setMsDs(file);
   };
 
   const handleMsDsSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setMsDs(url);
-    }
+    if (file) setMsDs(file);
   };
 
   const handleMsDsClick = () => {
@@ -50,19 +48,13 @@ const ExpandableSection = ({
 
   const handlePicturesDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setMsDsPictures([url]);
-    }
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length) setMsDsPictures(files);
   };
 
   const handlePicturesSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setMsDsPictures([url]);
-    }
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length) setMsDsPictures(files);
   };
 
   const handlePicturesClick = () => {
@@ -76,7 +68,10 @@ const ExpandableSection = ({
           className={styles.custom__checkbox}
           type="checkbox"
           checked={open}
-          onChange={() => seOpen(!open)}
+          onChange={() => {
+            setOpen(!open);
+            setDangerous(!dangerous);
+          }}
         />
         <span>{t("expand.cargo")}</span>
       </label>
@@ -101,9 +96,7 @@ const ExpandableSection = ({
           >
             {msDs ? (
               <div className={styles.document}>
-                <a href={msDs} target="_blank" rel="noopener noreferrer">
-                  {msDs}
-                </a>
+                <span>{msDs.name}</span>
               </div>
             ) : (
               <div className={styles.dropzone__title}>
@@ -117,7 +110,7 @@ const ExpandableSection = ({
             )}
             <input
               type="file"
-              accept="image/*"
+              accept="application/pdf,image/*"
               ref={msdsFileRef}
               onChange={handleMsDsSelect}
               style={{ display: "none" }}
@@ -125,22 +118,17 @@ const ExpandableSection = ({
           </div>
         </div>
 
-        {/* MSDS Pictures Dropzone as Link */}
         <div
           className={styles.dropzone}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handlePicturesDrop}
           onClick={handlePicturesClick}
         >
-          {msDsPictures[0] ? (
+          {msDsPictures.length ? (
             <div className={styles.document}>
-              <a
-                href={msDsPictures[0]}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {msDsPictures[0]}
-              </a>
+              {msDsPictures.map((file, idx) => (
+                <span key={idx}>{file.name}</span>
+              ))}
             </div>
           ) : (
             <div className={styles.dropzone__title}>
@@ -158,6 +146,7 @@ const ExpandableSection = ({
           <input
             type="file"
             accept="image/*"
+            multiple
             ref={msdsPicturesRef}
             onChange={handlePicturesSelect}
             style={{ display: "none" }}

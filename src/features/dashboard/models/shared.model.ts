@@ -25,21 +25,18 @@ export type StationsModel = { id: number; name: string; code?: string };
 
 export interface TableResponseType {
   page_count: number;
-  // News
   users?: UserModel[];
   vendors?: VendorModel[];
   workers?: WorkerModel[];
   orders?: OrdersModel[];
   invoices?: InvoicesModel[];
 
-  // Olds
   tasks?: TaskModel[];
   countries?: CountriesModel[];
   cities?: CitiesModel[];
   stations?: StationsModel[];
 }
 
-// News
 export interface PageHelperStateType {
   response: TableResponseType | null;
   render: boolean;

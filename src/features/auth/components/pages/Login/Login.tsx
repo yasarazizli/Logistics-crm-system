@@ -65,6 +65,9 @@ const Login = () => {
         case "commercial_directory":
           navigate(`/${i18n.language}/commercial/directory/users`);
           break;
+        case "commercial_manager":
+          navigate(`/${i18n.language}/commercial/manager/order`);
+          break;
       }
     } else toast.error(errorMessageHandler(data));
 
@@ -111,7 +114,7 @@ const Login = () => {
             text={t("login.buttons.quotation")}
             viewType={"dark-green"}
             onClick={() => {
-              navigate(`/${i18n.language}/auth/price/quotation`);
+              navigate(`/${i18n.language}/auth/price/register`);
             }}
           />
         </div>

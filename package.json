@@ -12,7 +12,10 @@
   "dependencies": {
     "@react-pdf/renderer": "^4.1.6",
     "axios": "^1.7.7",
+    "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.12.1",
     "i18next": "^23.16.5",
+    "jspdf": "^3.0.3",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "react-datepicker": "^7.5.0",

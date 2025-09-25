@@ -12,7 +12,7 @@
       background: var(--Green-500, #1D736B);
 
       th {
-        min-width: 170px;
+        min-width: 175px;
         padding: 14px 24px;
         text-align: center;
         border: 1px solid #DEDEDE;
@@ -22,14 +22,10 @@
 
         &:nth-child(1) {
           border-radius: 10px 0 0 0;
-          border-left: none;
-          border-top: none;
         }
 
         &:last-child {
           border-radius: 0 10px 0 0;
-          border-top: none;
-          border-right: none;
         }
       }
 

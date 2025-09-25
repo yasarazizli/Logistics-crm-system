@@ -6,6 +6,7 @@ import { FileIcon, PenIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAccountantUser } from "@/features/dashboard/services/Accountant/accountant.service.ts";
 import AddBalance from "@/features/dashboard/components/shared/Modals/Accountant/AddBalance.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = ["fullname", "phone", "email", "companyname"] as const;
 
@@ -171,19 +172,11 @@ const AccountantUser = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {updateModal}

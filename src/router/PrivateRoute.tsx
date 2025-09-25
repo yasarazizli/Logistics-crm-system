@@ -60,6 +60,16 @@ export default function PrivateRoute() {
     }
   }
 
+  if (auth.role === Roles.commercial_manager) {
+    const accessiblePages = [
+      "/commercial/manager/order",
+      "/commercial/manager/information",
+    ];
+    if (!accessiblePages.includes(normalizedPath)) {
+      return <Navigate to={`/${i18n.language}/commercial/manager/order`} />;
+    }
+  }
+
   // Director
   if (auth.role === "buyer_directory") {
     const accessiblePages = ["/services", "/vendors"];

@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { getLawyerUser } from "@/features/dashboard/services/LawyerUsers/lawyerusers.service.ts";
 import VerifyLawyer from "@/features/dashboard/components/shared/Modals/LawyerUsers/VerifyLawyer.tsx";
 import DeleteLawyerUser from "@/features/dashboard/components/shared/Modals/LawyerUsers/DeleteLawyer.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 const filterKeys = ["fullname", "phone", "email", "companyname"] as const;
 
@@ -227,19 +228,11 @@ const LawyerUser = () => {
           ))}
         </Table>
 
-        <div className={styles.pagination}>
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`${styles.pageButton} ${page === pg ? styles.activePage : ""}`}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
       </div>
 
       {updateModal}

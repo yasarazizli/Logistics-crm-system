@@ -36,6 +36,9 @@ import ServicesPage from "@/features/dashboard/pages/Services/ServicesPage.tsx";
 import VendorPage from "@/features/dashboard/pages/Vendor/VendorPage.tsx";
 import CommercialDirectoryUserPage from "@/features/dashboard/pages/CommercialDirectory/CommercialDirectoryUser/CommercialDirectoryUserPage.tsx";
 import CommercialDirectoryServicesPage from "@/features/dashboard/pages/CommercialDirectory/CommercialDirectoryServices/CommercialDirectoryServicesPage.tsx";
+import PriceRegisterPage from "@/features/auth/pages/PriceRegisterPage.tsx";
+import CommercialManagerOrderPage from "@/features/dashboard/pages/CommercialManager/CommercialManagerOrder/ComercialManagerOrderPage.tsx";
+import CustomerInformationPage from "@/features/dashboard/pages/CommercialManager/CustomerInformation/CustomerInformationPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -82,6 +85,7 @@ const AppRoutes = () => {
       <Route path="/:lang/auth">
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
+        <Route path="price/register" element={<PriceRegisterPage />} />
         <Route path="forget" element={<ForgetPage />} />
         <Route path="success" element={<SuccessPage />} />
         <Route path="emailsuccess" element={<EmailSuccessPage />} />
@@ -97,6 +101,14 @@ const AppRoutes = () => {
         <Route
           path="commercial/directory/users"
           element={<CommercialDirectoryUserPage />}
+        />
+        <Route
+          path="commercial/manager/order"
+          element={<CommercialManagerOrderPage />}
+        />
+        <Route
+          path="commercial/manager/information"
+          element={<CustomerInformationPage />}
         />
         <Route
           path="commercial/directory/services"

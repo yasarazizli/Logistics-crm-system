@@ -15,7 +15,7 @@ export const navigation = [
     name: "main.title",
     path: "users",
     icon: HomeIcon,
-    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+    roles: ["admin", "directory", "buyer_manager"],
   },
   {
     name: "main.title__2",
@@ -27,7 +27,7 @@ export const navigation = [
     name: "main.title__3",
     path: "employees",
     icon: VendorIcon,
-    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+    roles: ["admin", "directory", "buyer_manager"],
   },
   {
     name: "main.title__4",
@@ -39,25 +39,25 @@ export const navigation = [
     name: "main.title__5",
     path: "orders",
     icon: OrdersIcon,
-    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+    roles: ["admin", "directory", "buyer_manager"],
   },
   {
     name: "main.title__6",
     path: "balance",
     icon: BalanceActivitiesIcon,
-    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+    roles: ["admin", "directory", "buyer_manager"],
   },
   {
     name: "main.title__7",
     path: "tasks",
     icon: TasksIcon,
-    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+    roles: ["admin", "directory", "buyer_manager"],
   },
   {
     name: "main.title__8",
     path: "controls",
     icon: ControlsIcon,
-    roles: ["admin", "commercial_manager", "directory", "buyer_manager"],
+    roles: ["admin", "directory", "buyer_manager"],
   },
 
   // lawyer
@@ -96,5 +96,13 @@ export const navigation = [
     path: "commercial/directory/services",
     icon: ServiceIcon,
     roles: ["commercial_directory"],
+  },
+
+  // Commercial Manager
+  {
+    name: "main.title__5",
+    path: "commercial/manager/order",
+    icon: OrdersIcon,
+    roles: ["commercial_manager"],
   },
 ];

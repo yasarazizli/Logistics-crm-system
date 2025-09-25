@@ -34,6 +34,7 @@
   },
   "register": {
     "title": "Register",
+    "title_2": "Price Quotation Register",
     "tabs": {
       "company": "Company",
       "individual": "Individual"
@@ -74,7 +75,8 @@
     },
     "buttons": {
       "redirect": "Back to Home",
-      "next": "Sign-in"
+      "next": "Sign-in",
+      "next_1": "next"
     }
   },
   "forget": {
@@ -708,7 +710,8 @@
   },
 
   "price" : {
-    "title": "Price quotation"
+    "title": "Price quotation",
+    "information": "Customer Information"
   },
 
   "expand" : {
@@ -725,7 +728,9 @@
       "title": "Select the Manager",
       "label": "Manager",
       "title_1": "Select the Accountant",
+      "title_2": "Select the Member",
       "label_1": "Accountant",
+      "label_2": "Member",
       "price": "Selling price",
       "input_1": "Per ton",
       "placeholder": "Price",

@@ -110,6 +110,7 @@ const CreateServices = ({
       if (transportMode === "Rail") {
         const { data, status } = await getAllStationCode(countryName);
         if (status === 200) setStationCodes(data);
+        console.log("data", data);
       } else if (transportMode === "Sea") {
         const { data, status } = await getAllPort(countryName);
         if (status === 200) setPorts(data?.data);
@@ -340,7 +341,7 @@ const CreateServices = ({
                       <select ref={inputsRef.from_id} className={styles.select}>
                         <option value="">Select From Station</option>
                         {stationCodes.map((st) => (
-                          <option key={st.id} value={st.id}>
+                          <option key={st.value} value={st.value}>
                             {st.name}
                           </option>
                         ))}
@@ -351,7 +352,7 @@ const CreateServices = ({
                       <select ref={inputsRef.to_id} className={styles.select}>
                         <option value="">Select To Station</option>
                         {stationCodes.map((st) => (
-                          <option key={st.id} value={st.id}>
+                          <option key={st.value} value={st.value}>
                             {st.name}
                           </option>
                         ))}

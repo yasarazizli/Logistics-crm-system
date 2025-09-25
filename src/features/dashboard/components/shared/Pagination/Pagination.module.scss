@@ -1,0 +1,34 @@
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  .pageButton {
+    border: none;
+    background: transparent;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 12px;
+    color: #1a1a1a;
+    transition: all 0.2s ease;
+    font-weight: 300;
+
+    &:hover {
+      background-color: #e2e2e2;
+    }
+
+    &.activePage {
+      background-color: #c9dddd;
+      font-weight: 600;
+    }
+  }
+
+  .ellipsis {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #666;
+  }
+}

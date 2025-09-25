@@ -28,17 +28,19 @@ interface OptionType {
   label: string;
 }
 
-export interface TransportationData {
-  transportation_type: string;
-  full_route_from?: string;
-  full_route_to?: string;
-  requested_route_from?: string;
-  requested_route_to?: string;
-  empty_container_return_from?: string;
-  empty_container_return_to?: string;
-  empty_wagon_return_from?: string;
-  empty_wagon_return_to?: string;
-  wagon_type?: string;
+export interface RouteData {
+  start_country_id: number | null;
+  start_city_id: number | null;
+  start_address: string;
+  start_station_id: number | null;
+  start_port_id: number | null;
+  end_country_id: number | null;
+  end_city_id: number | null;
+  end_address: string;
+  end_station_id: number | null;
+  end_port_id: number | null;
+  is_main: boolean;
+  route_type: string;
 }
 
 interface Option {
@@ -48,7 +50,13 @@ interface Option {
 
 interface PackagingFormProps {
   onDataChange: (data: PackagingData) => void;
-  onTransportationDataChange?: (data: TransportationData) => void;
+  onRoutesChange?: (newRoutes: RouteData[]) => void;
+  onStackableChange?: (stackable: boolean) => void;
+  onInRowChange?: (inRow: number) => void;
+  onContainerProvisionChange?: (provision: boolean) => void;
+  onWagonProvisionChange?: (provision: boolean) => void;
+  onTransportationTypeChange?: (type: string) => void;
+  onWagonTypeChange?: (type: string) => void;
 }
 
 interface Country {
@@ -79,8 +87,16 @@ interface Port {
   name: string;
 }
 
-const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
-  // Packaging state
+const PackagingForm: React.FC<PackagingFormProps> = ({
+  onDataChange,
+  onRoutesChange,
+  onStackableChange,
+  onInRowChange,
+  onContainerProvisionChange,
+  onWagonProvisionChange,
+  onTransportationTypeChange,
+  onWagonTypeChange,
+}) => {
   const [selectedOption1, setSelectedOption1] = useState("");
   const [selectedOption2, setSelectedOption2] = useState("20");
   const [selectedOption3, setSelectedOption3] = useState("");
@@ -112,17 +128,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
   const [packingType, setPackingType] = useState("");
   const [showPackingTypeInput, setShowPackingTypeInput] = useState(false);
 
-  // Transportation state
   const [transportationType, setTransportationType] = useState<string>("Rail");
   const [wagonType, setWagonType] = useState<string>("");
   const [wagonProvision, setWagonProvision] = useState<boolean>(false);
   const [wagonProvision2, setWagonProvision2] = useState<boolean>(false);
 
-  // Location data state
   const [countries, setCountries] = useState<Country[]>([]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  // Routes state
   const [routes, setRoutes] = useState([
     {
       from: { country: "", city: "", hs: "", address: "", port: "" },
@@ -173,7 +186,121 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
     "Empty Return Wagon",
   ];
 
-  // Handle packaging input changes
+  useEffect(() => {
+    if (onWagonTypeChange) {
+      onWagonTypeChange(wagonType);
+    }
+  }, [wagonType, onWagonTypeChange]);
+
+  useEffect(() => {
+    if (onTransportationTypeChange) {
+      onTransportationTypeChange(transportationType);
+    }
+  }, [transportationType, onTransportationTypeChange]);
+
+  useEffect(() => {
+    if (!onRoutesChange) return;
+
+    const formattedRoutes: RouteData[] = routes.map((route, index) => {
+      const parseNumber = (value: any): number | null => {
+        if (value === undefined || value === null || value === "") return null;
+        const num = Number(value);
+        return isNaN(num) ? null : num;
+      };
+
+      const routeType =
+        ["full", "requested", "container", "wagon"][index] || "full";
+
+      const transportType = transportationType;
+
+      const startCountryId = parseNumber(
+        countries.find((c) => c.name === route.from.country)?.id,
+      );
+      const endCountryId = parseNumber(
+        countries.find((c) => c.name === route.to.country)?.id,
+      );
+
+      const startCityId = parseNumber(
+        route.from.city
+          ? route.fromCities.find((c) => c.name === route.from.city)?.value
+          : null,
+      );
+      const endCityId = parseNumber(
+        route.to.city
+          ? route.toCities.find((c) => c.name === route.to.city)?.value
+          : null,
+      );
+
+      const startPortId =
+        transportType === "Sea"
+          ? parseNumber(
+              route.fromPorts.find((p) => p.name === route.from.port)?.id,
+            )
+          : null;
+
+      const endPortId =
+        transportType === "Sea"
+          ? parseNumber(route.toPorts.find((p) => p.name === route.to.port)?.id)
+          : null;
+
+      const startStationId =
+        transportType === "Rail" ? parseNumber(route.from.hs) : null;
+      const endStationId =
+        transportType === "Rail" ? parseNumber(route.to.hs) : null;
+
+      const startAddress =
+        transportType === "Road" || transportType === "Multimodal"
+          ? route.from.address || ""
+          : "";
+      const endAddress =
+        transportType === "Road" || transportType === "Multimodal"
+          ? route.to.address || ""
+          : "";
+
+      return {
+        start_country_id: startCountryId,
+        start_city_id: startCityId,
+        start_address: startAddress,
+        start_station_id: startStationId,
+        start_port_id: startPortId,
+        end_country_id: endCountryId,
+        end_city_id: endCityId,
+        end_address: endAddress,
+        end_station_id: endStationId,
+        end_port_id: endPortId,
+        is_main: index === 0,
+        route_type: routeType,
+      };
+    });
+
+    console.log("Formatted routes:", formattedRoutes);
+    onRoutesChange(formattedRoutes);
+  }, [routes, onRoutesChange, countries, transportationType]);
+
+  useEffect(() => {
+    if (onStackableChange) {
+      onStackableChange(showPackingTypeInput);
+    }
+  }, [showPackingTypeInput, onStackableChange]);
+
+  useEffect(() => {
+    if (onInRowChange) {
+      onInRowChange(parseInt(packingType) || 0);
+    }
+  }, [packingType, onInRowChange]);
+
+  useEffect(() => {
+    if (onContainerProvisionChange) {
+      onContainerProvisionChange(wagonProvision2);
+    }
+  }, [wagonProvision2, onContainerProvisionChange]);
+
+  useEffect(() => {
+    if (onWagonProvisionChange) {
+      onWagonProvisionChange(wagonProvision);
+    }
+  }, [wagonProvision, onWagonProvisionChange]);
+
   const handleContainerInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -225,12 +352,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
     }
   };
 
-  // Load initial data
   useEffect(() => {
     GetAllCountry().then((res) => setCountries(res?.data?.data || []));
   }, []);
 
-  // Show packing type based on selections
   useEffect(() => {
     setShowPackingType(
       selectedOption1 === "Break_Bulk" ||
@@ -256,27 +381,33 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
   const updateParentData = () => {
     let packagingData: PackagingData;
 
+    // Seçilen tipin label'ını bul
+    const selectedTypeLabel = selectedOption3
+      ? getTypeOptions(selectedOption1).find(
+          (opt) => opt.value === selectedOption3,
+        )?.label || ""
+      : undefined;
+
     if (selectedOption1 === "Container") {
       packagingData = {
         packing_type: "Container",
-        container_type: selectedOption3,
+        container_type: selectedTypeLabel, // Label'ı kullan
         size: parseInt(selectedOption2) || 0,
         total_quantity: parseInt(containerInputs.totalQuantity) || 0,
         net_weight: parseFloat(containerInputs.netWeight) || 0,
         gross_weight: parseFloat(containerInputs.grossWeight) || 0,
-        width: 0,
-        height: 0,
-        length: 0,
       };
     } else if (selectedOption1 === "Break_Bulk") {
       packagingData = {
         packing_type: "Break_Bulk",
+        container_type: selectedTypeLabel, // Label'ı kullan
         total_quantity: parseInt(breakBulkInputs.totalQuantity) || 0,
         net_weight: parseFloat(breakBulkInputs.netWeight) || 0,
         gross_weight: parseFloat(breakBulkInputs.grossWeight) || 0,
         width: parseFloat(breakBulkInputs.width) || 0,
         height: parseFloat(breakBulkInputs.height) || 0,
         length: parseFloat(breakBulkInputs.length) || 0,
+        // Stackable için ayrı bir alan
         packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     } else if (
@@ -285,12 +416,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
     ) {
       packagingData = {
         packing_type: "Bulk_Liquid",
+        container_type: selectedTypeLabel, // Label'ı kullan
         net_weight: parseFloat(bulkLiquidInputs.netWeight) || 0,
         total_quantity: 0,
         gross_weight: 0,
-        width: 0,
-        height: 0,
-        length: 0,
       };
     } else if (selectedOption1 === "Oversize_Cargo") {
       packagingData = {
@@ -306,12 +435,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
       // General
       packagingData = {
         packing_type: selectedOption1,
+        container_type: selectedTypeLabel, // Label'ı kullan
         total_quantity: parseInt(generalInputs.totalQuantity) || 0,
         net_weight: parseFloat(generalInputs.netWeight) || 0,
         gross_weight: parseFloat(generalInputs.grossWeight) || 0,
         width: parseFloat(generalInputs.width) || 0,
         height: parseFloat(generalInputs.height) || 0,
         length: parseFloat(generalInputs.length) || 0,
+        // Stackable için ayrı bir alan
         packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     }
@@ -337,10 +468,24 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
   ) => {
     setRoutes((prev) => {
       const updated = [...prev];
-      updated[index][type].country = country;
-      updated[index][type].city = "";
-      updated[index][type].hs = "";
-      updated[index][type].port = "";
+
+      updated[index][type] = {
+        country: country,
+        city: "",
+        hs: "",
+        address: "",
+        port: "",
+      };
+
+      if (type === "from") {
+        updated[index].fromCities = [];
+        updated[index].fromStationCodes = [];
+        updated[index].fromPorts = [];
+      } else {
+        updated[index].toCities = [];
+        updated[index].toStationCodes = [];
+        updated[index].toPorts = [];
+      }
 
       GetAllCity(country).then((res) => {
         if (type === "from") {
@@ -381,7 +526,56 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
   ) => {
     setRoutes((prev) => {
       const updated = [...prev];
+
       updated[index][type][field] = value;
+
+      if (field === "country" && value !== updated[index][type].country) {
+        updated[index][type] = {
+          country: value,
+          city: "",
+          hs: "",
+          address: "",
+          port: "",
+        };
+
+        if (type === "from") {
+          updated[index].fromCities = [];
+          updated[index].fromStationCodes = [];
+          updated[index].fromPorts = [];
+        } else {
+          updated[index].toCities = [];
+          updated[index].toStationCodes = [];
+          updated[index].toPorts = [];
+        }
+
+        GetAllCity(value).then((res) => {
+          if (type === "from") {
+            updated[index].fromCities = res?.data || [];
+          } else {
+            updated[index].toCities = res?.data || [];
+          }
+          setRoutes([...updated]);
+        });
+
+        GetAllStationCode(value).then((res) => {
+          if (type === "from") {
+            updated[index].fromStationCodes = res?.data || [];
+          } else {
+            updated[index].toStationCodes = res?.data || [];
+          }
+          setRoutes([...updated]);
+        });
+
+        GetAllPort(value).then((res) => {
+          if (type === "from") {
+            updated[index].fromPorts = res?.data?.data || [];
+          } else {
+            updated[index].toPorts = res?.data?.data || [];
+          }
+          setRoutes([...updated]);
+        });
+      }
+
       return [...updated];
     });
   };
@@ -951,7 +1145,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
         </div>
       )}
 
-      {/* Transportation Type Section */}
       <div
         style={{
           marginTop: "40px",
@@ -969,9 +1162,11 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                 value={transportationOptions.find(
                   (option) => option.value === transportationType,
                 )}
-                onChange={(option: SingleValue<OptionType>) =>
-                  setTransportationType(option ? option.value : "")
-                }
+                onChange={(option: SingleValue<OptionType>) => {
+                  const newType = option ? option.value : "";
+                  setTransportationType(newType);
+                  setWagonType("");
+                }}
                 options={transportationOptions}
                 styles={customStyles}
                 isClearable
@@ -988,9 +1183,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({ onDataChange }) => {
                   value={wagonOptionsForSelect.find(
                     (option) => option.value === wagonType,
                   )}
-                  onChange={(option: SingleValue<OptionType>) =>
-                    setWagonType(option ? option.value : "")
-                  }
+                  onChange={(option: SingleValue<OptionType>) => {
+                    const newWagonType = option ? option.value : "";
+                    setWagonType(newWagonType);
+                  }}
                   options={wagonOptionsForSelect}
                   styles={customStyles}
                   placeholder="Select Wagon Type"
