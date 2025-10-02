@@ -7,7 +7,6 @@ import {
 
 export const defaultServiceValue = {
   id: null,
-  service_id: null,
   count: "0",
   selling_price: "0",
   buying_price: "1",

@@ -1,7 +1,7 @@
 import DashboardLayout from "@/features/dashboard/components/layout/DashboardLayout.tsx";
 import Users from "@/features/dashboard/components/pages/Users/Users.tsx";
 
-const ProfilePage = () => {
+const UserPage = () => {
   return (
     <DashboardLayout>
       <Users />
@@ -9,4 +9,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default UserPage;

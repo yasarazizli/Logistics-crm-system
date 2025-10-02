@@ -2,7 +2,7 @@ import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotati
 import Header from "@/components/Header/Header.tsx";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, useContext } from "react";
 import axios from "axios";
 import Button from "@/components/Button/Button.tsx";
 import { toast } from "react-toastify";
@@ -20,9 +20,16 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import GetExpandableSection from "@/features/dashboard/components/shared/GetExpandableSection/GetExpandableSection.tsx";
 import GetSelectList from "@/features/dashboard/components/shared/GetSelectList/GetSelectList.tsx";
-import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import {
+  QuotationData,
+  UserData,
+} from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import GetPackagingForm from "@/features/dashboard/components/shared/GetPackagingForm/GetPackagingForm.tsx";
 import { getCookie } from "@/libs/cookie.ts";
+import { useLocation, useNavigate } from "react-router-dom";
+import { errorMessageHandler } from "@/libs/error.ts";
+import i18n from "@/locales/i18n.ts";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -32,11 +39,28 @@ interface QuotationType {
     start_date: string;
     end_date: string;
   };
+  rows: TableRowData[];
+  summary: TableSummaryData;
+}
+
+interface OfferData {
+  tableData: TableRowData[];
+  summary: TableSummaryData;
+  note: string;
+}
+
+interface DynamicFormRef {
+  getFormData: () => DynamicFormData;
 }
 
 const CustomerInformation = () => {
+  const { setLoader } = useContext(LoaderContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const order = location.state?.order;
   const { t } = useTranslation();
-  const dynamicFormRef = useRef<{ getFormData: () => DynamicFormData }>(null);
+
+  const dynamicFormRefs = useRef<Map<number, DynamicFormRef>>(new Map());
 
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
@@ -47,29 +71,61 @@ const CustomerInformation = () => {
     value: number;
   } | null>(null);
   const [totalWeight, setTotalWeight] = useState<string>("");
-  const [extraInputs, setExtraInputs] = useState({
-    field1: "",
-    field2: "",
-    field3: "",
-  });
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [note, setNote] = useState("");
-  const [offers, setOffers] = useState([{}]);
-  const [tableData, setTableData] = useState<TableRowData[]>([]);
-  const [summary, setSummary] = useState<TableSummaryData>({
-    amount: "0",
-    vat: "0",
-    totalAmount: "0",
-    perTonPrice: "0",
-    transportationTime: "0",
-  });
+  const [generalNote, setGeneralNote] = useState("");
+
+  const [offers, setOffers] = useState<OfferData[]>([
+    {
+      tableData: [],
+      summary: {
+        amount: "0",
+        vat: "0",
+        totalAmount: "0",
+        perTonPrice: "0",
+        transportationTime: "0",
+      },
+      note: "",
+    },
+  ]);
 
   const handleExtraChange = (name: string, value: string) =>
     setExtraInputs((prev) => ({ ...prev, [name]: value }));
 
-  const handleAddOffer = () => setOffers([...offers, {}]);
+  const handleOfferNoteChange = (index: number, note: string) => {
+    setOffers((prev) =>
+      prev.map((offer, i) => (i === index ? { ...offer, note } : offer)),
+    );
+  };
+
+  const setDynamicFormRef = useCallback(
+    (index: number, ref: DynamicFormRef | null) => {
+      if (ref) {
+        dynamicFormRefs.current.set(index, ref);
+      } else {
+        dynamicFormRefs.current.delete(index);
+      }
+    },
+    [],
+  );
+
+  const handleAddOffer = () => {
+    setOffers((prev) => [
+      ...prev,
+      {
+        tableData: [],
+        summary: {
+          amount: "0",
+          vat: "0",
+          totalAmount: "0",
+          perTonPrice: "0",
+          transportationTime: "0",
+        },
+        note: "",
+      },
+    ]);
+  };
 
   const pageRef = useRef<HTMLDivElement | null>(null);
 
@@ -106,83 +162,88 @@ const CustomerInformation = () => {
       return;
     }
 
-    const dynamicData = dynamicFormRef.current?.getFormData();
+    setLoader(true);
 
-    const orderServiceData = tableData.map((row) => ({
-      service_id: Number(row.serviceName),
-      vendor_id: row.vendorId,
-      packing: {
-        packing_type: row.packagingType,
-        container_type: row.packagingPackage,
-        size: Number(row.packagingSize) || 0,
+    const order_offers = offers.map((offer, index) => {
+      const dynamicData = dynamicFormRefs.current.get(index)?.getFormData();
+
+      const orderServiceData = offer.tableData.map((row) => ({
+        service_id: Number(row.serviceName) || 0,
+        vendor_id: row.vendor || "",
+        packing: {
+          packing_type: row.packagingType || "",
+          container_type: row.packagingPackage || "",
+          size: Number(row.packagingSize) || 0,
+          total_quantity: Number(row.totalQuantity) || 0,
+          net_weight: Number(row.netWeight) || 0,
+          gross_weight: Number(row.grossWeight) || 0,
+          width: Number(row.width) || 0,
+          height: Number(row.height) || 0,
+          length: Number(row.length) || 0,
+        },
+        location: row.location || "",
+        transport_mode: row.transportMode || "",
+        transport_type: row.transportType || "",
+        payload: Number(row.payload) || 0,
         total_quantity: Number(row.totalQuantity) || 0,
-        net_weight: Number(row.netWeight) || 0,
-        gross_weight: Number(row.grossWeight) || 0,
-        width: Number(row.width) || 0,
-        height: Number(row.height) || 0,
-        length: Number(row.length) || 0,
-      },
-      location: row.location,
-      transport_mode: row.transportMode,
-      transport_type: row.transportType,
-      payload: Number(row.payload) || 0,
-      total_quantity: Number(row.totalQuantity) || 0,
-      estimated_transport_time: Number(row.estimatedTime) || 0,
-      purchase_price_per_ton: Number(row.purchasePricePerTon) || 0,
-      purchase_price_per_unit: Number(row.purchasePricePerUnit) || 0,
-      unit_type: row.unit,
-      total_purchase_price: Number(row.totalPurchasePrice) || 0,
-      selling_price: Number(row.sellingPrice) || 0,
-      total_selling_price: Number(row.totalPrice) || 0,
-      vat_amount: Number(row.vatAmount) || 0,
-      vat_18: row.vat18 || false,
-      profit: parseFloat(row.profit) || 0,
-      note: row.note,
-      amount: summary.amount,
-      vat: summary.vat,
-      total_amount: summary.totalAmount,
-      per_ton_price: summary.perTonPrice,
-      transportation_time: summary.transportationTime,
-    }));
+        estimated_transport_time: Number(row.estimatedTime) || 0,
+        purchase_price_per_ton: Number(row.purchasePricePerTon) || 0,
+        purchase_price_per_unit: Number(row.purchasePricePerUnit) || 0,
+        unit_type: row.unit || "",
+        total_purchase_price: Number(row.totalPurchasePrice) || 0,
+        selling_price: Number(row.sellingPrice) || 0,
+        total_selling_price: Number(row.totalPrice) || 0,
+        vat_amount: Number(row.vatAmount) || 0,
+        vat_18: row.vat18 || false,
+        profit: parseFloat(row.profit as string) || 0,
+        note: row.note || "",
+      }));
 
-    const shipmentData = {
-      shipper: dynamicData?.shipper,
-      shipper_required: !!dynamicData?.shipper,
-      consignee: dynamicData?.consignee,
-      consignee_required: !!dynamicData?.consignee,
-      notify_party: dynamicData?.notifyPartyValue || null,
-      notify_party_required: !!dynamicData?.notifyParty,
-      terminal: dynamicData?.terminalValue || null,
-      terminal_required: !!dynamicData?.terminal,
-      container_owner: dynamicData?.containerOwnerValue || null,
-      container_owner_required: !!dynamicData?.containerOwner,
-      wagon_owner: dynamicData?.wagonOwnerValue || null,
-      wagon_owner_required: !!dynamicData?.wagonOwner,
-      container_no: dynamicData?.containers[0]?.number || null,
-      container_no_required:
-        dynamicData?.containers[0]?.requiredNumber || false,
-      container_drop_off: dynamicData?.containers[0]?.dropOff || null,
-      container_drop_off_required:
-        dynamicData?.containers[0]?.requiredDropOff || false,
-      wagon_no: dynamicData?.wagons[0]?.number || null,
-      wagon_no_required: dynamicData?.wagons[0]?.requiredNumber || false,
-      wagon_drop_off: dynamicData?.wagons[0]?.dropOff || null,
-      wagon_drop_off_required: dynamicData?.wagons[0]?.requiredDropOff || false,
-    };
+      const shipmentData = {
+        shipper: dynamicData?.shipper || "",
+        shipper_required: !!dynamicData?.shipper,
+        consignee: dynamicData?.consignee || "",
+        consignee_required: !!dynamicData?.consignee,
+        notify_party: dynamicData?.notifyPartyValue || null,
+        notify_party_required: !!dynamicData?.notifyParty,
+        terminal: dynamicData?.terminalValue || null,
+        terminal_required: !!dynamicData?.terminal,
+        container_owner: dynamicData?.containerOwnerValue || null,
+        container_owner_required: !!dynamicData?.containerOwner,
+        wagon_owner: dynamicData?.wagonOwnerValue || null,
+        wagon_owner_required: !!dynamicData?.wagonOwner,
+        container_no: dynamicData?.containers?.[0]?.number || null,
+        container_no_required:
+          dynamicData?.containers?.[0]?.requiredNumber || false,
+        container_drop_off: dynamicData?.containers?.[0]?.dropOff || null,
+        container_drop_off_required:
+          dynamicData?.containers?.[0]?.requiredDropOff || false,
+        wagon_no: dynamicData?.wagons?.[0]?.number || null,
+        wagon_no_required: dynamicData?.wagons?.[0]?.requiredNumber || false,
+        wagon_drop_off: dynamicData?.wagons?.[0]?.dropOff || null,
+        wagon_drop_off_required:
+          dynamicData?.wagons?.[0]?.requiredDropOff || false,
+      };
 
-    const order_offers = offers.map(() => ({
-      note,
-      order_service_serializer: orderServiceData,
-      shipment_serializer: shipmentData,
-    }));
+      return {
+        note: offer.note,
+        order_service_serializer: orderServiceData,
+        shipment_serializer: shipmentData,
+        amount: parseFloat(offer.summary.amount) || 0,
+        vat: parseFloat(offer.summary.vat) || 0,
+        total_amount: parseFloat(offer.summary.totalAmount) || 0,
+        per_ton_price: parseFloat(offer.summary.perTonPrice) || 0,
+        transportation_time: parseFloat(offer.summary.transportationTime) || 0,
+      };
+    });
 
     const formData = new FormData();
-    formData.append("order_offers", JSON.stringify(order_offers));
+    formData.append("offers", JSON.stringify(order_offers));
     formData.append("btn_status:", status);
 
     try {
       const response = await axios.post(
-        `${apiUrl}/commercial/create-offer/`,
+        `${apiUrl}/commercial/create-offer/?order_id=${order.order_id}`,
         formData,
         {
           headers: {
@@ -193,47 +254,86 @@ const CustomerInformation = () => {
       );
 
       if (response?.status === 200) {
-        toast.success("Offer successfully sent!");
+        toast.success(errorMessageHandler(response.data));
+        navigate(`/${i18n.language}/commercial/manager/order`);
       } else {
-        toast.error("Something went wrong!");
+        toast.error(errorMessageHandler(response.data));
       }
     } catch (error) {
-      console.error(error);
-      toast.error("Request failed!");
+      console.error("Error submitting offer:", error);
+      toast.error("An error occurred while submitting the offer");
     }
+    setLoader(false);
   };
 
   const [quotation, setQuotation] = useState<QuotationType | null>(null);
 
   useEffect(() => {
     const fetchRequest = async () => {
-      const response = await QuotationData(5);
-      if (response?.status === 200) {
-        const apiData = response?.data;
-        setQuotation(apiData || null);
+      try {
+        const response = await QuotationData(order.order_id);
+        if (response?.status === 200) {
+          const apiData = response?.data;
+          setQuotation(apiData || null);
 
-        if (apiData) {
-          setTotalWeight(apiData.total_weight?.toString() || "");
-          console.log(quotation);
-
-          const convertToISO = (dateStr?: string) => {
-            if (!dateStr) return "";
-            const [day, month, year] = dateStr.split(".");
-            return `${year}-${month}-${day}`;
-          };
-
-          setStartDate(convertToISO(apiData.start_date));
-          setEndDate(convertToISO(apiData.end_date));
+          if (apiData) {
+            setTotalWeight(apiData.total_weight?.toString() || "");
+            const convertToISO = (dateStr?: string) => {
+              if (!dateStr) return "";
+              const [day, month, year] = dateStr.split(".");
+              return `${year}-${month}-${day}`;
+            };
+            setStartDate(convertToISO(apiData.start_date));
+            setEndDate(convertToISO(apiData.end_date));
+          }
         }
+      } catch (error) {
+        console.error("Error fetching quotation:", error);
       }
     };
-    fetchRequest();
-  }, []);
 
-  const handleTableChange = (data: CompleteTableData) => {
-    setTableData(data.rows);
-    setSummary(data.summary);
-  };
+    fetchRequest();
+  }, [order]);
+
+  const handleTableDataChange = useCallback(
+    (index: number, data: CompleteTableData) => {
+      setOffers((prev) =>
+        prev.map((offer, i) =>
+          i === index
+            ? { ...offer, tableData: data.rows, summary: data.summary }
+            : offer,
+        ),
+      );
+    },
+    [],
+  );
+
+  const [extraInputs, setExtraInputs] = useState({
+    field1: "",
+    field2: "",
+    field3: "",
+  });
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const response = await UserData(order.order_id);
+        if (response?.status === 200) {
+          const apiData = response?.data;
+
+          setExtraInputs({
+            field1: apiData.full_name || "",
+            field2: apiData.email || "",
+            field3: apiData.phone || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching quotation:", error);
+      }
+    };
+
+    fetchRequest();
+  }, [order]);
 
   return (
     <div className={styles.price__quotation} ref={pageRef}>
@@ -321,13 +421,27 @@ const CustomerInformation = () => {
           />
         </div>
 
-        {offers.map((_, index) => (
+        {offers.map((offer, index) => (
           <div key={index} style={{ marginBottom: "24px" }}>
             <h1 className={styles.offer__title}>
               Commercial Offer - {index + 1}
             </h1>
             <div className={styles.commercial}>
-              <Table onTableDataChange={handleTableChange} />
+              <Table
+                index={index}
+                rows={quotation?.rows || []}
+                summary={
+                  quotation?.summary || {
+                    amount: "0",
+                    vat: "0",
+                    totalAmount: "0",
+                    perTonPrice: "0",
+                    transportationTime: "0",
+                  }
+                }
+                onTableDataChange={handleTableDataChange}
+              />
+
               <div style={{ width: "100%" }}>
                 <Button
                   icon={PdfIcon}
@@ -336,11 +450,16 @@ const CustomerInformation = () => {
                   onClick={handleDownloadFullPDF}
                 />
               </div>
-              <Input label="Customer note" placeholder="Your note here" />
+              <Input
+                label="Customer note"
+                placeholder="Your note here"
+                value={offer.note}
+                onChange={(e) => handleOfferNoteChange(index, e.target.value)}
+              />
             </div>
 
             <div style={{ marginBottom: "32px" }}>
-              <DynamicForm ref={dynamicFormRef} />
+              <DynamicForm ref={(ref) => setDynamicFormRef(index, ref)} />
             </div>
           </div>
         ))}
@@ -353,13 +472,13 @@ const CustomerInformation = () => {
         />
 
         <div className={styles.note}>
-          <label className={styles.label}>Note</label>
+          <label className={styles.label}>General Note</label>
           <input
             className={styles.input}
             type="text"
-            placeholder="Your note here"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
+            placeholder="Your general note here"
+            value={generalNote}
+            onChange={(e) => setGeneralNote(e.target.value)}
           />
         </div>
 

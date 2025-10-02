@@ -3,6 +3,7 @@ import Select, { StylesConfig } from "react-select";
 import axios from "axios";
 import styles from "../SelectList/SelectList.module.scss";
 import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import { useLocation } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -35,18 +36,18 @@ const SelectList = ({
   selectedCode,
   setSelectedCode,
 }: SelectListProps) => {
+  const location = useLocation();
+  const order = location.state?.order;
   const [data, setData] = useState<DataItem[]>([]);
   const [cargoOptions, setCargoOptions] = useState<Option[]>([]);
   const [codeOptions, setCodeOptions] = useState<Option[]>([]);
-  const [quotation, setQuotation] = useState<QuotationType | null>(null);
-  console.log(quotation);
+  const [, setQuotation] = useState<QuotationType | null>(null);
 
   useEffect(() => {
     const fetchRequest = async () => {
-      const response = await QuotationData(5);
+      const response = await QuotationData(order.order_id);
       if (response?.status === 200) {
         setQuotation(response.data || null);
-        console.log("API-dən gələn məlumat:", response?.data);
 
         if (response.data) {
           const matchedCargo = data.find(
@@ -78,7 +79,7 @@ const SelectList = ({
       }
     };
     fetchRequest();
-  }, [data, setSelectedCargo, setSelectedCode]);
+  }, [data, setSelectedCargo, setSelectedCode, order]);
 
   useEffect(() => {
     const fetchData = async () => {

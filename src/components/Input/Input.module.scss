@@ -31,11 +31,11 @@
 
   &.disabled {
     & span {
-      color: rgba(255, 255, 255, 0.48);
+      color: #000;
     }
     & .input__box {
       & input {
-        color: rgba(255, 255, 255, 0.64);
+        color: #000;
       }
     }
   }

@@ -273,7 +273,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       };
     });
 
-    console.log("Formatted routes:", formattedRoutes);
     onRoutesChange(formattedRoutes);
   }, [routes, onRoutesChange, countries, transportationType]);
 

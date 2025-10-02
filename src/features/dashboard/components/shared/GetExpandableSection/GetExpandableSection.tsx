@@ -4,6 +4,7 @@ import { ImageIcon } from "@/assets/icons/shared.vectors.tsx";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
 import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import { useLocation } from "react-router-dom";
 
 interface ExpandableSectionProps {
   unCode: string;
@@ -35,27 +36,27 @@ const ExpandableSection = ({
 }: ExpandableSectionProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [quotation, setQuotation] = useState<QuotationType | null>(null);
-  console.log(quotation);
+  const [, setQuotation] = useState<QuotationType | null>(null);
+  const location = useLocation();
+  const order = location.state?.order;
 
   useEffect(() => {
     const fetchRequest = async () => {
-      const response = await QuotationData(5);
+      const response = await QuotationData(order.order_id);
       if (response?.status === 200) {
         setQuotation(response.data || null);
-        console.log("API-dən gələn məlumat:", response?.data);
         const apiData = response?.data;
 
         if (apiData) {
           setUnCode(apiData.un_code?.toString() || "");
           setMsDs(apiData.msds?.toString() || "");
           setMsDsPictures(apiData.msDsPictures?.toString() || "");
-          setDangerous(apiData.dangerous?.toString() || "");
+          setDangerous(Boolean(apiData.dangerous));
         }
       }
     };
     fetchRequest();
-  }, [setUnCode, setMsDs, setMsDsPictures, setDangerous]);
+  }, [setUnCode, setMsDs, setMsDsPictures, setDangerous, order]);
 
   return (
     <div className={styles.wrapper}>

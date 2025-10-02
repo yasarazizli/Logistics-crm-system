@@ -19,7 +19,7 @@ export default function PrivateRoute() {
 
   // User
   if (auth.role === Roles.user) {
-    const accessiblePages = ["/users"];
+    const accessiblePages = ["/users", "/user/offer/confirmation"];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/users`} />;
     }
@@ -64,6 +64,7 @@ export default function PrivateRoute() {
     const accessiblePages = [
       "/commercial/manager/order",
       "/commercial/manager/information",
+      "/commercial/manager/information/edit",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/manager/order`} />;

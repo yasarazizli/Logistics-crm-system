@@ -4,53 +4,45 @@ import Button from "@/components/Button/Button.tsx";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
-  DeleteIcon,
+  FileIcon,
   GreenAddIcon,
   PenIcon,
-  PlusIcon,
   YellowPlusIcon,
 } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
-import { getEmployees } from "@/features/dashboard/services/Employees/employees.service.ts";
-import CreateEmployees from "@/features/dashboard/components/shared/Modals/Employees/CreateEmployees.tsx";
-import UpdateEmployees from "@/features/dashboard/components/shared/Modals/Employees/UpdateEmployees.tsx";
-import DeleteEmployees from "@/features/dashboard/components/shared/Modals/Employees/DeleteEmployees.tsx";
 import { useTranslation } from "react-i18next";
 import { checkRequest } from "@/features/auth/services/auth.service.ts";
 import AddBalance from "@/features/dashboard/components/shared/Modals/Users/AddBalance.tsx";
 import AddContract from "@/features/dashboard/components/shared/Modals/Users/AddContract.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
+import { useNavigate } from "react-router-dom";
+import i18n from "@/locales/i18n.ts";
+import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 
-const filterKeys = ["fullname", "email", "phone"] as const;
-
-export interface Employee {
-  id: number;
-  full_name: string;
-  email: string;
-  phone: string;
-  fin_code: string;
-  role: string;
-}
+const filterKeys = [
+  "order_code",
+  "country_loading",
+  "country_destination",
+  "start_date",
+  "end_date",
+] as const;
 
 const Users = () => {
+  const navigate = useNavigate();
   const dataRef = useRef<any>(null);
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
   const [filters, setFilters] = useState({
+    order_code: "",
+    country_loading: "",
+    country_destination: "",
+    start_date: "",
+    end_date: "",
     status: "",
-    role: "",
-    fullname: "",
-    email: "",
-    phone: "",
   });
 
   const [modal, setModal] = useState<
-    | null
-    | { type: "create" }
-    | { type: "update"; id: number; employee: Employee }
-    | { type: "delete"; id: number }
-    | { type: "add" }
-    | { type: "contract"; id: number }
+    null | { type: "add" } | { type: "contract"; id: number }
   >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
@@ -59,10 +51,11 @@ const Users = () => {
   const pageSize = 10;
 
   const debouncedFilters = {
-    fullname: useDebounce(filters.fullname, 700),
-    email: useDebounce(filters.email, 700),
-    phone: useDebounce(filters.phone, 700),
-    role: filters.role,
+    order_code: useDebounce(filters.order_code, 700),
+    country_loading: useDebounce(filters.country_loading, 700),
+    country_destination: useDebounce(filters.country_destination, 700),
+    start_date: useDebounce(filters.start_date, 700),
+    end_date: useDebounce(filters.end_date, 700),
   };
 
   const [data, setData] = useState<any[]>([]);
@@ -71,24 +64,26 @@ const Users = () => {
   useEffect(() => {
     setLoader(true);
     const fetchData = async () => {
-      const response = await getEmployees(
+      const response = await getAllOrder({
+        ...debouncedFilters,
+        status: filters.status,
         page,
         pageSize,
-        debouncedFilters.fullname,
-        debouncedFilters.email,
-        debouncedFilters.phone,
-        debouncedFilters.role,
-      );
+      });
       if (response?.status === 200) {
-        console.log("data", response.data?.employee);
         console.log("data", response.data);
-        setData(response.data?.employee || []);
+        setData(response.data?.data || []);
         setTotal(response.data?.count || 0);
       }
     };
     fetchData();
     setLoader(false);
-  }, [page, pageHelper.render, ...Object.values(debouncedFilters)]);
+  }, [
+    page,
+    pageHelper.render,
+    filters.status,
+    ...Object.values(debouncedFilters),
+  ]);
 
   useEffect(() => {
     setLoader(true);
@@ -123,38 +118,8 @@ const Users = () => {
     />
   );
 
-  const addPopaps = modal?.type === "contract" && (
+  const addContract = modal?.type === "contract" && (
     <AddContract
-      id={modal.id}
-      modalClose={() => {
-        setModal(null);
-        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
-      }}
-    />
-  );
-
-  const createModal = modal?.type === "create" && (
-    <CreateEmployees
-      modalClose={() => {
-        setModal(null);
-        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
-      }}
-    />
-  );
-
-  const updateModal = modal?.type === "update" && (
-    <UpdateEmployees
-      employee={modal.employee}
-      id={modal.id}
-      modalClose={() => {
-        setModal(null);
-        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
-      }}
-    />
-  );
-
-  const deleteModal = modal?.type === "delete" && (
-    <DeleteEmployees
       id={modal.id}
       modalClose={() => {
         setModal(null);
@@ -181,6 +146,19 @@ const Users = () => {
     completed: "#1D7321",
     draft: "#808080",
     rejected: "#F74156",
+  };
+
+  const goToQuotation = () => {
+    navigate(`/${i18n.language}/auth/price/quotation`, {
+      state: { showShipper: true },
+    });
+  };
+
+  const handleClickEdit = (orderId: number) => {
+    const selectedOrder = data.find((item) => item.order_id === orderId);
+    navigate(`/${i18n.language}/user/offer/confirmation`, {
+      state: { order: selectedOrder },
+    });
   };
 
   return (
@@ -239,10 +217,9 @@ const Users = () => {
             </p>
           </div>
           <Button
-            text="Add Order"
+            text="Ask Quotation"
             viewType="green__light"
-            icon={PlusIcon}
-            onClick={() => setModal({ type: "create" })}
+            onClick={goToQuotation}
           />
         </div>
       </div>
@@ -250,18 +227,23 @@ const Users = () => {
       <div className={styles.table}>
         <Table
           headers={[
-            { name: "Full Name" },
-            { name: "E-mail" },
-            { name: "Phone Number" },
-            { name: "Role" },
-            { name: "" },
+            { name: "Order code" },
+            { name: "Country of loading" },
+            { name: "Country of destination" },
+            { name: "Start Date" },
+            { name: "End Date" },
+            { name: "Status" },
+            { name: "Invoice document" },
+            { name: "Instruction document" },
+            { name: "Istifadəçi təsdiqi" },
           ]}
           filters={
             <>
               {filterKeys.map((key) => (
                 <td key={key}>
                   <input
-                    placeholder={`Filter by ${key}`}
+                    type={key.includes("date") ? "date" : "text"}
+                    placeholder={`Filter by ${key.replace(/_/g, " ")}`}
                     value={filters[key]}
                     onChange={(e) => handleFilterChange(e, key)}
                   />
@@ -269,28 +251,54 @@ const Users = () => {
               ))}
               <td></td>
               <td></td>
+              <td></td>
+              <td></td>
             </>
           }
         >
           {data.map((item) => (
-            <tr key={item.id}>
-              <td>{item.full_name}</td>
-              <td>{item.email}</td>
-              <td>{item.phone}</td>
-              <td> {t(`workers.roles.${item.role}`)}</td>
+            <tr key={item.order_id}>
+              <td>{item.order_id}</td>
+              <td>{item.country_loading}</td>
+              <td>{item.country_destination}</td>
+              <td>{item.start_date}</td>
+              <td>{item.end_date}</td>
+              <td>{item.status}</td>
+              <td>
+                {item.invoice ? (
+                  <a
+                    href={item.invoice}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <div className={styles.file__icon}>
+                      <FileIcon />
+                    </div>
+                  </a>
+                ) : (
+                  " - "
+                )}
+              </td>
+              <td>
+                {item.instructions ? (
+                  <a
+                    href={item.instructions}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <div className={styles.file__icon}>
+                      <FileIcon />
+                    </div>
+                  </a>
+                ) : (
+                  " - "
+                )}
+              </td>
               <td>
                 <div className={styles.icon}>
                   <div
-                    className={styles.icon__1}
-                    onClick={() => setModal({ type: "delete", id: item.id })}
-                  >
-                    <DeleteIcon />
-                  </div>
-                  <div
                     className={styles.icon__2}
-                    onClick={() =>
-                      setModal({ type: "update", id: item.id, employee: item })
-                    }
+                    onClick={() => handleClickEdit(item.order_id)}
                   >
                     <PenIcon />
                   </div>
@@ -307,11 +315,8 @@ const Users = () => {
         />
       </div>
 
-      {addPopaps}
+      {addContract}
       {addModal}
-      {createModal}
-      {updateModal}
-      {deleteModal}
     </div>
   );
 };

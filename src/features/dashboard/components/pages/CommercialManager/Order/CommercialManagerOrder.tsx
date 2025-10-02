@@ -1,12 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import styles from "../../Controls/HsCode/HsCode.module.scss";
-import Button from "@/components/Button/Button.tsx";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   FileIcon,
   PenIcon,
-  PlusIcon,
   SharedIcon,
 } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
@@ -16,6 +14,7 @@ import { getAllOrder } from "@/features/dashboard/services/CommercialManager/com
 import i18n from "@/locales/i18n.ts";
 import { useNavigate } from "react-router-dom";
 import SelectMember from "@/features/dashboard/components/shared/Modals/CommercialManager/SelectMember.tsx";
+import { AddIconTable } from "@/assets/icons/order.vectors.tsx";
 
 const filterKeys = [
   "order_code",
@@ -112,20 +111,24 @@ const CommercialManager = () => {
 
   const totalPages = Math.ceil(total / pageSize);
 
-  const handleClickEdit = () => {
-    navigate(`/${i18n.language}/commercial/manager/information`);
+  const handleClickEdit = (orderId: number) => {
+    const selectedOrder = data.find((item) => item.order_id === orderId);
+    navigate(`/${i18n.language}/commercial/manager/information`, {
+      state: { order: selectedOrder },
+    });
+  };
+
+  const handleClickEdit_2 = (orderId: number) => {
+    const selectedOrder = data.find((item) => item.order_id === orderId);
+    navigate(`/${i18n.language}/commercial/manager/information/edit`, {
+      state: { order: selectedOrder },
+    });
   };
 
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
         <h1>Order</h1>
-        <Button
-          text="Create order"
-          viewType="green__light"
-          icon={PlusIcon}
-          onClick={() => setModal("create")}
-        />
       </div>
 
       <div className={styles.table}>
@@ -143,6 +146,7 @@ const CommercialManager = () => {
             { name: "Invoice document" },
             { name: "Instruction document" },
             { name: "Choose member" },
+            { name: "Add Offer" },
             { name: "Edit" },
           ]}
           filters={
@@ -157,6 +161,7 @@ const CommercialManager = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -218,7 +223,20 @@ const CommercialManager = () => {
               </td>
               <td>
                 <div className={styles.icon}>
-                  <div className={styles.icon__2} onClick={handleClickEdit}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => handleClickEdit(item.order_id)}
+                  >
+                    <AddIconTable />
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => handleClickEdit_2(item.order_id)}
+                  >
                     <PenIcon />
                   </div>
                 </div>

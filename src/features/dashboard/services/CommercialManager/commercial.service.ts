@@ -55,3 +55,27 @@ export const QuotationData = async (id: number) => {
       return err.response;
     });
 };
+
+export const GetOffer = async (order_id: number) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-offer/?order_id=${order_id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const UserData = async (order_id: number) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-user-order/?order_id=${order_id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

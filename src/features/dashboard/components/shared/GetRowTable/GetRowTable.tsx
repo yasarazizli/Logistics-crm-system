@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import styles from "./RowTable.module.scss";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import styles from "../RowTable/RowTable.module.scss";
 import Select, { StylesConfig } from "react-select";
 import { DeleteIcon, SharedIcon } from "@/assets/icons/shared.vectors.tsx";
 import CreateServicesTable from "@/features/dashboard/components/shared/Modals/ServicesTable/CreateServicesTable.tsx";
@@ -26,6 +26,7 @@ interface Service {
 }
 
 export interface TableRowData {
+  id?: number;
   serviceName?: string;
   location: string;
   transportMode: string;
@@ -54,7 +55,6 @@ export interface TableRowData {
   vendor: string;
   note: string;
   profit: string;
-
   [key: string]: string | number | boolean | undefined;
 }
 
@@ -188,43 +188,32 @@ export default function Table({
   onToClick,
   onTransportTypeClick,
   onVendorClick,
+  rows: initialRows,
+  summary: initialSummary,
   onTableDataChange,
 }: TableProps) {
-  const [columns, setColumns] = useState<number[]>([0]);
+  const [columns, setColumns] = useState<number[]>([]);
   const [selectedTransportType, setSelectedTransportType] = useState<
     (OptionType | null)[]
-  >(Array(columns.length).fill(null));
-
+  >([]);
   const [selectedTransportMode, setSelectedTransportMode] = useState<
     (OptionType | null)[]
-  >(Array(columns.length).fill(null));
-
+  >([]);
   const [selectedService, setSelectedService] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
+    [],
   );
-
   const [selectedVendor, setSelectedVendor] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
+    [],
   );
-
-  const [selectedFrom, setSelectedFrom] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
-  );
-
-  const [selectedTo, setSelectedTo] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
-  );
-
-  const [selectedUnit, setSelectedUnit] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
-  );
-
+  const [selectedFrom, setSelectedFrom] = useState<(OptionType | null)[]>([]);
+  const [selectedTo, setSelectedTo] = useState<(OptionType | null)[]>([]);
+  const [selectedUnit, setSelectedUnit] = useState<(OptionType | null)[]>([]);
   const [selectedPackaging, setSelectedPackaging] = useState<
     (OptionType | null)[][][]
   >(
-    Array(staticRows.length).fill(
-      Array(columns.length).fill(Array(3).fill(null)),
-    ),
+    Array(staticRows.length)
+      .fill([])
+      .map(() => []),
   );
 
   const [textValues, setTextValues] = useState<{ [key: string]: string }>({});
@@ -232,108 +221,21 @@ export default function Table({
     [key: string]: number;
   }>({});
 
-  const [summaryData, setSummaryData] = useState<TableSummaryData>({
-    amount: "0$",
-    vat: "0$",
-    totalAmount: "0$",
-    perTonPrice: "0$",
-    transportationTime: "0 days",
+  const [summaryData, setSummaryData] =
+    useState<TableSummaryData>(initialSummary);
+
+  const initialDataLoadedRef = useRef(false);
+  const tableDataRef = useRef<CompleteTableData>({
+    rows: [],
+    summary: initialSummary,
   });
-
-  useEffect(() => {
-    const savedCols = localStorage.getItem("table_columns");
-    if (savedCols) {
-      try {
-        const parsed = JSON.parse(savedCols);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setColumns(parsed);
-          setSelectedTransportType(Array(parsed.length).fill(null));
-          setSelectedTransportMode(Array(parsed.length).fill(null));
-          setSelectedService(Array(parsed.length).fill(null));
-          setSelectedVendor(Array(parsed.length).fill(null));
-          setSelectedFrom(Array(parsed.length).fill(null));
-          setSelectedTo(Array(parsed.length).fill(null));
-          setSelectedUnit(Array(parsed.length).fill(null));
-          setSelectedPackaging(
-            Array(staticRows.length)
-              .fill(0)
-              .map(() => Array(parsed.length).fill(Array(3).fill(null))),
-          );
-        }
-      } catch {
-        setColumns([0]);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("table_columns", JSON.stringify(columns));
-  }, [columns]);
-
-  useEffect(() => {
-    const newCalculatedValues: { [key: string]: number } = {};
-    let totalAmount = 0;
-    let totalVAT = 0;
-    let totalPurchasePrice = 0;
-    let totalEstimatedTime = 0;
-
-    columns.forEach((colIndex) => {
-      const payload = parseFloat(textValues[`PayLoad-${colIndex}`] || "0");
-
-      const sellingPrice = parseFloat(
-        textValues[`Selling price-${colIndex}`] || "0",
-      );
-
-      const purchasePricePerTon = parseFloat(
-        textValues[`Purchase price per ton-${colIndex}`] || "0",
-      );
-      const purchasePricePerUnit = parseFloat(
-        textValues[`Purchase price per unit-${colIndex}`] || "0",
-      );
-
-      const estimatedTime = parseFloat(
-        textValues[`Estimated Transportation Time-${colIndex}`] || "0",
-      );
-
-      const unitType = selectedUnit[colIndex]?.value;
-
-      const totalPrice = payload * sellingPrice;
-      newCalculatedValues[`Total price-${colIndex}`] = totalPrice;
-
-      const isVatChecked = textValues[`VAT 18%-${colIndex}`] === "true";
-      const vatAmount = isVatChecked ? totalPrice * 0.18 : 0;
-      newCalculatedValues[`VAT amount-${colIndex}`] = vatAmount;
-
-      let totalPurchase = 0;
-      if (unitType === "ton") {
-        totalPurchase = payload * purchasePricePerTon;
-      } else if (unitType === "unit") {
-        totalPurchase = payload * purchasePricePerUnit;
-      }
-      newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
-
-      totalAmount += totalPrice;
-      totalVAT += vatAmount;
-      totalPurchasePrice += totalPurchase;
-      totalEstimatedTime += estimatedTime;
-    });
-
-    setCalculatedValues(newCalculatedValues);
-
-    setSummaryData({
-      amount: `${totalAmount.toFixed(2)}$`,
-      vat: `${totalVAT.toFixed(2)}$`,
-      totalAmount: `${(totalAmount + totalVAT).toFixed(2)}$`,
-      perTonPrice: `${totalPurchasePrice.toFixed(2)}$`,
-      transportationTime: `${totalEstimatedTime} days`,
-    });
-  }, [textValues, selectedUnit, columns]);
 
   const convertTableToJSON = useCallback((): CompleteTableData => {
     const rows: TableRowData[] = columns.map((colIndex) => {
       const unitType = selectedUnit[colIndex]?.value || "";
 
       return {
+        id: initialRows[colIndex]?.id || 0,
         serviceName: selectedService[colIndex]?.value || "",
         location: textValues[`Location-${colIndex}`] || "",
         transportMode: selectedTransportMode[colIndex]?.label || "",
@@ -389,57 +291,376 @@ export default function Table({
     selectedVendor,
     calculatedValues,
     summaryData,
+    initialRows,
   ]);
 
   const tableData = useMemo(() => convertTableToJSON(), [convertTableToJSON]);
 
-  useEffect(() => {
-    if (onTableDataChange) {
-      onTableDataChange(index, tableData);
-    }
-  }, [tableData, onTableDataChange, index]);
-
-  const handleTextChange = (
-    rowName: string,
-    colIndex: number,
-    value: string,
-  ) => {
-    setTextValues((prev) => ({
-      ...prev,
-      [`${rowName}-${colIndex}`]: value,
-    }));
-  };
-
-  const handlePackagingChange = (
-    rowIndex: number,
-    colIndex: number,
-    selectIndex: number,
-    option: OptionType | null,
-  ) => {
-    setSelectedPackaging((prev) => {
-      const newPackaging = [...prev];
-      newPackaging[rowIndex] = [...newPackaging[rowIndex]];
-      newPackaging[rowIndex][colIndex] = [...newPackaging[rowIndex][colIndex]];
-      newPackaging[rowIndex][colIndex][selectIndex] = option;
-
-      if (selectIndex === 0 && option) {
-        newPackaging[rowIndex][colIndex][2] = null;
+  const stableOnTableDataChange = useCallback(
+    (index: number, data: CompleteTableData) => {
+      if (JSON.stringify(data) !== JSON.stringify(tableDataRef.current)) {
+        tableDataRef.current = data;
+        onTableDataChange?.(index, data);
       }
+    },
+    [onTableDataChange],
+  );
 
-      return newPackaging;
+  useEffect(() => {
+    if (
+      tableData.rows.length > 0 &&
+      JSON.stringify(tableData) !== JSON.stringify(tableDataRef.current)
+    ) {
+      stableOnTableDataChange(index, tableData);
+    }
+  }, [tableData, index, stableOnTableDataChange]);
+
+  useEffect(() => {
+    if (
+      initialRows &&
+      initialRows.length > 0 &&
+      !initialDataLoadedRef.current
+    ) {
+      const serviceCount = initialRows.length;
+      const newColumns = Array.from({ length: serviceCount }, (_, i) => i);
+      setColumns(newColumns);
+
+      setSelectedTransportType(Array(serviceCount).fill(null));
+      setSelectedTransportMode(Array(serviceCount).fill(null));
+      setSelectedService(Array(serviceCount).fill(null));
+      setSelectedVendor(Array(serviceCount).fill(null));
+      setSelectedFrom(Array(serviceCount).fill(null));
+      setSelectedTo(Array(serviceCount).fill(null));
+      setSelectedUnit(Array(serviceCount).fill(null));
+
+      const initialPackaging = Array(staticRows.length)
+        .fill(0)
+        .map(() => Array(serviceCount).fill(Array(3).fill(null)));
+      setSelectedPackaging(initialPackaging);
+
+      const newTextValues: { [key: string]: string } = {};
+
+      initialRows.forEach((row, colIndex) => {
+        if (row.serviceName) {
+          setSelectedService((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = {
+              value: row.serviceName as string,
+              label: row.serviceName as string,
+            };
+            return newArr;
+          });
+        }
+
+        if (row.location) {
+          newTextValues[`Location-${colIndex}`] = row.location;
+        }
+
+        if (row.transportMode) {
+          setSelectedTransportMode((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = {
+              value: row.transportMode,
+              label: row.transportMode,
+            };
+            return newArr;
+          });
+        }
+
+        if (row.from) {
+          setSelectedFrom((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = { value: row.from, label: row.from };
+            return newArr;
+          });
+        }
+
+        if (row.to) {
+          setSelectedTo((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = { value: row.to, label: row.to };
+            return newArr;
+          });
+        }
+
+        if (row.transportType) {
+          setSelectedTransportType((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = {
+              value: row.transportType,
+              label: row.transportType,
+            };
+            return newArr;
+          });
+        }
+
+        if (row.vendor) {
+          setSelectedVendor((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = { value: row.vendor, label: row.vendor };
+            return newArr;
+          });
+        }
+
+        if (row.unit) {
+          setSelectedUnit((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = { value: row.unit, label: row.unit };
+            return newArr;
+          });
+        }
+
+        if (row.packagingType) {
+          setSelectedPackaging((prev) => {
+            const newPackaging = [...prev];
+            newPackaging[6] = [...newPackaging[6]];
+            newPackaging[6][colIndex] = [...newPackaging[6][colIndex]];
+            newPackaging[6][colIndex][0] = {
+              value: row.packagingType,
+              label: row.packagingType,
+            };
+            return newPackaging;
+          });
+        }
+
+        if (row.packagingSize) {
+          setSelectedPackaging((prev) => {
+            const newPackaging = [...prev];
+            newPackaging[6] = [...newPackaging[6]];
+            newPackaging[6][colIndex] = [...newPackaging[6][colIndex]];
+            newPackaging[6][colIndex][1] = {
+              value: row.packagingSize,
+              label: row.packagingSize,
+            };
+            return newPackaging;
+          });
+        }
+
+        if (row.packagingPackage) {
+          setSelectedPackaging((prev) => {
+            const newPackaging = [...prev];
+            newPackaging[6] = [...newPackaging[6]];
+            newPackaging[6][colIndex] = [...newPackaging[6][colIndex]];
+            newPackaging[6][colIndex][2] = {
+              value: row.packagingPackage,
+              label: row.packagingPackage,
+            };
+            return newPackaging;
+          });
+        }
+
+        if (row.payload) {
+          newTextValues[`PayLoad-${colIndex}`] = row.payload;
+        }
+
+        if (row.totalQuantity) {
+          newTextValues[`Total quantity-${colIndex}`] = row.totalQuantity;
+        }
+
+        if (row.note) {
+          newTextValues[`Note-${colIndex}`] = row.note;
+        }
+
+        if (row.profit) {
+          newTextValues[`Profit-${colIndex}`] = row.profit;
+        }
+
+        const fields = [
+          "netWeight",
+          "grossWeight",
+          "width",
+          "length",
+          "height",
+          "estimatedTime",
+          "purchasePricePerTon",
+          "purchasePricePerUnit",
+          "totalPurchasePrice",
+          "sellingPrice",
+          "totalPrice",
+          "vatAmount",
+        ];
+
+        fields.forEach((field) => {
+          if (row[field]) {
+            const displayField =
+              field === "estimatedTime"
+                ? "Estimated Transportation Time"
+                : field === "purchasePricePerTon"
+                  ? "Purchase price per ton"
+                  : field === "purchasePricePerUnit"
+                    ? "Purchase price per unit"
+                    : field === "totalPurchasePrice"
+                      ? "Total purchase price"
+                      : field === "sellingPrice"
+                        ? "Selling price"
+                        : field === "totalPrice"
+                          ? "Total price"
+                          : field === "vatAmount"
+                            ? "VAT amount"
+                            : field === "netWeight"
+                              ? "Net weight ton"
+                              : field === "grossWeight"
+                                ? "Gross weight ton"
+                                : field === "width"
+                                  ? "Width (Meter)"
+                                  : field === "length"
+                                    ? "Length (Meter)"
+                                    : field === "height"
+                                      ? "Height (Meter)"
+                                      : field;
+
+            newTextValues[`${displayField}-${colIndex}`] = row[field] as string;
+          }
+        });
+
+        if (row.vat18 !== undefined) {
+          newTextValues[`VAT 18%-${colIndex}`] = row.vat18 ? "true" : "false";
+        }
+      });
+
+      setTextValues(newTextValues);
+      initialDataLoadedRef.current = true;
+    }
+  }, [initialRows]);
+
+  const calculatedValuesWithMemo = useMemo(() => {
+    const newCalculatedValues: { [key: string]: number } = {};
+    let totalAmount = 0;
+    let totalVAT = 0;
+    let totalPurchasePrice = 0;
+    let totalEstimatedTime = 0;
+
+    columns.forEach((colIndex) => {
+      const payload = parseFloat(textValues[`PayLoad-${colIndex}`] || "0");
+      const sellingPrice = parseFloat(
+        textValues[`Selling price-${colIndex}`] || "0",
+      );
+      const purchasePricePerTon = parseFloat(
+        textValues[`Purchase price per ton-${colIndex}`] || "0",
+      );
+      const purchasePricePerUnit = parseFloat(
+        textValues[`Purchase price per unit-${colIndex}`] || "0",
+      );
+      const estimatedTime = parseFloat(
+        textValues[`Estimated Transportation Time-${colIndex}`] || "0",
+      );
+
+      const unitType = selectedUnit[colIndex]?.value;
+
+      const totalPrice = payload * sellingPrice;
+      newCalculatedValues[`Total price-${colIndex}`] = totalPrice;
+
+      const isVatChecked = textValues[`VAT 18%-${colIndex}`] === "true";
+      const vatAmount = isVatChecked ? totalPrice * 0.18 : 0;
+      newCalculatedValues[`VAT amount-${colIndex}`] = vatAmount;
+
+      let totalPurchase = 0;
+      if (unitType === "ton") {
+        totalPurchase = payload * purchasePricePerTon;
+      } else if (unitType === "unit") {
+        totalPurchase = payload * purchasePricePerUnit;
+      }
+      newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
+
+      totalAmount += totalPrice;
+      totalVAT += vatAmount;
+      totalPurchasePrice += totalPurchase;
+      totalEstimatedTime += estimatedTime;
     });
-  };
 
-  const handleUnitChange = (colIndex: number, option: OptionType | null) => {
-    setSelectedUnit((prev) => {
-      const newSelectedUnit = [...prev];
-      newSelectedUnit[colIndex] = option;
-      return newSelectedUnit;
-    });
-  };
+    const newSummaryData = {
+      amount: `${totalAmount.toFixed(2)}$`,
+      vat: `${totalVAT.toFixed(2)}$`,
+      totalAmount: `${(totalAmount + totalVAT).toFixed(2)}$`,
+      perTonPrice: `${totalPurchasePrice.toFixed(2)}$`,
+      transportationTime: `${totalEstimatedTime} days`,
+    };
 
-  const addColumn = () => {
-    setColumns((prev) => [...prev, prev.length]);
+    setSummaryData(newSummaryData);
+
+    return newCalculatedValues;
+  }, [textValues, selectedUnit, columns]);
+
+  useEffect(() => {
+    setCalculatedValues(calculatedValuesWithMemo);
+  }, [calculatedValuesWithMemo]);
+
+  const handleTextChange = useCallback(
+    (rowName: string, colIndex: number, value: string) => {
+      setTextValues((prev) => {
+        const newValues = {
+          ...prev,
+          [`${rowName}-${colIndex}`]: value,
+        };
+
+        if (
+          rowName === "PayLoad" ||
+          rowName === "Selling price" ||
+          rowName === "Purchase price per ton" ||
+          rowName === "Purchase price per unit"
+        ) {
+          setCalculatedValues((prevCalc) => {
+            const newCalc = { ...prevCalc };
+            delete newCalc[`Total price-${colIndex}`];
+            delete newCalc[`VAT amount-${colIndex}`];
+            delete newCalc[`Total purchase price-${colIndex}`];
+            delete newCalc[`Profit-${colIndex}`];
+            return newCalc;
+          });
+        }
+
+        return newValues;
+      });
+    },
+    [],
+  );
+
+  const handlePackagingChange = useCallback(
+    (
+      rowIndex: number,
+      colIndex: number,
+      selectIndex: number,
+      option: OptionType | null,
+    ) => {
+      setSelectedPackaging((prev) => {
+        const newPackaging = [...prev];
+        newPackaging[rowIndex] = [...newPackaging[rowIndex]];
+        newPackaging[rowIndex][colIndex] = [
+          ...newPackaging[rowIndex][colIndex],
+        ];
+        newPackaging[rowIndex][colIndex][selectIndex] = option;
+
+        if (selectIndex === 0 && option) {
+          newPackaging[rowIndex][colIndex][2] = null;
+        }
+
+        return newPackaging;
+      });
+    },
+    [],
+  );
+
+  const handleUnitChange = useCallback(
+    (colIndex: number, option: OptionType | null) => {
+      setSelectedUnit((prev) => {
+        const newSelectedUnit = [...prev];
+        newSelectedUnit[colIndex] = option;
+        return newSelectedUnit;
+      });
+
+      setCalculatedValues((prevCalc) => {
+        const newCalc = { ...prevCalc };
+        delete newCalc[`Total purchase price-${colIndex}`];
+        delete newCalc[`Profit-${colIndex}`];
+        return newCalc;
+      });
+    },
+    [],
+  );
+
+  const addColumn = useCallback(() => {
+    const newColIndex = columns.length;
+    setColumns((prev) => [...prev, newColIndex]);
     setSelectedTransportType((prev) => [...prev, null]);
     setSelectedTransportMode((prev) => [...prev, null]);
     setSelectedService((prev) => [...prev, null]);
@@ -450,11 +671,10 @@ export default function Table({
     setSelectedPackaging((prev) =>
       prev.map((row) => [...row, Array(3).fill(null)]),
     );
-  };
+  }, [columns.length]);
 
-  const deleteColumn = (colIndex: number) => {
+  const deleteColumn = useCallback((colIndex: number) => {
     setColumns((prev) => prev.filter((_, i) => i !== colIndex));
-
     setSelectedTransportType((prev) => prev.filter((_, i) => i !== colIndex));
     setSelectedTransportMode((prev) => prev.filter((_, i) => i !== colIndex));
     setSelectedService((prev) => prev.filter((_, i) => i !== colIndex));
@@ -465,186 +685,196 @@ export default function Table({
     setSelectedPackaging((prev) =>
       prev.map((row) => row.filter((_, i) => i !== colIndex)),
     );
-  };
+  }, []);
 
-  const getPackagingStyles = (
-    placeholder?: string,
-  ): StylesConfig<OptionType, false> => ({
-    control: (provided) => ({
-      ...provided,
-      cursor: "pointer",
-      borderRadius: "0px",
-      border: "none",
-      borderBottom:
-        placeholder === "Package" || placeholder === "Select Unit"
-          ? "none"
-          : "0.5px solid #b5b5b5",
-      backgroundColor: "#fafafa",
-      height: "100%",
-      minHeight: "52px",
-      fontFamily: "Manrope",
-      fontSize: "14px",
-      fontWeight: 500,
-      boxShadow: "none",
-      color: "#000",
-      padding: "0px 20px",
-
-      "&:hover": {
+  const getPackagingStyles = useCallback(
+    (placeholder?: string): StylesConfig<OptionType, false> => ({
+      control: (provided) => ({
+        ...provided,
+        cursor: "pointer",
+        borderRadius: "0px",
+        border: "none",
         borderBottom:
           placeholder === "Package" || placeholder === "Select Unit"
             ? "none"
             : "0.5px solid #b5b5b5",
-      },
-      "&:focus-within": {
-        borderBottom:
-          placeholder === "Package" || placeholder === "Select Unit"
-            ? "none"
-            : "0.5px solid #b5b5b5",
+        backgroundColor: "#fafafa",
+        height: "100%",
+        minHeight: "52px",
+        fontFamily: "Manrope",
+        fontSize: "14px",
+        fontWeight: 500,
         boxShadow: "none",
-      },
-    }),
-    valueContainer: (provided) => ({
-      ...provided,
-      padding: "0 8px",
-      minHeight: "40px",
-      lineHeight: "1.4",
-    }),
-    input: (provided) => ({
-      ...provided,
-      margin: 0,
-      padding: 0,
-      color: "#000",
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: "#000",
-    }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: "#000",
-      fontSize: "14px",
-    }),
-    clearIndicator: (provided) => ({
-      ...provided,
-      cursor: "pointer",
-      color: "#000000",
-      padding: "4px",
-      ":hover": {
         color: "#000",
-      },
+        padding: "0px 20px",
+
+        "&:hover": {
+          borderBottom:
+            placeholder === "Package" || placeholder === "Select Unit"
+              ? "none"
+              : "0.5px solid #b5b5b5",
+        },
+        "&:focus-within": {
+          borderBottom:
+            placeholder === "Package" || placeholder === "Select Unit"
+              ? "none"
+              : "0.5px solid #b5b5b5",
+          boxShadow: "none",
+        },
+      }),
+      valueContainer: (provided) => ({
+        ...provided,
+        padding: "0 8px",
+        minHeight: "40px",
+        lineHeight: "1.4",
+      }),
+      input: (provided) => ({
+        ...provided,
+        margin: 0,
+        padding: 0,
+        color: "#000",
+      }),
+      singleValue: (provided) => ({
+        ...provided,
+        color: "#000",
+      }),
+      placeholder: (provided) => ({
+        ...provided,
+        color: "#000",
+        fontSize: "14px",
+      }),
+      clearIndicator: (provided) => ({
+        ...provided,
+        cursor: "pointer",
+        color: "#000000",
+        padding: "4px",
+        ":hover": {
+          color: "#000",
+        },
+      }),
+      indicatorSeparator: () => ({ display: "none" }),
+      dropdownIndicator: (provided) => ({
+        ...provided,
+        color: "#1D736B",
+        padding: "4px",
+        ":hover": {
+          color: "#14524e",
+        },
+      }),
+      option: (provided, state) => ({
+        ...provided,
+        fontFamily: "Manrope",
+        fontSize: "14px",
+        fontWeight: 500,
+        cursor: "pointer",
+        backgroundColor: state.isSelected
+          ? "#1D736B"
+          : state.isFocused
+            ? "#beeabe"
+            : "white",
+        color: state.isSelected ? "white" : "#000",
+        ":active": {
+          backgroundColor: "#1D736B",
+          color: "white",
+        },
+      }),
+      menu: (provided) => ({
+        ...provided,
+        zIndex: 9999,
+      }),
     }),
-    indicatorSeparator: () => ({ display: "none" }),
-    dropdownIndicator: (provided) => ({
-      ...provided,
-      color: "#1D736B",
-      padding: "4px",
-      ":hover": {
-        color: "#14524e",
-      },
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      fontFamily: "Manrope",
-      fontSize: "14px",
-      fontWeight: 500,
-      cursor: "pointer",
-      backgroundColor: state.isSelected
-        ? "#1D736B"
-        : state.isFocused
-          ? "#beeabe"
-          : "white",
-      color: state.isSelected ? "white" : "#000",
-      ":active": {
-        backgroundColor: "#1D736B",
-        color: "white",
-      },
-    }),
-    menu: (provided) => ({
-      ...provided,
-      zIndex: 9999,
-    }),
-  });
+    [],
+  );
 
   const [modal, setModal] = useState<
     null | { type: "create" } | { type: "add"; id: number }
   >(null);
   const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(0);
 
-  const handleServiceSelect = (service: Service, colIndex: number) => {
-    setSelectedService((prev) => {
-      const newSelectedService = [...prev];
-      newSelectedService[colIndex] = {
-        value: service.id.toString(),
-        label: service.service,
-      };
-      return newSelectedService;
-    });
+  const handleServiceSelect = useCallback(
+    (service: Service, colIndex: number) => {
+      setSelectedService((prev) => {
+        const newSelectedService = [...prev];
+        newSelectedService[colIndex] = {
+          value: service.id.toString(),
+          label: service.service,
+        };
+        return newSelectedService;
+      });
 
-    handleTextChange("Location", colIndex, service.location);
-    setSelectedTransportMode((prev) => {
-      const newSelectedTransportMode = [...prev];
-      newSelectedTransportMode[colIndex] = {
-        value: service.transport_mode,
-        label: service.transport_mode,
-      };
-      return newSelectedTransportMode;
-    });
-    setSelectedFrom((prev) => {
-      const newSelectedFrom = [...prev];
-      newSelectedFrom[colIndex] = { value: service.from, label: service.from };
-      return newSelectedFrom;
-    });
-    setSelectedTo((prev) => {
-      const newSelectedTo = [...prev];
-      newSelectedTo[colIndex] = { value: service.to, label: service.to };
-      return newSelectedTo;
-    });
-    setSelectedTransportType((prev) => {
-      const newSelectedTransportType = [...prev];
-      newSelectedTransportType[colIndex] = {
-        value: service.transport_type,
-        label: service.transport_type,
-      };
-      return newSelectedTransportType;
-    });
-    setSelectedVendor((prev) => {
-      const newSelectedVendor = [...prev];
-      newSelectedVendor[colIndex] = {
-        value: service.vendor,
-        label: service.vendor,
-      };
-      return newSelectedVendor;
-    });
-    handleTextChange(
-      "Purchase price per ton",
-      colIndex,
-      service.purchase_price_ton.toString(),
-    );
-    handleTextChange(
-      "Purchase price per unit",
-      colIndex,
-      service.purchase_price_unit.toString(),
-    );
-    setModal(null);
-  };
+      handleTextChange("Location", colIndex, service.location);
+      setSelectedTransportMode((prev) => {
+        const newSelectedTransportMode = [...prev];
+        newSelectedTransportMode[colIndex] = {
+          value: service.transport_mode,
+          label: service.transport_mode,
+        };
+        return newSelectedTransportMode;
+      });
+      setSelectedFrom((prev) => {
+        const newSelectedFrom = [...prev];
+        newSelectedFrom[colIndex] = {
+          value: service.from,
+          label: service.from,
+        };
+        return newSelectedFrom;
+      });
+      setSelectedTo((prev) => {
+        const newSelectedTo = [...prev];
+        newSelectedTo[colIndex] = { value: service.to, label: service.to };
+        return newSelectedTo;
+      });
+      setSelectedTransportType((prev) => {
+        const newSelectedTransportType = [...prev];
+        newSelectedTransportType[colIndex] = {
+          value: service.transport_type,
+          label: service.transport_type,
+        };
+        return newSelectedTransportType;
+      });
+      setSelectedVendor((prev) => {
+        const newSelectedVendor = [...prev];
+        newSelectedVendor[colIndex] = {
+          value: service.vendor,
+          label: service.vendor,
+        };
+        return newSelectedVendor;
+      });
+      handleTextChange(
+        "Purchase price per ton",
+        colIndex,
+        service.purchase_price_ton.toString(),
+      );
+      handleTextChange(
+        "Purchase price per unit",
+        colIndex,
+        service.purchase_price_unit.toString(),
+      );
+      setModal(null);
+    },
+    [handleTextChange],
+  );
 
-  const openModalForColumn = (colIndex: number) => {
+  const openModalForColumn = useCallback((colIndex: number) => {
     setSelectedColumnIndex(colIndex);
     setModal({ type: "create" });
-  };
+  }, []);
 
-  const openTableForColumn = (colIndex: number) => {
+  const openTableForColumn = useCallback((colIndex: number) => {
     setSelectedColumnIndex(colIndex);
     setModal({ type: "add", id: colIndex });
-  };
+  }, []);
 
-  const displaySummaryData = [
-    { label: "Amount", value: summaryData.amount },
-    { label: "VAT", value: summaryData.vat },
-    { label: "Total Amount", value: summaryData.totalAmount },
-    { label: "Per Ton Price", value: summaryData.perTonPrice },
-    { label: "Transportation Time", value: summaryData.transportationTime },
-  ];
+  const displaySummaryData = useMemo(
+    () => [
+      { label: "Amount", value: summaryData.amount },
+      { label: "VAT", value: summaryData.vat },
+      { label: "Total Amount", value: summaryData.totalAmount },
+      { label: "Per Ton Price", value: summaryData.perTonPrice },
+      { label: "Transportation Time", value: summaryData.transportationTime },
+    ],
+    [summaryData],
+  );
 
   return (
     <div className={styles.table_container}>
@@ -672,11 +902,9 @@ export default function Table({
                       calculatedValues[`${rowName}-${colIndex}`];
 
                     const displayValue =
-                      textValues[`${rowName}-${colIndex}`] !== undefined
-                        ? textValues[`${rowName}-${colIndex}`]
-                        : calculatedValue !== undefined
-                          ? calculatedValue.toString()
-                          : "";
+                      calculatedValue !== undefined
+                        ? calculatedValue.toFixed(2)
+                        : textValues[`${rowName}-${colIndex}`] || "";
 
                     switch (rowName) {
                       case "Name of Service":
@@ -921,13 +1149,7 @@ export default function Table({
                             <input
                               type="text"
                               value={displayValue}
-                              onChange={(e) =>
-                                handleTextChange(
-                                  "Profit",
-                                  colIndex,
-                                  e.target.value,
-                                )
-                              }
+                              readOnly
                               className={styles.clickable_text}
                             />
                           </td>

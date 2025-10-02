@@ -3,7 +3,7 @@ import Header from "@/components/Header/Header.tsx";
 import { useTranslation } from "react-i18next";
 import SelectList from "@/features/dashboard/components/shared/SelectList/SelectList.tsx";
 import Input from "@/components/Input/Input.tsx";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import axios from "axios";
 import ExpandableSection from "@/features/dashboard/components/shared/ExpandableSection/ExpandableSetion.tsx";
 import PackagingForm, {
@@ -13,21 +13,21 @@ import PackagingForm, {
 import Button from "@/components/Button/Button.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
-import { useNavigate } from "react-router-dom";
-import i18n from "@/locales/i18n.ts";
-import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+
+import Shipper, {
+  DynamicFormRef,
+} from "@/features/dashboard/components/shared/Shipper/Shipper.tsx";
+import { useLocation } from "react-router-dom";
+import { getCookie } from "@/libs/cookie.ts";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const PriceQuotation = () => {
-  const { setLoader } = useContext(LoaderContext);
-  const navigate = useNavigate();
   const { t } = useTranslation();
-  const userData = localStorage.getItem("priceRegisterUser");
-  let user = {};
-  if (userData) {
-    user = JSON.parse(userData);
-  }
+  const location = useLocation();
+  const showShipper = location.state?.showShipper ?? true;
+
+  const shipperRef = useRef<DynamicFormRef>(null);
 
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
@@ -81,7 +81,24 @@ const PriceQuotation = () => {
       return;
     }
 
-    setLoader(true);
+    const shipperData = shipperRef.current?.getFormData();
+
+    const transformedShipperData = shipperData
+      ? {
+          shipper: shipperData.shipper,
+          consignee: shipperData.consignee,
+          notify_party: shipperData.notifyPartyValue
+            ? parseInt(shipperData.notifyPartyValue) || 0
+            : 0,
+          terminal: shipperData.terminalValue,
+          container_owner: shipperData.containerOwnerValue,
+          wagon_owner: shipperData.wagonOwnerValue,
+          container_no: shipperData.containers[0]?.number || "",
+          container_drop_off: shipperData.containers[0]?.dropOff || "",
+          wagon_no: shipperData.wagons[0]?.number || "",
+          wagon_drop_off: shipperData.wagons[0]?.dropOff || "",
+        }
+      : {};
 
     const filteredRoutes = routes.filter(
       (route) =>
@@ -124,31 +141,39 @@ const PriceQuotation = () => {
       routes: formattedRoutes,
     };
 
+    const shipment = transformedShipperData;
+
     const formData = new FormData();
-    formData.append("user", JSON.stringify(user));
     formData.append("order", JSON.stringify(order));
-    formData.append("btn_status:", status);
+    formData.append("shipment", JSON.stringify(shipment));
+    formData.append("btn_status", status);
 
     if (msDs) formData.append("msds_file", msDs);
     msDsPictures.forEach((file, index) =>
       formData.append(`cargo_image_${index}`, file),
     );
 
-    const response = await axios.post(
-      `${apiUrl}/commercial/price-quotation/`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
-    );
-    if (response && response.status === 200) {
-      console.log("Sunucu yanıtı:", response.data);
-      navigate(`/${i18n.language}/auth/login`);
-      toast.success(errorMessageHandler(response.data));
-    } else {
-      toast.error(errorMessageHandler(response.data));
+    try {
+      const response = await axios.post(
+        `${apiUrl}/commercial/send-price-quotation/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
+          },
+        },
+      );
+      if (response && response.status === 200) {
+        console.log("Sunucu yanıtı:", response.data);
+        toast.success(errorMessageHandler(response.data));
+      } else {
+        toast.error(errorMessageHandler(response.data));
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred while submitting the form");
     }
-    setLoader(false);
   };
 
   return (
@@ -199,6 +224,12 @@ const PriceQuotation = () => {
           onTransportationTypeChange={handleTransportationTypeChange}
           onWagonTypeChange={handleWagonTypeChange}
         />
+
+        {showShipper && (
+          <div style={{ marginBottom: "32px" }}>
+            <Shipper ref={shipperRef} />
+          </div>
+        )}
 
         <div>
           <h1 className={styles.period}>Transport Period</h1>

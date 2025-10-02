@@ -50,7 +50,9 @@ const PriceRegister = () => {
 
     localStorage.setItem("priceRegisterUser", JSON.stringify(user));
 
-    navigate(`/${i18n.language}/auth/price/quotation`);
+    navigate(`/${i18n.language}/auth/price/quotation`, {
+      state: { showShipper: false },
+    });
   };
 
   return (

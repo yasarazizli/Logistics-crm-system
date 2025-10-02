@@ -1,5 +1,5 @@
 import styles from "@/components/Modal/Modal.module.scss";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import Input from "@/components/Input/Input.tsx";
 import {
   GetAllCity,
@@ -11,6 +11,7 @@ import { FromToIcon } from "@/assets/icons/shared.vectors.tsx";
 import Select, { SingleValue, StylesConfig } from "react-select";
 import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import { useLocation } from "react-router-dom";
 
 export interface PackagingData {
   packing_type: string;
@@ -136,7 +137,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
   onTransportationTypeChange,
   onWagonTypeChange,
 }) => {
+  const location = useLocation();
+  const order = location.state?.order;
   const { setLoader } = useContext(LoaderContext);
+  const isInitialLoad = useRef(true);
   const [selectedOption1, setSelectedOption1] = useState("");
   const [selectedOption2, setSelectedOption2] = useState("20");
   const [selectedOption3, setSelectedOption3] = useState("");
@@ -219,22 +223,346 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     },
   ]);
 
-  const [quotation, setQuotation] = useState<QuotationType | null>(null);
+  const [, setQuotation] = useState<QuotationType | null>(null);
+
+  const parseAndSetRoutes = async (apiData: QuotationType) => {
+    const newRoutes = [...routes];
+
+    if (apiData.full_route) {
+      try {
+        const fromParts = apiData.full_route.from
+          ? apiData.full_route.from.split(" / ")
+          : ["", "", ""];
+        const toParts = apiData.full_route.to
+          ? apiData.full_route.to.split(" / ")
+          : ["", "", ""];
+
+        const fromCountry = fromParts[0] || "";
+        const fromCity = fromParts[1] || "";
+        const fromHs = fromParts[2] || "";
+
+        const toCountry = toParts[0] || "";
+        const toCity = toParts[1] || "";
+        const toHs = toParts[2] || "";
+
+        let fromCitiesRes = { data: [] };
+        let fromStationCodesRes = { data: [] };
+        let fromPortsRes = { data: { data: [] } };
+
+        if (fromCountry) {
+          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
+            await Promise.all([
+              GetAllCity(fromCountry),
+              GetAllStationCode(fromCountry),
+              GetAllPort(fromCountry),
+            ]);
+        }
+
+        let toCitiesRes = { data: [] };
+        let toStationCodesRes = { data: [] };
+        let toPortsRes = { data: { data: [] } };
+
+        if (toCountry) {
+          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
+            GetAllCity(toCountry),
+            GetAllStationCode(toCountry),
+            GetAllPort(toCountry),
+          ]);
+        }
+
+        newRoutes[0] = {
+          ...newRoutes[0],
+          from: {
+            country: fromCountry,
+            city: fromCity,
+            hs: fromHs,
+            address: "",
+            port: "",
+          },
+          to: {
+            country: toCountry,
+            city: toCity,
+            hs: toHs,
+            address: "",
+            port: "",
+          },
+          fromCities: fromCitiesRes?.data || [],
+          fromStationCodes: fromStationCodesRes?.data || [],
+          fromPorts: fromPortsRes?.data?.data || [],
+          toCities: toCitiesRes?.data || [],
+          toStationCodes: toStationCodesRes?.data || [],
+          toPorts: toPortsRes?.data?.data || [],
+        };
+      } catch (error) {
+        console.error("Full route parse error:", error);
+      }
+    }
+
+    if (apiData.requested_route) {
+      try {
+        const fromParts = apiData.requested_route.from
+          ? apiData.requested_route.from.split(" / ")
+          : ["", "", ""];
+        const toParts = apiData.requested_route.to
+          ? apiData.requested_route.to.split(" / ")
+          : ["", "", ""];
+
+        const fromCountry = fromParts[0] || "";
+        const fromCity = fromParts[1] || "";
+        const fromHs = fromParts[2] || "";
+
+        const toCountry = toParts[0] || "";
+        const toCity = toParts[1] || "";
+        const toHs = toParts[2] || "";
+
+        let fromCitiesRes = { data: [] };
+        let fromStationCodesRes = { data: [] };
+        let fromPortsRes = { data: { data: [] } };
+
+        if (fromCountry) {
+          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
+            await Promise.all([
+              GetAllCity(fromCountry),
+              GetAllStationCode(fromCountry),
+              GetAllPort(fromCountry),
+            ]);
+        }
+
+        let toCitiesRes = { data: [] };
+        let toStationCodesRes = { data: [] };
+        let toPortsRes = { data: { data: [] } };
+
+        if (toCountry) {
+          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
+            GetAllCity(toCountry),
+            GetAllStationCode(toCountry),
+            GetAllPort(toCountry),
+          ]);
+        }
+
+        newRoutes[1] = {
+          ...newRoutes[1],
+          from: {
+            country: fromCountry,
+            city: fromCity,
+            hs: fromHs,
+            address: "",
+            port: "",
+          },
+          to: {
+            country: toCountry,
+            city: toCity,
+            hs: toHs,
+            address: "",
+            port: "",
+          },
+          fromCities: fromCitiesRes?.data || [],
+          fromStationCodes: fromStationCodesRes?.data || [],
+          fromPorts: fromPortsRes?.data?.data || [],
+          toCities: toCitiesRes?.data || [],
+          toStationCodes: toStationCodesRes?.data || [],
+          toPorts: toPortsRes?.data?.data || [],
+        };
+      } catch (error) {
+        console.error("Requested route parse error:", error);
+      }
+    }
+
+    if (apiData.container_route) {
+      try {
+        const fromParts = apiData.container_route.from
+          ? apiData.container_route.from.split(" / ")
+          : ["", "", ""];
+        const toParts = apiData.container_route.to
+          ? apiData.container_route.to.split(" / ")
+          : ["", "", ""];
+
+        const fromCountry = fromParts[0] || "";
+        const fromCity = fromParts[1] || "";
+        const fromHs = fromParts[2] || "";
+
+        const toCountry = toParts[0] || "";
+        const toCity = toParts[1] || "";
+        const toHs = toParts[2] || "";
+
+        let fromCitiesRes = { data: [] };
+        let fromStationCodesRes = { data: [] };
+        let fromPortsRes = { data: { data: [] } };
+
+        if (fromCountry) {
+          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
+            await Promise.all([
+              GetAllCity(fromCountry),
+              GetAllStationCode(fromCountry),
+              GetAllPort(fromCountry),
+            ]);
+        }
+
+        let toCitiesRes = { data: [] };
+        let toStationCodesRes = { data: [] };
+        let toPortsRes = { data: { data: [] } };
+
+        if (toCountry) {
+          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
+            GetAllCity(toCountry),
+            GetAllStationCode(toCountry),
+            GetAllPort(toCountry),
+          ]);
+        }
+
+        newRoutes[2] = {
+          ...newRoutes[2],
+          from: {
+            country: fromCountry,
+            city: fromCity,
+            hs: fromHs,
+            address: "",
+            port: "",
+          },
+          to: {
+            country: toCountry,
+            city: toCity,
+            hs: toHs,
+            address: "",
+            port: "",
+          },
+          fromCities: fromCitiesRes?.data || [],
+          fromStationCodes: fromStationCodesRes?.data || [],
+          fromPorts: fromPortsRes?.data?.data || [],
+          toCities: toCitiesRes?.data || [],
+          toStationCodes: toStationCodesRes?.data || [],
+          toPorts: toPortsRes?.data?.data || [],
+        };
+      } catch (error) {
+        console.error("Container route parse error:", error);
+      }
+    }
+
+    if (apiData.wagon_route) {
+      try {
+        const fromParts = apiData.wagon_route.from
+          ? apiData.wagon_route.from.split(" / ")
+          : ["", "", ""];
+        const toParts = apiData.wagon_route.to
+          ? apiData.wagon_route.to.split(" / ")
+          : ["", "", ""];
+
+        const fromCountry = fromParts[0] || "";
+        const fromCity = fromParts[1] || "";
+        const fromHs = fromParts[2] || "";
+
+        const toCountry = toParts[0] || "";
+        const toCity = toParts[1] || "";
+        const toHs = toParts[2] || "";
+
+        let fromCitiesRes = { data: [] };
+        let fromStationCodesRes = { data: [] };
+        let fromPortsRes = { data: { data: [] } };
+
+        if (fromCountry) {
+          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
+            await Promise.all([
+              GetAllCity(fromCountry),
+              GetAllStationCode(fromCountry),
+              GetAllPort(fromCountry),
+            ]);
+        }
+
+        let toCitiesRes = { data: [] };
+        let toStationCodesRes = { data: [] };
+        let toPortsRes = { data: { data: [] } };
+
+        if (toCountry) {
+          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
+            GetAllCity(toCountry),
+            GetAllStationCode(toCountry),
+            GetAllPort(toCountry),
+          ]);
+        }
+
+        newRoutes[3] = {
+          ...newRoutes[3],
+          from: {
+            country: fromCountry,
+            city: fromCity,
+            hs: fromHs,
+            address: "",
+            port: "",
+          },
+          to: {
+            country: toCountry,
+            city: toCity,
+            hs: toHs,
+            address: "",
+            port: "",
+          },
+          fromCities: fromCitiesRes?.data || [],
+          fromStationCodes: fromStationCodesRes?.data || [],
+          fromPorts: fromPortsRes?.data?.data || [],
+          toCities: toCitiesRes?.data || [],
+          toStationCodes: toStationCodesRes?.data || [],
+          toPorts: toPortsRes?.data?.data || [],
+        };
+      } catch (error) {
+        console.error("Wagon route parse error:", error);
+      }
+    }
+
+    setRoutes(newRoutes);
+  };
+
+  const handleDropdownOpen = async (type: "from" | "to", index: number) => {
+    const route = routes[index];
+    const location = type === "from" ? route.from : route.to;
+
+    if (location.country) {
+      const hasData =
+        (type === "from" && route.fromCities.length === 0) ||
+        (type === "to" && route.toCities.length === 0);
+
+      if (hasData) {
+        const [citiesRes, stationCodesRes, portsRes] = await Promise.all([
+          GetAllCity(location.country),
+          GetAllStationCode(location.country),
+          GetAllPort(location.country),
+        ]);
+
+        setRoutes((prev) => {
+          const updated = [...prev];
+          if (type === "from") {
+            updated[index].fromCities = citiesRes?.data || [];
+            updated[index].fromStationCodes = stationCodesRes?.data || [];
+            updated[index].fromPorts = portsRes?.data?.data || [];
+          } else {
+            updated[index].toCities = citiesRes?.data || [];
+            updated[index].toStationCodes = stationCodesRes?.data || [];
+            updated[index].toPorts = portsRes?.data?.data || [];
+          }
+          return updated;
+        });
+      }
+    }
+
+    setOpenDropdown(
+      openDropdown === `${type}-${index}` ? null : `${type}-${index}`,
+    );
+  };
 
   useEffect(() => {
     setLoader(true);
     const fetchRequest = async () => {
       try {
-        const response = await QuotationData(5);
+        const response = await QuotationData(order.order_id);
         if (response?.status === 200 && response.data) {
           const apiData = response.data;
           setQuotation(apiData);
-          console.log("API-dən gələn BÜTÜN məlumatlar:", apiData);
 
           if (apiData.packing) {
             setSelectedOption1(apiData.packing.package_type || "");
             setSelectedOption2(apiData.packing.size?.toString() || "");
-            setSelectedOption3(apiData.packing.packing_type || "");
+
+            const apiPackingType = apiData.packing.packing_type || "";
+            setSelectedOption3(apiPackingType);
 
             setContainerInputs({
               totalQuantity: apiData.packing.total_quantity?.toString() || "",
@@ -275,157 +603,23 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
             setTransportationType(transportType);
           }
 
-          setWagonType(apiData?.wagon_type || "");
+          const apiWagonType = apiData.wagon_type || "";
+          setWagonType(apiWagonType);
 
           setWagonProvision2(apiData.request_container_provision || false);
           setWagonProvision(apiData.request_wagon_provision || false);
 
-          parseAndSetRoutes(apiData);
-          console.log(quotation);
-
-          console.log("BÜTÜN məlumatlar uğurla set edildi!");
+          await parseAndSetRoutes(apiData);
         }
       } catch (error) {
         console.error("Məlumatlar yüklənərkən xəta:", error);
+      } finally {
+        setLoader(false);
       }
     };
 
     fetchRequest();
-  }, []);
-
-  const parseAndSetRoutes = (apiData: QuotationType) => {
-    const newRoutes = [...routes];
-
-    if (apiData.full_route?.from && apiData.full_route?.to) {
-      try {
-        const fromParts = apiData.full_route.from.split(" / ");
-        const toParts = apiData.full_route.to.split(" / ");
-
-        if (fromParts.length >= 3 && toParts.length >= 3) {
-          newRoutes[0] = {
-            ...newRoutes[0],
-            from: {
-              country: fromParts[0] || "",
-              city: fromParts[1] || "",
-              hs: fromParts[2] || "",
-              address: "",
-              port: "",
-            },
-            to: {
-              country: toParts[0] || "",
-              city: toParts[1] || "",
-              hs: toParts[2] || "",
-              address: "",
-              port: "",
-            },
-          };
-          console.log("Full route set edildi:", newRoutes[0]);
-        }
-      } catch (error) {
-        console.error("Full route parse error:", error);
-      }
-    }
-
-    if (apiData.requested_route?.from && apiData.requested_route?.to) {
-      try {
-        const fromParts = apiData.requested_route.from.split(" / ");
-        const toParts = apiData.requested_route.to.split(" / ");
-
-        if (fromParts.length >= 3 && toParts.length >= 3) {
-          newRoutes[1] = {
-            ...newRoutes[1],
-            from: {
-              country: fromParts[0] || "",
-              city: fromParts[1] || "",
-              hs: fromParts[2] || "",
-              address: "",
-              port: "",
-            },
-            to: {
-              country: toParts[0] || "",
-              city: toParts[1] || "",
-              hs: toParts[2] || "",
-              address: "",
-              port: "",
-            },
-          };
-          console.log("Requested route set edildi:", newRoutes[1]);
-        }
-      } catch (error) {
-        console.error("Requested route parse error:", error);
-      }
-    }
-
-    if (apiData.container_route?.from && apiData.container_route?.to) {
-      try {
-        const fromParts = apiData.container_route.from.split(" / ");
-        const toParts = apiData.container_route.to.split(" / ");
-
-        if (fromParts.length >= 3 && toParts.length >= 3) {
-          newRoutes[2] = {
-            ...newRoutes[2],
-            from: {
-              country: fromParts[0] || "",
-              city: fromParts[1] || "",
-              hs: fromParts[2] || "",
-              address: "",
-              port: "",
-            },
-            to: {
-              country: toParts[0] || "",
-              city: toParts[1] || "",
-              hs: toParts[2] || "",
-              address: "",
-              port: "",
-            },
-          };
-          console.log("Container route set edildi:", newRoutes[2]);
-        }
-      } catch (error) {
-        console.error("Container route parse error:", error);
-      }
-    }
-
-    if (apiData.wagon_route?.from && apiData.wagon_route?.to) {
-      try {
-        const fromParts = apiData.wagon_route.from.split(" / ");
-        const toParts = apiData.wagon_route.to.split(" / ");
-
-        if (fromParts.length >= 3 && toParts.length >= 3) {
-          newRoutes[3] = {
-            ...newRoutes[3],
-            from: {
-              country: fromParts[0] || "",
-              city: fromParts[1] || "",
-              hs: fromParts[2] || "",
-              address: "",
-              port: "",
-            },
-            to: {
-              country: toParts[0] || "",
-              city: toParts[1] || "",
-              hs: toParts[2] || "",
-              address: "",
-              port: "",
-            },
-          };
-          console.log("Wagon route set edildi:", newRoutes[3]);
-        }
-      } catch (error) {
-        console.error("Wagon route parse error:", error);
-      }
-    }
-
-    setLoader(false);
-    setRoutes(newRoutes);
-  };
-
-  const titles = [
-    "Full route",
-    "Requested route",
-    "Empty Return Container",
-    "Empty Return Wagon",
-  ];
+  }, [order, setLoader]);
 
   useEffect(() => {
     if (onWagonTypeChange) onWagonTypeChange(wagonType);
@@ -497,9 +691,19 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
           : null;
 
       const startStationId =
-        transportType === "Rail" ? parseNumber(route.from.hs) : null;
+        transportType === "Rail"
+          ? parseNumber(
+              route.fromStationCodes.find((s) => s.name === route.from.hs)
+                ?.value,
+            )
+          : null;
+
       const endStationId =
-        transportType === "Rail" ? parseNumber(route.to.hs) : null;
+        transportType === "Rail"
+          ? parseNumber(
+              route.toStationCodes.find((s) => s.name === route.to.hs)?.value,
+            )
+          : null;
 
       const startAddress =
         transportType === "Road" || transportType === "Multimodal"
@@ -864,40 +1068,42 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     { value: "Multimodal", label: "Multimodal" },
   ];
 
-  type TransportationType = "Rail" | "Road" | "Sea" | "Multimodal";
-  const wagonOptions: Record<
-    Exclude<TransportationType, "Multimodal">,
-    string[]
-  > = {
+  const wagonOptions = {
     Rail: [
-      "Covered Wagons",
-      "Open Wagons",
-      "Flat Wagons",
-      "Tank Wagons",
-      "Hopper Wagons",
-      "Fitting Platform",
+      { value: "Covered Wagons", label: "Covered Wagons" },
+      { value: "Open Wagons", label: "Open Wagons" },
+      { value: "Flat Wagons", label: "Flat Wagons" },
+      { value: "Tank Wagons", label: "Tank Wagons" },
+      { value: "Hopper Wagons", label: "Hopper Wagons" },
+      { value: "Fitting Platform", label: "Fitting Platform" },
     ],
     Road: [
-      "Container Ship",
-      "Tent",
-      "Flatbed",
-      "Reefer",
-      "Lowbed",
-      "CarCarrier",
+      { value: "Container Truck", label: "Container Truck" },
+      { value: "Tent Truck", label: "Tent Truck" },
+      { value: "Flatbed Truck", label: "Flatbed Truck" },
+      { value: "Refrigerated Truck", label: "Refrigerated Truck" },
+      { value: "Lowbed Truck", label: "Lowbed Truck" },
+      { value: "Car Carrier Truck", label: "Car Carrier Truck" },
     ],
     Sea: [
-      "Container/Feeder Vessel",
-      "General Cargo",
-      "Tanker",
-      "Roll on / Roll off (RORO)",
-      "Other",
+      { value: "Container Ship", label: "Container Ship" },
+      { value: "General Cargo Ship", label: "General Cargo Ship" },
+      { value: "Tanker Ship", label: "Tanker Ship" },
+      { value: "Roll on/Roll off Ship", label: "Roll on/Roll off Ship" },
+      { value: "Bulk Carrier", label: "Bulk Carrier" },
     ],
+    Multimodal: [],
+  };
+
+  const findOptionIgnoreCase = (options: OptionType[], value: string) => {
+    if (!value) return null;
+    return options.find(
+      (option) => option.value.toLowerCase() === value.toLowerCase(),
+    );
   };
 
   const wagonOptionsForSelect: OptionType[] =
-    wagonOptions[transportationType as "Rail" | "Road" | "Sea"]?.map(
-      (w: string) => ({ value: w, label: w }),
-    ) || [];
+    wagonOptions[transportationType as keyof typeof wagonOptions] || [];
 
   const getTypeOptions = (type: string): OptionType[] => {
     if (type === "Break_Bulk") {
@@ -918,7 +1124,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       ];
     } else if (type === "Oversize_Cargo") {
       return [];
-    } else {
+    } else if (type === "Container") {
       return [
         { value: "Standart DC", label: "Standart DC" },
         { value: "Standart HC", label: "Standart HC" },
@@ -930,12 +1136,23 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         { value: "Flexi Tank", label: "Flexi Tank" },
         { value: "Other", label: "Other" },
       ];
+    } else {
+      return [];
     }
   };
 
   useEffect(() => {
-    setSelectedOption3("");
+    if (selectedOption1 && !isInitialLoad.current) {
+      setSelectedOption3("");
+    }
   }, [selectedOption1]);
+
+  const titles = [
+    "Full route",
+    "Requested route",
+    "Empty Return Container",
+    "Empty Return Wagon",
+  ];
 
   return (
     <div className={styles.packing}>
@@ -1002,13 +1219,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
             <label className={styles.label}>Type</label>
             <Select<OptionType, false>
               value={
-                getTypeOptions(selectedOption1).find(
-                  (option) => option.value === selectedOption3,
+                findOptionIgnoreCase(
+                  getTypeOptions(selectedOption1),
+                  selectedOption3,
                 ) || null
               }
-              onChange={(option: SingleValue<OptionType>) =>
-                setSelectedOption3(option ? option.value : "")
-              }
+              onChange={(option: SingleValue<OptionType>) => {
+                setSelectedOption3(option ? option.value : "");
+              }}
               options={getTypeOptions(selectedOption1)}
               styles={customStyles}
               isClearable
@@ -1376,9 +1594,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               <label className={styles.label}>Wagon type</label>
               <div className={styles.selectWrapper}>
                 <Select<OptionType, false>
-                  value={wagonOptionsForSelect.find(
-                    (option) => option.value === wagonType,
-                  )}
+                  value={
+                    findOptionIgnoreCase(wagonOptionsForSelect, wagonType) ||
+                    null
+                  }
                   onChange={(option: SingleValue<OptionType>) => {
                     const newWagonType = option ? option.value : "";
                     setWagonType(newWagonType);
@@ -1460,13 +1679,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                         e.target.value,
                       )
                     }
-                    onClick={() =>
-                      setOpenDropdown(
-                        openDropdown === `from-${index}`
-                          ? null
-                          : `from-${index}`,
-                      )
-                    }
+                    onClick={() => handleDropdownOpen("from", index)}
                   />
 
                   {openDropdown === `from-${index}` && (
@@ -1633,11 +1846,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                         transportationType === "Multimodal") &&
                       handleFieldChange(index, "to", "address", e.target.value)
                     }
-                    onClick={() =>
-                      setOpenDropdown(
-                        openDropdown === `to-${index}` ? null : `to-${index}`,
-                      )
-                    }
+                    onClick={() => handleDropdownOpen("to", index)}
                   />
 
                   {openDropdown === `to-${index}` && (
