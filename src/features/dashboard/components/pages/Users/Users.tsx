@@ -149,7 +149,7 @@ const Users = () => {
   };
 
   const goToQuotation = () => {
-    navigate(`/${i18n.language}/auth/price/quotation`, {
+    navigate(`/${i18n.language}/users/ask/quotation`, {
       state: { showShipper: true },
     });
   };

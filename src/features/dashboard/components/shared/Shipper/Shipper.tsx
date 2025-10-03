@@ -5,7 +5,7 @@ import Input from "@/components/Input/Input.tsx";
 export interface DynamicFormData {
   shipper: string;
   consignee: string;
-  notifyPartyValue: string;
+  notifyPartyValue: number | null;
   terminalValue: string;
   containerOwnerValue: string;
   wagonOwnerValue: string;
@@ -33,7 +33,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
     const [form, setForm] = useState<DynamicFormData>({
       shipper: "",
       consignee: "",
-      notifyPartyValue: "",
+      notifyPartyValue: null,
       terminalValue: "",
       containerOwnerValue: "",
       wagonOwnerValue: "",
@@ -69,12 +69,24 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
       setForm((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleNotifyPartyChange = (value: string) => {
+      if (value === "" || value === null) {
+        setForm((prev) => ({ ...prev, notifyPartyValue: null }));
+      } else {
+        const numericValue = value.replace(/[^\d]/g, "");
+        if (numericValue === "") {
+          setForm((prev) => ({ ...prev, notifyPartyValue: null }));
+        } else {
+          setForm((prev) => ({
+            ...prev,
+            notifyPartyValue: parseInt(numericValue, 10),
+          }));
+        }
+      }
+    };
+
     const handleOptionalChange = (
-      field:
-        | "notifyPartyValue"
-        | "terminalValue"
-        | "containerOwnerValue"
-        | "wagonOwnerValue",
+      field: "terminalValue" | "containerOwnerValue" | "wagonOwnerValue",
       value: string,
     ) => {
       setForm((prev) => ({ ...prev, [field]: value }));
@@ -125,7 +137,6 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
 
     return (
       <div className={styles.formContainer}>
-        {/* Shipper & Consignee */}
         <div className={styles.input__box}>
           <div className={styles.formGroup}>
             <label>Shipper</label>
@@ -146,16 +157,23 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
             />
           </div>
 
-          {/* Checkboxsız inputlar */}
           <div className={styles.formGroup}>
             <label>Notify Party</label>
             <Input
-              placeholder="Notify Party"
+              placeholder="Notify Party (Number only)"
               className={styles.input}
-              value={form.notifyPartyValue}
-              onChange={(e) =>
-                handleOptionalChange("notifyPartyValue", e.target.value)
+              type="text"
+              value={
+                form.notifyPartyValue === null
+                  ? ""
+                  : form.notifyPartyValue.toString()
               }
+              onChange={(e) => handleNotifyPartyChange(e.target.value)}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
             />
           </div>
 
@@ -196,7 +214,6 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
           </div>
         </div>
 
-        {/* Containers */}
         {form.containers.map((c, index) => (
           <div key={`container-${index}`} className={styles.dynamicRow}>
             <div className={styles.wagon}>
@@ -244,7 +261,6 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
           </div>
         ))}
 
-        {/* Wagons */}
         {form.wagons.map((w, index) => (
           <div key={`wagon-${index}`} className={styles.dynamicRow}>
             <div className={styles.wagon}>

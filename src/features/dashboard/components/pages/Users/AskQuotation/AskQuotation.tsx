@@ -1,4 +1,4 @@
-import styles from "./PriceQuotation.module.scss";
+import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.module.scss";
 import Header from "@/components/Header/Header.tsx";
 import { useTranslation } from "react-i18next";
 import SelectList from "@/features/dashboard/components/shared/SelectList/SelectList.tsx";
@@ -17,12 +17,14 @@ import { errorMessageHandler } from "@/libs/error.ts";
 import Shipper, {
   DynamicFormRef,
 } from "@/features/dashboard/components/shared/Shipper/Shipper.tsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getCookie } from "@/libs/cookie.ts";
+import i18n from "i18next";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const PriceQuotation = () => {
+const AskQuotation = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const location = useLocation();
   const showShipper = location.state?.showShipper ?? true;
@@ -87,9 +89,7 @@ const PriceQuotation = () => {
       ? {
           shipper: shipperData.shipper,
           consignee: shipperData.consignee,
-          notify_party: shipperData.notifyPartyValue
-            ? parseInt(shipperData.notifyPartyValue) || 0
-            : 0,
+          notify_party: shipperData.notifyPartyValue,
           terminal: shipperData.terminalValue,
           container_owner: shipperData.containerOwnerValue,
           wagon_owner: shipperData.wagonOwnerValue,
@@ -165,7 +165,7 @@ const PriceQuotation = () => {
         },
       );
       if (response && response.status === 200) {
-        console.log("Sunucu yanıtı:", response.data);
+        navigate(`/${i18n.language}/users`);
         toast.success(errorMessageHandler(response.data));
       } else {
         toast.error(errorMessageHandler(response.data));
@@ -279,4 +279,4 @@ const PriceQuotation = () => {
   );
 };
 
-export default PriceQuotation;
+export default AskQuotation;

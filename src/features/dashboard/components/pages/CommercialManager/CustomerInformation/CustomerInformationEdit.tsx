@@ -120,6 +120,21 @@ interface ApiOfferData {
   };
 }
 
+interface Service {
+  id: number;
+  country: string;
+  location: string;
+  vendor: string;
+  service: string;
+  transport_mode: string;
+  hs_code: string;
+  from: string;
+  to: string;
+  transport_type: string;
+  purchase_price_ton: number;
+  purchase_price_unit: number;
+}
+
 const CustomerInformationEdit = () => {
   const { setLoader } = useContext(LoaderContext);
   const navigate = useNavigate();
@@ -129,6 +144,9 @@ const CustomerInformationEdit = () => {
 
   const dynamicFormRefs = useRef<Map<number, DynamicFormRef>>(new Map());
   const [apiData, setApiData] = useState<ApiOfferData[]>([]);
+  const [selectedServices, setSelectedServices] = useState<{
+    [key: string]: { value: string; label: string };
+  }>({});
 
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
@@ -167,6 +185,7 @@ const CustomerInformationEdit = () => {
   const [routes, setRoutes] = useState<RouteData[]>([]);
 
   const [offers, setOffers] = useState<OfferData[]>([]);
+  const [deletedServiceIds, setDeletedServiceIds] = useState<number[]>([]);
 
   const handleWagonTypeChange = useCallback((type: string) => {
     setWagonType(type);
@@ -210,6 +229,26 @@ const CustomerInformationEdit = () => {
     );
   }, []);
 
+  const handleDeleteService = useCallback(
+    (offerIndex: number, deletedIds: number[]) => {
+      setDeletedServiceIds((prev) => [...prev, ...deletedIds]);
+
+      setOffers((prev) =>
+        prev.map((offer, i) =>
+          i === offerIndex
+            ? {
+                ...offer,
+                tableData: offer.tableData.filter(
+                  (row) => !deletedIds.includes(row.id || 0),
+                ),
+              }
+            : offer,
+        ),
+      );
+    },
+    [],
+  );
+
   const setDynamicFormRef = useCallback(
     (index: number, ref: DynamicFormRef | null) => {
       if (ref) {
@@ -217,6 +256,19 @@ const CustomerInformationEdit = () => {
       } else {
         dynamicFormRefs.current.delete(index);
       }
+    },
+    [],
+  );
+
+  const handleServiceSelect = useCallback(
+    (offerIndex: number, rowIndex: number, service: Service) => {
+      setSelectedServices((prev) => ({
+        ...prev,
+        [`${offerIndex}-${rowIndex}`]: {
+          value: service.id.toString(),
+          label: service.service,
+        },
+      }));
     },
     [],
   );
@@ -344,16 +396,26 @@ const CustomerInformationEdit = () => {
           const apiOffer = apiData[offerIndex];
           const apiService = apiOffer?.service?.[rowIndex];
 
+          // Service ID-ni təyin etmək üçün məntiq
+          let serviceId = apiService?.service_id || 0;
+
+          // Əgər API-dən service_id gəlmirsə, selectedServices-dən id-ni alın
+          const serviceKey = `${offerIndex}-${rowIndex}`;
+          if (serviceId === 0 && selectedServices[serviceKey]) {
+            serviceId = parseInt(selectedServices[serviceKey].value);
+          }
+
           console.log(`Offer ${offerIndex}, Service ${rowIndex}:`, {
+            serviceId,
             apiService,
-            packing: apiService?.packing,
-            packing_id: apiService?.packing?.id,
+            selectedService: selectedServices[serviceKey],
+            rowServiceName: row.serviceName,
             rowId: row.id,
           });
 
           return {
             id: apiService?.id || 0,
-            service_id: apiService?.service_id || 0,
+            service_id: serviceId, // Düzgün service_id istifadə edin
             packing: {
               id: apiService?.packing?.id || 0,
               packing_type: row.packagingType || "",
@@ -428,6 +490,7 @@ const CustomerInformationEdit = () => {
       formData.append("order_quotation", JSON.stringify(order_quotation));
       formData.append("order_offers", JSON.stringify(order_offers));
       formData.append("btn_status", status);
+      formData.append("deleted_service_id", JSON.stringify(deletedServiceIds));
 
       if (msDs) formData.append("msds_file", msDs);
 
@@ -437,24 +500,30 @@ const CustomerInformationEdit = () => {
         });
       }
 
-      const response = await axios.put(
-        `${apiUrl}/commercial/update-order/?order_id=${order.order_id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: getCookie("allianceToken"),
+      try {
+        const response = await axios.put(
+          `${apiUrl}/commercial/update-order/?order_id=${order.order_id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: getCookie("allianceToken"),
+            },
           },
-        },
-      );
+        );
 
-      if (response?.status === 200 || response?.status === 201) {
-        toast.success(errorMessageHandler(response.data));
-        navigate(`/${i18n.language}/commercial/manager/order`);
-      } else {
-        toast.error(errorMessageHandler(response.data));
+        if (response?.status === 200 || response?.status === 201) {
+          toast.success(errorMessageHandler(response.data));
+          navigate(`/${i18n.language}/commercial/manager/order`);
+        } else {
+          toast.error(errorMessageHandler(response.data));
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error("An error occurred while submitting the form");
+      } finally {
+        setLoader(false);
       }
-      setLoader(false);
     },
     [
       selectedCode,
@@ -477,6 +546,10 @@ const CustomerInformationEdit = () => {
       msDsPictures,
       order,
       apiData,
+      deletedServiceIds,
+      selectedServices,
+      setLoader,
+      navigate,
     ],
   );
 
@@ -520,6 +593,7 @@ const CustomerInformationEdit = () => {
             const formattedOffers = apiData.map((offer: ApiOfferData) => {
               const tableData: TableRowData[] =
                 offer.service?.map((service) => ({
+                  id: service.id,
                   serviceName: service.name_of_service?.toString() || "",
                   location: service.location || "",
                   transportMode: service.transport_mode || "",
@@ -571,6 +645,24 @@ const CustomerInformationEdit = () => {
             });
 
             setOffers(formattedOffers);
+
+            // API-dən gələn servisləri selectedServices state-ə əlavə edin
+            const servicesFromApi: {
+              [key: string]: { value: string; label: string };
+            } = {};
+            apiData.forEach((offer: ApiOfferData, offerIndex: number) => {
+              offer.service?.forEach((service, rowIndex) => {
+                if (service.service_id && service.name_of_service) {
+                  const serviceKey = `${offerIndex}-${rowIndex}`;
+                  servicesFromApi[serviceKey] = {
+                    value: service.service_id.toString(),
+                    label: service.name_of_service,
+                  };
+                }
+              });
+            });
+
+            setSelectedServices((prev) => ({ ...prev, ...servicesFromApi }));
 
             setTimeout(() => {
               formattedOffers.forEach((_, index) => {
@@ -788,6 +880,12 @@ const CustomerInformationEdit = () => {
                 rows={offer.tableData}
                 summary={offer.summary}
                 onTableDataChange={handleTableDataChange}
+                onDeleteService={(deletedIds) =>
+                  handleDeleteService(index, deletedIds)
+                }
+                onServiceSelect={(service, colIndex) =>
+                  handleServiceSelect(index, colIndex, service)
+                }
               />
 
               <div style={{ width: "100%" }}>

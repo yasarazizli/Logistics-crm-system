@@ -177,6 +177,8 @@ interface TableProps {
   rows: TableRowData[];
   summary: TableSummaryData;
   onTableDataChange: (index: number, data: CompleteTableData) => void;
+  onServiceSelect?: (service: Service, colIndex: number) => void;
+  onDeleteService?: (deletedIds: number[]) => void;
 }
 
 export default function Table({
@@ -191,6 +193,8 @@ export default function Table({
   rows: initialRows,
   summary: initialSummary,
   onTableDataChange,
+  onDeleteService,
+  onServiceSelect,
 }: TableProps) {
   const [columns, setColumns] = useState<number[]>([]);
   const [selectedTransportType, setSelectedTransportType] = useState<
@@ -673,19 +677,28 @@ export default function Table({
     );
   }, [columns.length]);
 
-  const deleteColumn = useCallback((colIndex: number) => {
-    setColumns((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedTransportType((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedTransportMode((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedService((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedVendor((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedFrom((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedTo((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedUnit((prev) => prev.filter((_, i) => i !== colIndex));
-    setSelectedPackaging((prev) =>
-      prev.map((row) => row.filter((_, i) => i !== colIndex)),
-    );
-  }, []);
+  const deleteColumn = useCallback(
+    (colIndex: number) => {
+      const deletedServiceId = initialRows[colIndex]?.id;
+
+      setColumns((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedTransportType((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedTransportMode((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedService((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedVendor((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedFrom((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedTo((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedUnit((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedPackaging((prev) =>
+        prev.map((row) => row.filter((_, i) => i !== colIndex)),
+      );
+
+      if (deletedServiceId && onDeleteService) {
+        onDeleteService([deletedServiceId]);
+      }
+    },
+    [initialRows, onDeleteService],
+  );
 
   const getPackagingStyles = useCallback(
     (placeholder?: string): StylesConfig<OptionType, false> => ({
@@ -799,6 +812,7 @@ export default function Table({
           value: service.id.toString(),
           label: service.service,
         };
+        onServiceSelect?.(service, colIndex);
         return newSelectedService;
       });
 
