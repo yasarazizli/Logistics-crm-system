@@ -396,10 +396,8 @@ const CustomerInformationEdit = () => {
           const apiOffer = apiData[offerIndex];
           const apiService = apiOffer?.service?.[rowIndex];
 
-          // Service ID-ni təyin etmək üçün məntiq
           let serviceId = apiService?.service_id || 0;
 
-          // Əgər API-dən service_id gəlmirsə, selectedServices-dən id-ni alın
           const serviceKey = `${offerIndex}-${rowIndex}`;
           if (serviceId === 0 && selectedServices[serviceKey]) {
             serviceId = parseInt(selectedServices[serviceKey].value);
@@ -415,11 +413,11 @@ const CustomerInformationEdit = () => {
 
           return {
             id: apiService?.id || 0,
-            service_id: serviceId, // Düzgün service_id istifadə edin
+            service_id: serviceId,
             packing: {
               id: apiService?.packing?.id || 0,
               packing_type: row.packagingType || "",
-              container_type: row.packagingPackage || "",
+              package_type: row.packagingPackage || "",
               size: Number(row.packagingSize) || 0,
               total_quantity: Number(row.totalQuantity) || 0,
               net_weight: Number(row.netWeight) || 0,

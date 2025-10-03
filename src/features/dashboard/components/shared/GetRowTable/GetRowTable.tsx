@@ -216,7 +216,7 @@ export default function Table({
     (OptionType | null)[][][]
   >(
     Array(staticRows.length)
-      .fill([])
+      .fill(null)
       .map(() => []),
   );
 
@@ -235,8 +235,15 @@ export default function Table({
   });
 
   const convertTableToJSON = useCallback((): CompleteTableData => {
-    const rows: TableRowData[] = columns.map((colIndex) => {
+    const rows: TableRowData[] = columns.map((_, colIndex) => {
       const unitType = selectedUnit[colIndex]?.value || "";
+
+      const packagingRow = selectedPackaging[6];
+      const packagingCol = packagingRow && packagingRow[colIndex];
+
+      const packagingType = packagingCol?.[0]?.label || "";
+      const packagingSize = packagingCol?.[1]?.label || "";
+      const packagingPackage = packagingCol?.[2]?.label || "";
 
       return {
         id: initialRows[colIndex]?.id || 0,
@@ -246,9 +253,9 @@ export default function Table({
         from: selectedFrom[colIndex]?.label || "",
         to: selectedTo[colIndex]?.label || "",
         transportType: selectedTransportType[colIndex]?.label || "",
-        packagingType: selectedPackaging[6]?.[colIndex]?.[0]?.label || "",
-        packagingSize: selectedPackaging[6]?.[colIndex]?.[1]?.label || "",
-        packagingPackage: selectedPackaging[6]?.[colIndex]?.[2]?.label || "",
+        packagingType,
+        packagingSize,
+        packagingPackage,
         netWeight: textValues[`Net weight ton-${colIndex}`] || "",
         grossWeight: textValues[`Gross weight ton-${colIndex}`] || "",
         width: textValues[`Width (Meter)-${colIndex}`] || "",
@@ -338,8 +345,12 @@ export default function Table({
       setSelectedUnit(Array(serviceCount).fill(null));
 
       const initialPackaging = Array(staticRows.length)
-        .fill(0)
-        .map(() => Array(serviceCount).fill(Array(3).fill(null)));
+        .fill(null)
+        .map(() =>
+          Array(serviceCount)
+            .fill(null)
+            .map(() => Array(3).fill(null)),
+        );
       setSelectedPackaging(initialPackaging);
 
       const newTextValues: { [key: string]: string } = {};
@@ -534,7 +545,7 @@ export default function Table({
     let totalPurchasePrice = 0;
     let totalEstimatedTime = 0;
 
-    columns.forEach((colIndex) => {
+    columns.forEach((_, colIndex) => {
       const payload = parseFloat(textValues[`PayLoad-${colIndex}`] || "0");
       const sellingPrice = parseFloat(
         textValues[`Selling price-${colIndex}`] || "0",
@@ -673,7 +684,7 @@ export default function Table({
     setSelectedTo((prev) => [...prev, null]);
     setSelectedUnit((prev) => [...prev, null]);
     setSelectedPackaging((prev) =>
-      prev.map((row) => [...row, Array(3).fill(null)]),
+      prev.map((rowPackaging) => [...rowPackaging, Array(3).fill(null)]),
     );
   }, [columns.length]);
 
@@ -692,6 +703,26 @@ export default function Table({
       setSelectedPackaging((prev) =>
         prev.map((row) => row.filter((_, i) => i !== colIndex)),
       );
+
+      setTextValues((prev) => {
+        const newValues = { ...prev };
+        Object.keys(newValues).forEach((key) => {
+          if (key.endsWith(`-${colIndex}`)) {
+            delete newValues[key];
+          }
+        });
+        return newValues;
+      });
+
+      setCalculatedValues((prev) => {
+        const newValues = { ...prev };
+        Object.keys(newValues).forEach((key) => {
+          if (key.endsWith(`-${colIndex}`)) {
+            delete newValues[key];
+          }
+        });
+        return newValues;
+      });
 
       if (deletedServiceId && onDeleteService) {
         onDeleteService([deletedServiceId]);
@@ -866,7 +897,7 @@ export default function Table({
       );
       setModal(null);
     },
-    [handleTextChange],
+    [handleTextChange, onServiceSelect],
   );
 
   const openModalForColumn = useCallback((colIndex: number) => {
@@ -904,10 +935,10 @@ export default function Table({
               }
 
               return (
-                <tr key={rowIndex}>
+                <tr key={`row-${rowIndex}`}>
                   <td className={styles.static_col}>{rowName}</td>
 
-                  {columns.map((colIndex) => {
+                  {columns.map((colId, colIndex) => {
                     const isDisabled =
                       role !== "admin" &&
                       disabledCells.includes(`${rowIndex}-${colIndex}`);
@@ -923,7 +954,7 @@ export default function Table({
                     switch (rowName) {
                       case "Name of Service":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.clickable_text}
                               style={{ cursor: "pointer" }}
@@ -940,7 +971,7 @@ export default function Table({
 
                       case "Location":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.clickable_text}
                               onClick={() =>
@@ -956,7 +987,7 @@ export default function Table({
 
                       case "Transport mode":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.clickable_text}
                               onClick={() =>
@@ -973,7 +1004,7 @@ export default function Table({
 
                       case "From":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.clickable_text}
                               onClick={() => onFromClick?.("From clicked")}
@@ -985,7 +1016,7 @@ export default function Table({
 
                       case "To":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.clickable_text}
                               onClick={() => onToClick?.("To clicked")}
@@ -997,7 +1028,7 @@ export default function Table({
 
                       case "Transport type":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.clickable_text}
                               onClick={() =>
@@ -1013,7 +1044,7 @@ export default function Table({
 
                       case "Vendor":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.clickable_text}
                               onClick={() => onVendorClick?.("Vendor clicked")}
@@ -1025,7 +1056,7 @@ export default function Table({
 
                       case "Unit":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <Select
                               value={selectedUnit[colIndex]}
                               onChange={(option) =>
@@ -1043,17 +1074,17 @@ export default function Table({
 
                       case "Packaging Type":
                         return (
-                          <td key={colIndex} className={styles.nested_cell}>
+                          <td
+                            key={`${rowIndex}-${colIndex}-${colId}`}
+                            className={styles.nested_cell}
+                          >
                             <div className={styles.vertical_inputs}>
                               <Select
-                                value={selectedPackaging[rowIndex][colIndex][0]}
+                                value={
+                                  selectedPackaging[6]?.[colIndex]?.[0] || null
+                                }
                                 onChange={(option) =>
-                                  handlePackagingChange(
-                                    rowIndex,
-                                    colIndex,
-                                    0,
-                                    option,
-                                  )
+                                  handlePackagingChange(6, colIndex, 0, option)
                                 }
                                 options={packagingOptions1}
                                 styles={getPackagingStyles("Type")}
@@ -1063,20 +1094,17 @@ export default function Table({
                                 isClearable
                               />
                               <Select
-                                value={selectedPackaging[rowIndex][colIndex][1]}
+                                value={
+                                  selectedPackaging[6]?.[colIndex]?.[1] || null
+                                }
                                 onChange={(option) =>
-                                  handlePackagingChange(
-                                    rowIndex,
-                                    colIndex,
-                                    1,
-                                    option,
-                                  )
+                                  handlePackagingChange(6, colIndex, 1, option)
                                 }
                                 options={packagingOptions2}
                                 styles={getPackagingStyles("Size")}
                                 isDisabled={
                                   isDisabled ||
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  selectedPackaging[6]?.[colIndex]?.[0]
                                     ?.value !== "Container"
                                 }
                                 placeholder="Size"
@@ -1084,28 +1112,25 @@ export default function Table({
                                 isClearable
                               />
                               <Select
-                                value={selectedPackaging[rowIndex][colIndex][2]}
+                                value={
+                                  selectedPackaging[6]?.[colIndex]?.[2] || null
+                                }
                                 onChange={(option) =>
-                                  handlePackagingChange(
-                                    rowIndex,
-                                    colIndex,
-                                    2,
-                                    option,
-                                  )
+                                  handlePackagingChange(6, colIndex, 2, option)
                                 }
                                 options={getTypeOptions(
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  selectedPackaging[6]?.[colIndex]?.[0]
                                     ?.value || "",
                                 )}
                                 styles={getPackagingStyles("Package")}
                                 isDisabled={
                                   isDisabled ||
-                                  !selectedPackaging[rowIndex][colIndex][0] ||
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  !selectedPackaging[6]?.[colIndex]?.[0] ||
+                                  selectedPackaging[6]?.[colIndex]?.[0]
                                     ?.value === "Oversize_Cargo"
                                 }
                                 placeholder={
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  selectedPackaging[6]?.[colIndex]?.[0]
                                     ?.value === "Oversize_Cargo"
                                     ? "Not applicable"
                                     : "Package"
@@ -1119,7 +1144,7 @@ export default function Table({
 
                       case "VAT 18%":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <label className={styles.custom_checkbox}>
                               <input
                                 type="checkbox"
@@ -1142,7 +1167,7 @@ export default function Table({
                       case "Price quotation":
                         return (
                           <td
-                            key={colIndex}
+                            key={`${rowIndex}-${colIndex}-${colId}`}
                             onClick={() => openTableForColumn(colIndex)}
                           >
                             <div className={styles.sent__td}>
@@ -1159,7 +1184,10 @@ export default function Table({
                       case "VAT amount":
                       case "Profit":
                         return (
-                          <td key={colIndex} className={styles.td_dollar}>
+                          <td
+                            key={`${rowIndex}-${colIndex}-${colId}`}
+                            className={styles.td_dollar}
+                          >
                             <input
                               type="text"
                               value={displayValue}
@@ -1171,7 +1199,7 @@ export default function Table({
 
                       case "Delete":
                         return (
-                          <td key={colIndex}>
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
                               className={styles.sent__td}
                               style={{ cursor: "pointer" }}
@@ -1184,7 +1212,10 @@ export default function Table({
 
                       default:
                         return (
-                          <td key={colIndex} className={styles.td_dollar}>
+                          <td
+                            key={`${rowIndex}-${colIndex}-${colId}`}
+                            className={styles.td_dollar}
+                          >
                             <input
                               type="text"
                               value={textValues[`${rowName}-${colIndex}`] || ""}
@@ -1207,19 +1238,19 @@ export default function Table({
             })}
           </tbody>
         </table>
-        <div className={styles.amount}>
-          {displaySummaryData.map((item, idx) => (
-            <div key={idx} className={styles.boxes}>
-              <p>{item.label}</p>
-              <p>{item.value}</p>
-            </div>
-          ))}
+        <div className={styles.btn}>
+          <button className={styles.add_btn} onClick={addColumn}>
+            +<p>Add</p>
+          </button>
         </div>
       </div>
-      <div className={styles.btn}>
-        <button className={styles.add_btn} onClick={addColumn}>
-          +<p>Add</p>
-        </button>
+      <div className={styles.amount}>
+        {displaySummaryData.map((item, idx) => (
+          <div key={`summary-${idx}`} className={styles.boxes}>
+            <p>{item.label}</p>
+            <p>{item.value}</p>
+          </div>
+        ))}
       </div>
       {modal?.type === "create" && (
         <CreateServicesTable
