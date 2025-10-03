@@ -20,7 +20,6 @@ import Table, {
   TableSummaryData,
 } from "@/features/dashboard/components/shared/GetRowTable/GetRowTable.tsx";
 import GetDynamicForm, {
-  DynamicFormData,
   DynamicFormRef,
 } from "@/features/dashboard/components/shared/GetDynamicForm/GetDynamicForm.tsx";
 import { PdfIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
@@ -365,6 +364,7 @@ const CustomerInformationEdit = () => {
           .get(offerIndex)
           ?.getFormData();
 
+        // Container və wagon məlumatlarını string-ə çevir
         const containerNumbers =
           dynamicData?.containers
             ?.filter((container) => container.number.trim() !== "")
@@ -662,53 +662,18 @@ const CustomerInformationEdit = () => {
 
             setSelectedServices((prev) => ({ ...prev, ...servicesFromApi }));
 
+            // DynamicForm-ları API məlumatları ilə doldur
             setTimeout(() => {
               formattedOffers.forEach((_, index) => {
                 const apiOffer = apiData[index];
                 if (apiOffer && apiOffer.shipment) {
                   const dynamicFormRef = dynamicFormRefs.current.get(index);
                   if (dynamicFormRef) {
-                    const dynamicFormData: DynamicFormData = {
-                      shipper: apiOffer.shipment.shipper || "",
-                      consignee: apiOffer.shipment.consignee || "",
-                      notifyParty:
-                        apiOffer.shipment.notify_party_required || false,
-                      terminal: apiOffer.shipment.terminal_required || false,
-                      containerOwner:
-                        apiOffer.shipment.container_owner_required || false,
-                      wagonOwner:
-                        apiOffer.shipment.wagon_owner_required || false,
-                      notifyPartyValue:
-                        apiOffer.shipment.notify_party !== null
-                          ? apiOffer.shipment.notify_party || ""
-                          : "",
-                      terminalValue: apiOffer.shipment.terminal || "",
-                      containerOwnerValue:
-                        apiOffer.shipment.container_owner || "",
-                      wagonOwnerValue: apiOffer.shipment.wagon_owner || "",
-                      containers: [
-                        {
-                          number: apiOffer.shipment.container_no || "",
-                          dropOff: apiOffer.shipment.container_drop_off || "",
-                          requiredNumber:
-                            apiOffer.shipment.container_no_required || false,
-                          requiredDropOff:
-                            apiOffer.shipment.container_drop_off_required ||
-                            false,
-                        },
-                      ],
-                      wagons: [
-                        {
-                          number: apiOffer.shipment.wagon_no || "",
-                          dropOff: apiOffer.shipment.wagon_drop_off || "",
-                          requiredNumber:
-                            apiOffer.shipment.wagon_no_required || false,
-                          requiredDropOff:
-                            apiOffer.shipment.wagon_drop_off_required || false,
-                        },
-                      ],
-                    };
-                    dynamicFormRef.setFormData(dynamicFormData);
+                    console.log(
+                      `Setting form data for offer ${index}:`,
+                      apiOffer.shipment,
+                    );
+                    dynamicFormRef.setFormData(apiOffer.shipment);
                   }
                 }
               });

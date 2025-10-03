@@ -16,6 +16,7 @@
 
       label {
         display: flex;
+        width: fit-content;
         gap: 5px;
         color: #000;
         font-size: 16px;
@@ -79,6 +80,7 @@
         font-size: 16px;
         font-style: normal;
         font-weight: 600;
+        width: fit-content;
         line-height: normal;
       }
     }

@@ -35,7 +35,7 @@ export interface DynamicFormData {
 
 export interface DynamicFormRef {
   getFormData: () => DynamicFormData;
-  setFormData: (data: DynamicFormData) => void;
+  setFormData: (data: any) => void;
 }
 
 interface DynamicFormProps {
@@ -81,8 +81,73 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
 
     useImperativeHandle(ref, () => ({
       getFormData: () => formRef.current,
-      setFormData: (data: DynamicFormData) => {
-        setForm(data);
+      setFormData: (apiData: any) => {
+        console.log("API-dən gələn məlumat:", apiData);
+
+        // Helper function to convert comma-separated string to array of objects
+        const createArrayFromString = (
+          numbersString: string,
+          dropOffsString: string,
+          numbersRequired: boolean,
+          dropOffsRequired: boolean,
+        ) => {
+          if (!numbersString || numbersString.trim() === "") {
+            return [
+              {
+                number: "",
+                dropOff: "",
+                requiredNumber: numbersRequired,
+                requiredDropOff: dropOffsRequired,
+              },
+            ];
+          }
+
+          const numbers = numbersString.split(",").map((item) => item.trim());
+          const dropOffs =
+            dropOffsString && dropOffsString.trim() !== ""
+              ? dropOffsString.split(",").map((item) => item.trim())
+              : Array(numbers.length).fill("");
+
+          return numbers.map((number, index) => ({
+            number: number || "",
+            dropOff: dropOffs[index] || "",
+            requiredNumber: numbersRequired,
+            requiredDropOff: dropOffsRequired,
+          }));
+        };
+
+        const formData: DynamicFormData = {
+          shipper: apiData.shipper || "",
+          consignee: apiData.consignee || "",
+          notifyParty: apiData.notify_party_required || false,
+          terminal: apiData.terminal_required || false,
+          containerOwner: apiData.container_owner_required || false,
+          wagonOwner: apiData.wagon_owner_required || false,
+          notifyPartyValue:
+            apiData.notify_party !== null && apiData.notify_party !== undefined
+              ? apiData.notify_party
+              : null,
+          terminalValue: apiData.terminal || "",
+          containerOwnerValue: apiData.container_owner || "",
+          wagonOwnerValue: apiData.wagon_owner || "",
+
+          containers: createArrayFromString(
+            apiData.container_no,
+            apiData.container_drop_off,
+            apiData.container_no_required || false,
+            apiData.container_drop_off_required || false,
+          ),
+
+          wagons: createArrayFromString(
+            apiData.wagon_no,
+            apiData.wagon_drop_off,
+            apiData.wagon_no_required || false,
+            apiData.wagon_drop_off_required || false,
+          ),
+        };
+
+        console.log("Çevrilmiş form data:", formData);
+        setForm(formData);
       },
     }));
 
@@ -281,7 +346,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={c.number}
                   placeholder="Container №"
-                  disabled={index > 0 ? false : !c.requiredNumber}
+                  disabled={index > 0 ? false : !(c.requiredNumber || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -317,7 +382,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={c.dropOff}
                   placeholder="Drop-off"
-                  disabled={index > 0 ? false : !c.requiredDropOff}
+                  disabled={index > 0 ? false : !(c.requiredDropOff || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -368,7 +433,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={w.number}
                   placeholder="Wagon №"
-                  disabled={index > 0 ? false : !w.requiredNumber}
+                  disabled={index > 0 ? false : !(w.requiredNumber || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",
@@ -404,7 +469,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={w.dropOff}
                   placeholder="Drop-off"
-                  disabled={index > 0 ? false : !w.requiredDropOff}
+                  disabled={index > 0 ? false : !(w.requiredDropOff || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",

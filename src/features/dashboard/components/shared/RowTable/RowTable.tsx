@@ -971,19 +971,19 @@ export default function Table({
             })}
           </tbody>
         </table>
-        <div className={styles.amount}>
-          {displaySummaryData.map((item, idx) => (
-            <div key={idx} className={styles.boxes}>
-              <p>{item.label}</p>
-              <p>{item.value}</p>
-            </div>
-          ))}
+        <div className={styles.btn}>
+          <button className={styles.add_btn} onClick={addColumn}>
+            +<p>Add</p>
+          </button>
         </div>
       </div>
-      <div className={styles.btn}>
-        <button className={styles.add_btn} onClick={addColumn}>
-          +<p>Add</p>
-        </button>
+      <div className={styles.amount}>
+        {displaySummaryData.map((item, idx) => (
+          <div key={idx} className={styles.boxes}>
+            <p>{item.label}</p>
+            <p>{item.value}</p>
+          </div>
+        ))}
       </div>
       {modal?.type === "create" && (
         <CreateServicesTable
