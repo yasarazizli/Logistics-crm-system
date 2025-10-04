@@ -83,6 +83,7 @@ interface Offer {
   isShipperOpen: boolean;
   shipperData: any;
   isDataLoaded?: boolean;
+  note?: string;
 }
 
 const CustomerInformation = () => {
@@ -111,7 +112,11 @@ const CustomerInformation = () => {
   const dataLoadedRef = useRef<{ [key: number]: boolean }>({});
   const [selectedOfferId, setSelectedOfferId] = useState<number | null>(null);
 
-  const [modal, setModal] = useState<{ type: "create" } | null>(null);
+  const [modal, setModal] = useState<{
+    type: "create";
+    offerId: number;
+  } | null>(null);
+  const [offerNotes, setOfferNotes] = useState<{ [key: number]: string }>({});
 
   const handleExtraChange = (name: string, value: string) =>
     setExtraInputs((prev) => ({ ...prev, [name]: value }));
@@ -120,15 +125,19 @@ const CustomerInformation = () => {
 
   const sendSelectedOffer = async () => {
     if (!selectedOfferId) {
+      toast.error("Lütfen önce bir teklif seçin! (Düzenle butonuna tıklayın)");
       return;
     }
+
+    const note = offerNotes[selectedOfferId] || "";
+    if (!note.trim()) {
+      toast.error("Lütfen not yazın!");
+      return;
+    }
+
     const shipperRef = shipperRefs.current[selectedOfferId];
 
     const shipperData = shipperRef.getFormData();
-
-    if (!shipperData.shipper.trim() || !shipperData.consignee.trim()) {
-      return;
-    }
 
     const formData = new FormData();
 
@@ -145,26 +154,100 @@ const CustomerInformation = () => {
       wagon_drop_off: shipperData.wagonDropOffs,
     };
 
+    const allOfferNotes = offers.map((offer) => ({
+      note: offerNotes[offer.id] || "",
+      id: offer.id,
+    }));
+
     formData.append("shipment", JSON.stringify(shipment));
     formData.append("btn_status", "send");
+    formData.append("offer_note", JSON.stringify(allOfferNotes));
 
-    const response = await axios.post(
-      `${apiUrl}/commercial/approve-offer/?order_id=${order.order_id}&offer_id=${selectedOfferId}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: getCookie("allianceToken"),
+    try {
+      const response = await axios.post(
+        `${apiUrl}/commercial/approve-offer/?order_id=${order.order_id}&offer_id=${selectedOfferId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
+          },
         },
-      },
-    );
+      );
 
-    if (response?.status === 200) {
-      toast.success(errorMessageHandler(response.data));
-      navigate(`/${i18n.language}/users`);
-      fetchOffers();
-      setSelectedOfferId(null);
+      if (response?.status === 200) {
+        toast.success(errorMessageHandler(response.data));
+        navigate(`/${i18n.language}/users`);
+        fetchOffers();
+        const clearedNotes: { [key: number]: string } = {};
+        offers.forEach((offer) => {
+          clearedNotes[offer.id] = "";
+        });
+        setOfferNotes(clearedNotes);
+      }
+    } catch (error) {
+      console.error("Gönderme hatası:", error);
+      toast.error("Teklif gönderilirken hata oluştu");
     }
+  };
+
+  const rejectOffer = async () => {
+    if (!selectedOfferId) {
+      toast.error("Lütfen önce bir teklif seçin! (Düzenle butonuna tıklayın)");
+      return;
+    }
+
+    const note = offerNotes[selectedOfferId] || "";
+    if (!note.trim()) {
+      toast.error("Lütfen reddetme nedeni yazın!");
+      return;
+    }
+
+    const formData = new FormData();
+
+    const allOfferNotes = offers.map((offer) => ({
+      note: offerNotes[offer.id] || "",
+      id: offer.id,
+    }));
+
+    formData.append("btn_status", "reject");
+    formData.append("offer_note", JSON.stringify(allOfferNotes));
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/commercial/approve-offer/?order_id=${order.order_id}&offer_id=${selectedOfferId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
+          },
+        },
+      );
+
+      if (response?.status === 200) {
+        toast.success(errorMessageHandler(response.data));
+        navigate(`/${i18n.language}/users`);
+        fetchOffers();
+        const clearedNotes: { [key: number]: string } = {};
+        offers.forEach((offer) => {
+          clearedNotes[offer.id] = "";
+        });
+        setOfferNotes(clearedNotes);
+      }
+    } catch (error) {
+      console.error("Reddetme hatası:", error);
+      toast.error("Teklif reddedilirken hata oluştu");
+    }
+  };
+
+  const handleEditClick = (offerId: number) => {
+    setSelectedOfferId(offerId);
+    setModal({ type: "create", offerId });
+  };
+
+  const handleNoteSave = (offerId: number, noteText: string) => {
+    setOfferNotes((prev) => ({ ...prev, [offerId]: noteText }));
   };
 
   const [, setQuotation] = useState<QuotationType | null>(null);
@@ -203,9 +286,17 @@ const CustomerInformation = () => {
                 wagon_drop_off: offer.wagon_drop_off || "",
               },
               isDataLoaded: false,
+              note: offer.note || "",
             }),
           );
           setOffers(formattedOffers);
+
+          const initialNotes: { [key: number]: string } = {};
+          formattedOffers.forEach((offer) => {
+            initialNotes[offer.id] = offer.note || "";
+          });
+          setOfferNotes(initialNotes);
+
           dataLoadedRef.current = {};
         } else {
           setOffers([]);
@@ -406,10 +497,16 @@ const CustomerInformation = () => {
                     <Button
                       text="Edit"
                       viewType="dark-green"
-                      onClick={() => setModal({ type: "create" })}
+                      onClick={() => handleEditClick(offer.id)}
                     />
                   </div>
                 </div>
+
+                {offerNotes[offer.id] && (
+                  <div className={styles.offerNote}>
+                    <strong>Not:</strong> {offerNotes[offer.id]}
+                  </div>
+                )}
 
                 <Table
                   headers={[
@@ -469,7 +566,7 @@ const CustomerInformation = () => {
                   </div>
                   <div className={styles.amountRow}>
                     <span>Transportation Time</span>
-                    <span>{offer.transportation_time} days</span>
+                    <span>{offer.transportation_time}days</span>
                   </div>
                 </div>
 
@@ -509,8 +606,21 @@ const CustomerInformation = () => {
           )}
         </div>
 
+        <div className={styles.selectedOfferInfo}>
+          {selectedOfferId && (
+            <div className={styles.selectionInfo}>
+              <strong>Seçili Teklif:</strong> #{selectedOfferId}
+              {offerNotes[selectedOfferId] && (
+                <div className={styles.selectedNote}>
+                  <strong>Not:</strong> {offerNotes[selectedOfferId]}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className={styles.note}>
-          <label className={styles.label}>Note</label>
+          <label className={styles.label}>Genel Not</label>
           <input
             className={styles.input}
             type="text"
@@ -521,7 +631,7 @@ const CustomerInformation = () => {
         </div>
 
         <div className={styles.button}>
-          <Button onClick={sendSelectedOffer} text="Reject" viewType="red" />
+          <Button onClick={rejectOffer} text="Reject" viewType="red" />
           <Button
             onClick={sendSelectedOffer}
             text="Send"
@@ -530,11 +640,15 @@ const CustomerInformation = () => {
         </div>
       </div>
 
-      {modal?.type === "create" && (
+      {modal && (
         <Note
-          modalClose={() => {
+          modalClose={(isRender: boolean, noteText?: string) => {
+            if (isRender && noteText && modal.offerId) {
+              handleNoteSave(modal.offerId, noteText);
+            }
             setModal(null);
           }}
+          existingNote={modal.offerId ? offerNotes[modal.offerId] : ""}
         />
       )}
     </div>

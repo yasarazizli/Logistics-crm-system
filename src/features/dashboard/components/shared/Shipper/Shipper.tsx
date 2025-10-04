@@ -47,18 +47,16 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
       terminalValue: "",
       containerOwnerValue: "",
       wagonOwnerValue: "",
-      containers: [
-        {
-          number: "",
-          dropOff: "",
-        },
-      ],
-      wagons: [
-        {
-          number: "",
-          dropOff: "",
-        },
-      ],
+      containers: [{ number: "", dropOff: "" }],
+      wagons: [{ number: "", dropOff: "" }],
+    });
+
+    const inputRefs = useRef<{
+      containers: HTMLInputElement[];
+      wagons: HTMLInputElement[];
+    }>({
+      containers: [],
+      wagons: [],
     });
 
     const formRef = useRef(form);
@@ -72,23 +70,23 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
         const currentForm = formRef.current;
 
         const allContainerNumbers = currentForm.containers
-          .filter((container) => container.number.trim() !== "")
-          .map((container) => container.number)
+          .filter((c) => c.number.trim() !== "")
+          .map((c) => c.number)
           .join(", ");
 
         const allContainerDropOffs = currentForm.containers
-          .filter((container) => container.dropOff.trim() !== "")
-          .map((container) => container.dropOff)
+          .filter((c) => c.dropOff.trim() !== "")
+          .map((c) => c.dropOff)
           .join(", ");
 
         const allWagonNumbers = currentForm.wagons
-          .filter((wagon) => wagon.number.trim() !== "")
-          .map((wagon) => wagon.number)
+          .filter((w) => w.number.trim() !== "")
+          .map((w) => w.number)
           .join(", ");
 
         const allWagonDropOffs = currentForm.wagons
-          .filter((wagon) => wagon.dropOff.trim() !== "")
-          .map((wagon) => wagon.dropOff)
+          .filter((w) => w.dropOff.trim() !== "")
+          .map((w) => w.dropOff)
           .join(", ");
 
         return {
@@ -104,16 +102,16 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
         if (apiData.container_no && apiData.container_no.trim() !== "") {
           const containerNumbers = apiData.container_no
             .split(",")
-            .map((num: string) => num.trim())
-            .filter((num: string) => num !== "");
+            .map((n: string) => n.trim())
+            .filter((n: string) => n !== "");
 
           const containerDropOffs =
             apiData.container_drop_off &&
             apiData.container_drop_off.trim() !== ""
               ? apiData.container_drop_off
                   .split(",")
-                  .map((drop: string) => drop.trim())
-                  .filter((drop: string) => drop !== "")
+                  .map((d: string) => d.trim())
+                  .filter((d: string) => d !== "")
               : Array(containerNumbers.length).fill("");
 
           for (let i = 0; i < containerNumbers.length; i++) {
@@ -130,15 +128,15 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
         if (apiData.wagon_no && apiData.wagon_no.trim() !== "") {
           const wagonNumbers = apiData.wagon_no
             .split(",")
-            .map((num: string) => num.trim())
-            .filter((num: string) => num !== "");
+            .map((n: string) => n.trim())
+            .filter((n: string) => n !== "");
 
           const wagonDropOffs =
             apiData.wagon_drop_off && apiData.wagon_drop_off.trim() !== ""
               ? apiData.wagon_drop_off
                   .split(",")
-                  .map((drop: string) => drop.trim())
-                  .filter((drop: string) => drop !== "")
+                  .map((d: string) => d.trim())
+                  .filter((d: string) => d !== "")
               : Array(wagonNumbers.length).fill("");
 
           for (let i = 0; i < wagonNumbers.length; i++) {
@@ -183,23 +181,30 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
         | "containerOwnerValue"
         | "wagonOwnerValue",
       value: string,
-    ) => {
-      setForm((prev) => ({ ...prev, [field]: value }));
-    };
+    ) => setForm((prev) => ({ ...prev, [field]: value }));
 
     const handleNotifyPartyChange = (value: string) => {
-      if (value === "" || value === null) {
-        setForm((prev) => ({ ...prev, notifyPartyValue: null }));
-      } else {
-        const numericValue = value.replace(/[^\d]/g, "");
-        if (numericValue === "") {
-          setForm((prev) => ({ ...prev, notifyPartyValue: null }));
-        } else {
-          setForm((prev) => ({
-            ...prev,
-            notifyPartyValue: parseInt(numericValue, 10),
-          }));
-        }
+      const numericValue = value.replace(/[^\d]/g, "");
+      setForm((prev) => ({
+        ...prev,
+        notifyPartyValue: numericValue ? parseInt(numericValue, 10) : null,
+      }));
+    };
+
+    const handleKeyDown = (
+      e: React.KeyboardEvent<HTMLInputElement>,
+      type: "containers" | "wagons",
+    ) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        setForm((prev) => {
+          const newItems = [...prev[type], { number: "", dropOff: "" }];
+          setTimeout(() => {
+            const lastIndex = newItems.length - 1;
+            inputRefs.current[type][lastIndex]?.focus();
+          }, 0);
+          return { ...prev, [type]: newItems };
+        });
       }
     };
 
@@ -211,31 +216,9 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
     ) => {
       setForm((prev) => {
         const updated = [...prev[type]];
-        updated[index] = {
-          ...updated[index],
-          [field]: value,
-        };
+        updated[index] = { ...updated[index], [field]: value };
         return { ...prev, [type]: updated };
       });
-    };
-
-    const handleKeyDown = (
-      e: React.KeyboardEvent<HTMLInputElement>,
-      type: "containers" | "wagons",
-    ) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        setForm((prev) => ({
-          ...prev,
-          [type]: [
-            ...prev[type],
-            {
-              number: "",
-              dropOff: "",
-            },
-          ],
-        }));
-      }
     };
 
     const handleRemove = (type: "containers" | "wagons", index: number) => {
@@ -258,6 +241,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
               onChange={(e) => handleTextChange("shipper", e.target.value)}
             />
           </div>
+
           <div className={styles.formGroup}>
             <label>Consignee</label>
             <Input
@@ -271,19 +255,13 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
           <div className={styles.formGroup}>
             <label>Notify Party</label>
             <Input
-              placeholder="Notify Party (Number only)"
+              placeholder="Notify Party"
               className={styles.input}
               type="text"
-              value={
-                form.notifyPartyValue === null
-                  ? ""
-                  : form.notifyPartyValue.toString()
-              }
+              value={form.notifyPartyValue?.toString() || ""}
               onChange={(e) => handleNotifyPartyChange(e.target.value)}
               onKeyPress={(e) => {
-                if (!/[0-9]/.test(e.key)) {
-                  e.preventDefault();
-                }
+                if (!/[0-9]/.test(e.key)) e.preventDefault();
               }}
             />
           </div>
@@ -325,15 +303,16 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
           </div>
         </div>
 
+        {/* Containers */}
         <div className={styles.section}>
           {form.containers.map((c, index) => (
-            <div
-              key={`container-${index}-${c.number}`}
-              className={styles.dynamicRow}
-            >
+            <div key={`container-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
                 <label>Container {index > 0 && `${index + 1}`}</label>
                 <Input
+                  inputRef={(el: HTMLInputElement | null) => {
+                    if (el) inputRefs.current.containers[index] = el;
+                  }}
                   className={styles.input}
                   value={c.number}
                   placeholder="Container №"
@@ -377,15 +356,16 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
           ))}
         </div>
 
+        {/* Wagons */}
         <div className={styles.section}>
           {form.wagons.map((w, index) => (
-            <div
-              key={`wagon-${index}-${w.number}`}
-              className={styles.dynamicRow}
-            >
+            <div key={`wagon-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
                 <label>Wagon {index > 0 && `${index + 1}`}</label>
                 <Input
+                  inputRef={(el: HTMLInputElement | null) => {
+                    if (el) inputRefs.current.wagons[index] = el;
+                  }}
                   className={styles.input}
                   value={w.number}
                   placeholder="Wagon №"

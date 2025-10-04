@@ -2,49 +2,59 @@ import styles from "@/components/Modal/Modal.module.scss";
 import Input from "@/components/Input/Input.tsx";
 import Button from "@/components/Button/Button.tsx";
 import Modal from "@/components/Modal/Modal.tsx";
-import { FormEvent, useContext, useRef } from "react";
+import { FormEvent, useContext, useRef, useState, useEffect } from "react";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
-import { formCreator } from "@/libs/form.ts";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import { errorMessageHandler } from "@/libs/error.ts";
-import { addBalanceServices } from "@/features/dashboard/services/Users/addbalance.service.ts";
 
-const Note = ({ modalClose }: { modalClose: (isRender: boolean) => void }) => {
+interface NoteProps {
+  modalClose: (isRender: boolean, noteText?: string) => void;
+  existingNote?: string;
+}
+
+const Note = ({ modalClose, existingNote = "" }: NoteProps) => {
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
+  const [noteText, setNoteText] = useState(existingNote);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const inputsRef = {
-    note: useRef<HTMLInputElement>(null),
-  };
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
 
-  const create = async (event: FormEvent) => {
+  useEffect(() => {
+    setNoteText(existingNote);
+  }, [existingNote]);
+
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     setLoader(true);
 
-    const formData = formCreator([
-      {
-        name: "note",
-        data: inputsRef.note.current?.value,
-      },
-    ]);
+    if (noteText.trim()) {
+      localStorage.setItem("offer_note", noteText.trim());
+      modalClose(true, noteText.trim());
+      toast.success("Note saved successfully!");
+    } else {
+      toast.error("Please enter a note!");
+    }
 
-    const { status, data } = await addBalanceServices(formData);
-    if (status === 200) toast.success(errorMessageHandler(data));
-    else toast.error(errorMessageHandler(data));
     setLoader(false);
-    modalClose(true);
   };
 
   return (
-    <Modal title="Send Note" modalClose={() => modalClose(false)}>
-      <form className={styles.form} onSubmit={create}>
+    <Modal title="Note" modalClose={() => modalClose(false)}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.form__inputs}>
           <Input
+            inputRef={inputRef}
             type="text"
             label="Note"
-            placeholder="Note"
-            inputRef={inputsRef.note}
+            placeholder="Enter your note here"
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
             autoComplete="none"
             required
             style={{ width: "600px" }}
@@ -56,8 +66,9 @@ const Note = ({ modalClose }: { modalClose: (isRender: boolean) => void }) => {
             text={t("shared.buttons.cancel")}
             type={"button"}
             onClick={() => modalClose(false)}
+            viewType="red"
           />
-          <Button text="Send" type={"submit"} />
+          <Button text="Save Note" type={"submit"} viewType="dark-green" />
         </div>
       </form>
     </Modal>

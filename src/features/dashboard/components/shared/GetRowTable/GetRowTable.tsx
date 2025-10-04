@@ -1182,7 +1182,6 @@ export default function Table({
                       case "Total purchase price":
                       case "Total price":
                       case "VAT amount":
-                      case "Profit":
                         return (
                           <td
                             key={`${rowIndex}-${colIndex}-${colId}`}
@@ -1192,6 +1191,18 @@ export default function Table({
                               type="text"
                               value={displayValue}
                               readOnly
+                              className={styles.clickable_text}
+                            />
+                          </td>
+                        );
+                      case "Profit":
+                        return (
+                          <td
+                            key={`${rowIndex}-${colIndex}-${colId}`}
+                            className={styles.td_dollar}
+                          >
+                            <input
+                              type="text"
                               className={styles.clickable_text}
                             />
                           </td>
