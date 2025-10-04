@@ -1,4 +1,10 @@
-import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
+import {
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+  useRef,
+} from "react";
 import styles from "../DynamicForm/DynamicForm.module.scss";
 import Input from "@/components/Input/Input.tsx";
 
@@ -17,11 +23,15 @@ export interface DynamicFormData {
     number: string;
     dropOff: string;
   }[];
+  containerNumbers?: string;
+  containerDropOffs?: string;
+  wagonNumbers?: string;
+  wagonDropOffs?: string;
 }
 
 export interface DynamicFormRef {
   getFormData: () => DynamicFormData;
-  setFormData: (data: DynamicFormData) => void;
+  setFormData: (data: any) => void;
 }
 
 interface DynamicFormProps {
@@ -51,19 +61,127 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
       ],
     });
 
+    const formRef = useRef(form);
+    formRef.current = form;
+
+    const onFormDataChangeRef = useRef(onFormDataChange);
+    onFormDataChangeRef.current = onFormDataChange;
+
     useImperativeHandle(ref, () => ({
-      getFormData: () => form,
-      setFormData: (data: DynamicFormData) => setForm(data),
+      getFormData: () => {
+        const currentForm = formRef.current;
+
+        const allContainerNumbers = currentForm.containers
+          .filter((container) => container.number.trim() !== "")
+          .map((container) => container.number)
+          .join(", ");
+
+        const allContainerDropOffs = currentForm.containers
+          .filter((container) => container.dropOff.trim() !== "")
+          .map((container) => container.dropOff)
+          .join(", ");
+
+        const allWagonNumbers = currentForm.wagons
+          .filter((wagon) => wagon.number.trim() !== "")
+          .map((wagon) => wagon.number)
+          .join(", ");
+
+        const allWagonDropOffs = currentForm.wagons
+          .filter((wagon) => wagon.dropOff.trim() !== "")
+          .map((wagon) => wagon.dropOff)
+          .join(", ");
+
+        return {
+          ...currentForm,
+          containerNumbers: allContainerNumbers,
+          containerDropOffs: allContainerDropOffs,
+          wagonNumbers: allWagonNumbers,
+          wagonDropOffs: allWagonDropOffs,
+        };
+      },
+      setFormData: (apiData: any) => {
+        const containersArray = [];
+        if (apiData.container_no && apiData.container_no.trim() !== "") {
+          const containerNumbers = apiData.container_no
+            .split(",")
+            .map((num: string) => num.trim())
+            .filter((num: string) => num !== "");
+
+          const containerDropOffs =
+            apiData.container_drop_off &&
+            apiData.container_drop_off.trim() !== ""
+              ? apiData.container_drop_off
+                  .split(",")
+                  .map((drop: string) => drop.trim())
+                  .filter((drop: string) => drop !== "")
+              : Array(containerNumbers.length).fill("");
+
+          for (let i = 0; i < containerNumbers.length; i++) {
+            containersArray.push({
+              number: containerNumbers[i] || "",
+              dropOff: containerDropOffs[i] || "",
+            });
+          }
+        } else {
+          containersArray.push({ number: "", dropOff: "" });
+        }
+
+        const wagonsArray = [];
+        if (apiData.wagon_no && apiData.wagon_no.trim() !== "") {
+          const wagonNumbers = apiData.wagon_no
+            .split(",")
+            .map((num: string) => num.trim())
+            .filter((num: string) => num !== "");
+
+          const wagonDropOffs =
+            apiData.wagon_drop_off && apiData.wagon_drop_off.trim() !== ""
+              ? apiData.wagon_drop_off
+                  .split(",")
+                  .map((drop: string) => drop.trim())
+                  .filter((drop: string) => drop !== "")
+              : Array(wagonNumbers.length).fill("");
+
+          for (let i = 0; i < wagonNumbers.length; i++) {
+            wagonsArray.push({
+              number: wagonNumbers[i] || "",
+              dropOff: wagonDropOffs[i] || "",
+            });
+          }
+        } else {
+          wagonsArray.push({ number: "", dropOff: "" });
+        }
+
+        const formData: DynamicFormData = {
+          shipper: apiData.shipper || "",
+          consignee: apiData.consignee || "",
+          notifyPartyValue:
+            apiData.notify_party !== null && apiData.notify_party !== undefined
+              ? apiData.notify_party
+              : null,
+          terminalValue: apiData.terminal || "",
+          containerOwnerValue: apiData.container_owner || "",
+          wagonOwnerValue: apiData.wagon_owner || "",
+          containers: containersArray,
+          wagons: wagonsArray,
+        };
+
+        setForm(formData);
+      },
     }));
 
     useEffect(() => {
-      if (onFormDataChange) {
-        onFormDataChange(form);
+      if (onFormDataChangeRef.current) {
+        onFormDataChangeRef.current(form);
       }
-    }, [form, onFormDataChange]);
+    }, [form]);
 
     const handleTextChange = (
-      field: "shipper" | "consignee",
+      field:
+        | "shipper"
+        | "consignee"
+        | "terminalValue"
+        | "containerOwnerValue"
+        | "wagonOwnerValue",
       value: string,
     ) => {
       setForm((prev) => ({ ...prev, [field]: value }));
@@ -83,13 +201,6 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
           }));
         }
       }
-    };
-
-    const handleOptionalChange = (
-      field: "terminalValue" | "containerOwnerValue" | "wagonOwnerValue",
-      value: string,
-    ) => {
-      setForm((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleInputChange = (
@@ -184,7 +295,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
               className={styles.input}
               value={form.terminalValue}
               onChange={(e) =>
-                handleOptionalChange("terminalValue", e.target.value)
+                handleTextChange("terminalValue", e.target.value)
               }
             />
           </div>
@@ -196,7 +307,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
               className={styles.input}
               value={form.containerOwnerValue}
               onChange={(e) =>
-                handleOptionalChange("containerOwnerValue", e.target.value)
+                handleTextChange("containerOwnerValue", e.target.value)
               }
             />
           </div>
@@ -208,95 +319,110 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
               className={styles.input}
               value={form.wagonOwnerValue}
               onChange={(e) =>
-                handleOptionalChange("wagonOwnerValue", e.target.value)
+                handleTextChange("wagonOwnerValue", e.target.value)
               }
             />
           </div>
         </div>
 
-        {form.containers.map((c, index) => (
-          <div key={`container-${index}`} className={styles.dynamicRow}>
-            <div className={styles.wagon}>
-              <label>Container №</label>
-              <Input
-                className={styles.input}
-                value={c.number}
-                placeholder="Container №"
-                onChange={(e) =>
-                  handleInputChange(
-                    "containers",
-                    index,
-                    "number",
-                    e.target.value,
-                  )
-                }
-                onKeyDown={(e) => handleKeyDown(e, "containers")}
-              />
+        <div className={styles.section}>
+          {form.containers.map((c, index) => (
+            <div
+              key={`container-${index}-${c.number}`}
+              className={styles.dynamicRow}
+            >
+              <div className={styles.wagon}>
+                <label>Container {index > 0 && `${index + 1}`}</label>
+                <Input
+                  className={styles.input}
+                  value={c.number}
+                  placeholder="Container №"
+                  onChange={(e) =>
+                    handleInputChange(
+                      "containers",
+                      index,
+                      "number",
+                      e.target.value,
+                    )
+                  }
+                  onKeyDown={(e) => handleKeyDown(e, "containers")}
+                />
+              </div>
+              <div className={styles.wagon}>
+                <label>Drop-off {index > 0 && `${index + 1}`}</label>
+                <Input
+                  className={styles.input}
+                  value={c.dropOff}
+                  placeholder="Drop-off"
+                  onChange={(e) =>
+                    handleInputChange(
+                      "containers",
+                      index,
+                      "dropOff",
+                      e.target.value,
+                    )
+                  }
+                  onKeyDown={(e) => handleKeyDown(e, "containers")}
+                />
+              </div>
+              {index > 0 && (
+                <button
+                  className={styles.removeBtn}
+                  onClick={() => handleRemove("containers", index)}
+                >
+                  X
+                </button>
+              )}
             </div>
-            {index > 0 && (
-              <button
-                className={styles.removeBtn}
-                onClick={() => handleRemove("containers", index)}
-              >
-                X
-              </button>
-            )}
-            <div className={styles.wagon}>
-              <label>Drop-off</label>
-              <Input
-                className={styles.input}
-                value={c.dropOff}
-                placeholder="Drop-off"
-                onChange={(e) =>
-                  handleInputChange(
-                    "containers",
-                    index,
-                    "dropOff",
-                    e.target.value,
-                  )
-                }
-                onKeyDown={(e) => handleKeyDown(e, "containers")}
-              />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
-        {form.wagons.map((w, index) => (
-          <div key={`wagon-${index}`} className={styles.dynamicRow}>
-            <div className={styles.wagon}>
-              <label>Wagon №</label>
-              <Input
-                className={styles.input}
-                value={w.number}
-                placeholder="Wagon №"
-                onChange={(e) =>
-                  handleInputChange("wagons", index, "number", e.target.value)
-                }
-                onKeyDown={(e) => handleKeyDown(e, "wagons")}
-              />
+        <div className={styles.section}>
+          {form.wagons.map((w, index) => (
+            <div
+              key={`wagon-${index}-${w.number}`}
+              className={styles.dynamicRow}
+            >
+              <div className={styles.wagon}>
+                <label>Wagon {index > 0 && `${index + 1}`}</label>
+                <Input
+                  className={styles.input}
+                  value={w.number}
+                  placeholder="Wagon №"
+                  onChange={(e) =>
+                    handleInputChange("wagons", index, "number", e.target.value)
+                  }
+                  onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                />
+              </div>
+              <div className={styles.wagon}>
+                <label>Drop-off {index > 0 && `${index + 1}`}</label>
+                <Input
+                  className={styles.input}
+                  value={w.dropOff}
+                  placeholder="Drop-off"
+                  onChange={(e) =>
+                    handleInputChange(
+                      "wagons",
+                      index,
+                      "dropOff",
+                      e.target.value,
+                    )
+                  }
+                  onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                />
+              </div>
+              {index > 0 && (
+                <button
+                  className={styles.removeBtn}
+                  onClick={() => handleRemove("wagons", index)}
+                >
+                  X
+                </button>
+              )}
             </div>
-            {index > 0 && (
-              <button
-                className={styles.removeBtn}
-                onClick={() => handleRemove("wagons", index)}
-              >
-                X
-              </button>
-            )}
-            <div className={styles.wagon}>
-              <label>Drop-off</label>
-              <Input
-                className={styles.input}
-                value={w.dropOff}
-                placeholder="Drop-off"
-                onChange={(e) =>
-                  handleInputChange("wagons", index, "dropOff", e.target.value)
-                }
-                onKeyDown={(e) => handleKeyDown(e, "wagons")}
-              />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   },

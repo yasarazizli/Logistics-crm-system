@@ -42,6 +42,7 @@ import CustomerInformationPage from "@/features/dashboard/pages/CommercialManage
 import OfferPage from "@/features/dashboard/pages/Others/OfferPage.tsx";
 import CustomerInformationEditPage from "@/features/dashboard/pages/CommercialManager/CustomerInformationEdit/CustomerInformationEditPage.tsx";
 import AskQuotationPage from "@/features/dashboard/pages/Others/AskQuotationPage.tsx";
+import CommercialSpecialistPage from "@/features/dashboard/pages/CommercialSpecialist/CommercialSpecialistPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -109,6 +110,10 @@ const AppRoutes = () => {
         <Route
           path="commercial/manager/order"
           element={<CommercialManagerOrderPage />}
+        />
+        <Route
+          path="commercial/specialist"
+          element={<CommercialSpecialistPage />}
         />
         <Route
           path="commercial/manager/information"

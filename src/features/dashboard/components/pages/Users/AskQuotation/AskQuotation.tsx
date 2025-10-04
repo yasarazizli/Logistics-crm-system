@@ -85,6 +85,11 @@ const AskQuotation = () => {
 
     const shipperData = shipperRef.current?.getFormData();
 
+    const containerNumbers = shipperData?.containerNumbers || "";
+    const containerDropOffs = shipperData?.containerDropOffs || "";
+    const wagonNumbers = shipperData?.wagonNumbers || "";
+    const wagonDropOffs = shipperData?.wagonDropOffs || "";
+
     const transformedShipperData = shipperData
       ? {
           shipper: shipperData.shipper,
@@ -93,10 +98,10 @@ const AskQuotation = () => {
           terminal: shipperData.terminalValue,
           container_owner: shipperData.containerOwnerValue,
           wagon_owner: shipperData.wagonOwnerValue,
-          container_no: shipperData.containers[0]?.number || "",
-          container_drop_off: shipperData.containers[0]?.dropOff || "",
-          wagon_no: shipperData.wagons[0]?.number || "",
-          wagon_drop_off: shipperData.wagons[0]?.dropOff || "",
+          container_no: containerNumbers,
+          container_drop_off: containerDropOffs,
+          wagon_no: wagonNumbers,
+          wagon_drop_off: wagonDropOffs,
         }
       : {};
 

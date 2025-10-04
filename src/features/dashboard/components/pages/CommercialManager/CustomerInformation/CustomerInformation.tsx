@@ -30,6 +30,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { errorMessageHandler } from "@/libs/error.ts";
 import i18n from "@/locales/i18n.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -55,6 +56,7 @@ interface DynamicFormRef {
 
 const CustomerInformation = () => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const order = location.state?.order;
@@ -255,7 +257,12 @@ const CustomerInformation = () => {
 
       if (response?.status === 200) {
         toast.success(errorMessageHandler(response.data));
-        navigate(`/${i18n.language}/commercial/manager/order`);
+        const role = auth.user?.role as string;
+        if (role === "commercial_manager") {
+          navigate(`/${i18n.language}/commercial/manager/order`);
+        } else if (role === "commercial_specialist") {
+          navigate(`/${i18n.language}/commercial/specialist`);
+        }
       } else {
         toast.error(errorMessageHandler(response.data));
       }
@@ -472,11 +479,11 @@ const CustomerInformation = () => {
         />
 
         <div className={styles.note}>
-          <label className={styles.label}>General Note</label>
+          <label className={styles.label}>Note</label>
           <input
             className={styles.input}
             type="text"
-            placeholder="Your general note here"
+            placeholder="Your note here"
             value={generalNote}
             onChange={(e) => setGeneralNote(e.target.value)}
           />

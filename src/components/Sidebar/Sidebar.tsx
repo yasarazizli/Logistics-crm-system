@@ -34,9 +34,9 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebar}>
-      <Link className={styles.logo} to={`/${i18n.language}/home`}>
+      <div className={styles.logo}>
         <SiteDarkLogo />
-      </Link>
+      </div>
 
       <div className={styles.navigation}>
         <div className={styles.navigation__list}>

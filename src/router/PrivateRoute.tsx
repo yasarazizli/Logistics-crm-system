@@ -64,6 +64,7 @@ export default function PrivateRoute() {
     }
   }
 
+  // Commercial Manager
   if (auth.role === Roles.commercial_manager) {
     const accessiblePages = [
       "/commercial/manager/order",
@@ -72,6 +73,18 @@ export default function PrivateRoute() {
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/manager/order`} />;
+    }
+  }
+
+  // Commercial Specialist
+  if (auth.role === Roles.commercial_specialist) {
+    const accessiblePages = [
+      "/commercial/specialist",
+      "/commercial/manager/information",
+      "/commercial/manager/information/edit",
+    ];
+    if (!accessiblePages.includes(normalizedPath)) {
+      return <Navigate to={`/${i18n.language}/commercial/specialist`} />;
     }
   }
 

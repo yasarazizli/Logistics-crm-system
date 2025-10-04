@@ -105,4 +105,12 @@ export const navigation = [
     icon: OrdersIcon,
     roles: ["commercial_manager"],
   },
+
+  // Commercial Specialist
+  {
+    name: "main.title__5",
+    path: "commercial/specialist",
+    icon: OrdersIcon,
+    roles: ["commercial_specialist"],
+  },
 ];

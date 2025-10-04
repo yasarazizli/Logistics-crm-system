@@ -82,39 +82,70 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
     useImperativeHandle(ref, () => ({
       getFormData: () => formRef.current,
       setFormData: (apiData: any) => {
-        console.log("API-dən gələn məlumat:", apiData);
+        const containersArray = [];
+        if (apiData.container_no && apiData.container_no.trim() !== "") {
+          const containerNumbers = apiData.container_no
+            .split(",")
+            .map((num: string) => num.trim())
+            .filter((num: string) => num !== "");
 
-        // Helper function to convert comma-separated string to array of objects
-        const createArrayFromString = (
-          numbersString: string,
-          dropOffsString: string,
-          numbersRequired: boolean,
-          dropOffsRequired: boolean,
-        ) => {
-          if (!numbersString || numbersString.trim() === "") {
-            return [
-              {
-                number: "",
-                dropOff: "",
-                requiredNumber: numbersRequired,
-                requiredDropOff: dropOffsRequired,
-              },
-            ];
+          const containerDropOffs =
+            apiData.container_drop_off &&
+            apiData.container_drop_off.trim() !== ""
+              ? apiData.container_drop_off
+                  .split(",")
+                  .map((drop: string) => drop.trim())
+                  .filter((drop: string) => drop !== "")
+              : Array(containerNumbers.length).fill("");
+
+          for (let i = 0; i < containerNumbers.length; i++) {
+            containersArray.push({
+              number: containerNumbers[i] || "",
+              dropOff: containerDropOffs[i] || "",
+              requiredNumber: apiData.container_no_required || false,
+              requiredDropOff: apiData.container_drop_off_required || false,
+            });
           }
+        } else {
+          containersArray.push({
+            number: "",
+            dropOff: "",
+            requiredNumber: false,
+            requiredDropOff: false,
+          });
+        }
 
-          const numbers = numbersString.split(",").map((item) => item.trim());
-          const dropOffs =
-            dropOffsString && dropOffsString.trim() !== ""
-              ? dropOffsString.split(",").map((item) => item.trim())
-              : Array(numbers.length).fill("");
+        const wagonsArray = [];
+        if (apiData.wagon_no && apiData.wagon_no.trim() !== "") {
+          const wagonNumbers = apiData.wagon_no
+            .split(",")
+            .map((num: string) => num.trim())
+            .filter((num: string) => num !== "");
 
-          return numbers.map((number, index) => ({
-            number: number || "",
-            dropOff: dropOffs[index] || "",
-            requiredNumber: numbersRequired,
-            requiredDropOff: dropOffsRequired,
-          }));
-        };
+          const wagonDropOffs =
+            apiData.wagon_drop_off && apiData.wagon_drop_off.trim() !== ""
+              ? apiData.wagon_drop_off
+                  .split(",")
+                  .map((drop: string) => drop.trim())
+                  .filter((drop: string) => drop !== "")
+              : Array(wagonNumbers.length).fill("");
+
+          for (let i = 0; i < wagonNumbers.length; i++) {
+            wagonsArray.push({
+              number: wagonNumbers[i] || "",
+              dropOff: wagonDropOffs[i] || "",
+              requiredNumber: apiData.wagon_no_required || false,
+              requiredDropOff: apiData.wagon_drop_off_required || false,
+            });
+          }
+        } else {
+          wagonsArray.push({
+            number: "",
+            dropOff: "",
+            requiredNumber: false,
+            requiredDropOff: false,
+          });
+        }
 
         const formData: DynamicFormData = {
           shipper: apiData.shipper || "",
@@ -130,27 +161,13 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           terminalValue: apiData.terminal || "",
           containerOwnerValue: apiData.container_owner || "",
           wagonOwnerValue: apiData.wagon_owner || "",
-
-          containers: createArrayFromString(
-            apiData.container_no,
-            apiData.container_drop_off,
-            apiData.container_no_required || false,
-            apiData.container_drop_off_required || false,
-          ),
-
-          wagons: createArrayFromString(
-            apiData.wagon_no,
-            apiData.wagon_drop_off,
-            apiData.wagon_no_required || false,
-            apiData.wagon_drop_off_required || false,
-          ),
+          containers: containersArray,
+          wagons: wagonsArray,
         };
 
-        console.log("Çevrilmiş form data:", formData);
         setForm(formData);
       },
     }));
-
     useEffect(() => {
       if (onFormDataChangeRef.current) {
         onFormDataChangeRef.current(form);

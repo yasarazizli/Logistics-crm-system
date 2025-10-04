@@ -41,6 +41,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { errorMessageHandler } from "@/libs/error.ts";
 import i18n from "@/locales/i18n.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -137,6 +138,7 @@ interface Service {
 const CustomerInformationEdit = () => {
   const { setLoader } = useContext(LoaderContext);
   const navigate = useNavigate();
+  const { auth } = useContext(AuthContext);
   const location = useLocation();
   const order = location.state?.order;
   const { t } = useTranslation();
@@ -364,7 +366,6 @@ const CustomerInformationEdit = () => {
           .get(offerIndex)
           ?.getFormData();
 
-        // Container və wagon məlumatlarını string-ə çevir
         const containerNumbers =
           dynamicData?.containers
             ?.filter((container) => container.number.trim() !== "")
@@ -402,14 +403,6 @@ const CustomerInformationEdit = () => {
           if (serviceId === 0 && selectedServices[serviceKey]) {
             serviceId = parseInt(selectedServices[serviceKey].value);
           }
-
-          console.log(`Offer ${offerIndex}, Service ${rowIndex}:`, {
-            serviceId,
-            apiService,
-            selectedService: selectedServices[serviceKey],
-            rowServiceName: row.serviceName,
-            rowId: row.id,
-          });
 
           return {
             id: apiService?.id || 0,
@@ -512,7 +505,12 @@ const CustomerInformationEdit = () => {
 
         if (response?.status === 200 || response?.status === 201) {
           toast.success(errorMessageHandler(response.data));
-          navigate(`/${i18n.language}/commercial/manager/order`);
+          const role = auth.user?.role as string;
+          if (role === "commercial_manager") {
+            navigate(`/${i18n.language}/commercial/manager/order`);
+          } else if (role === "commercial_specialist") {
+            navigate(`/${i18n.language}/commercial/specialist`);
+          }
         } else {
           toast.error(errorMessageHandler(response.data));
         }
@@ -644,7 +642,6 @@ const CustomerInformationEdit = () => {
 
             setOffers(formattedOffers);
 
-            // API-dən gələn servisləri selectedServices state-ə əlavə edin
             const servicesFromApi: {
               [key: string]: { value: string; label: string };
             } = {};
@@ -662,17 +659,12 @@ const CustomerInformationEdit = () => {
 
             setSelectedServices((prev) => ({ ...prev, ...servicesFromApi }));
 
-            // DynamicForm-ları API məlumatları ilə doldur
             setTimeout(() => {
               formattedOffers.forEach((_, index) => {
                 const apiOffer = apiData[index];
                 if (apiOffer && apiOffer.shipment) {
                   const dynamicFormRef = dynamicFormRefs.current.get(index);
                   if (dynamicFormRef) {
-                    console.log(
-                      `Setting form data for offer ${index}:`,
-                      apiOffer.shipment,
-                    );
                     dynamicFormRef.setFormData(apiOffer.shipment);
                   }
                 }

@@ -13,6 +13,7 @@ export enum Roles {
   buyer_manager = "buyer_manager",
   commercial_manager = "commercial_manager",
   commercial_directory = "commercial_director",
+  commercial_specialist = "commercial_specialist",
   admin = "admin",
   user = "user",
   monitoring = "monitoring",
