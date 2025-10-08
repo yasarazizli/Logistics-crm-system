@@ -43,6 +43,8 @@ import OfferPage from "@/features/dashboard/pages/Others/OfferPage.tsx";
 import CustomerInformationEditPage from "@/features/dashboard/pages/CommercialManager/CustomerInformationEdit/CustomerInformationEditPage.tsx";
 import AskQuotationPage from "@/features/dashboard/pages/Others/AskQuotationPage.tsx";
 import CommercialSpecialistPage from "@/features/dashboard/pages/CommercialSpecialist/CommercialSpecialistPage.tsx";
+import TasksPage from "@/features/dashboard/pages/BuyersDirector/Tasks/TasksPage.tsx";
+import AskQuotationEditPage from "@/features/dashboard/pages/Others/AskQuotationEditPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -108,6 +110,10 @@ const AppRoutes = () => {
         />
         <Route path="users/ask/quotation" element={<AskQuotationPage />} />
         <Route
+          path="users/ask/quotation/edit"
+          element={<AskQuotationEditPage />}
+        />
+        <Route
           path="commercial/manager/order"
           element={<CommercialManagerOrderPage />}
         />
@@ -123,6 +129,7 @@ const AppRoutes = () => {
           path="commercial/manager/information/edit"
           element={<CustomerInformationEditPage />}
         />
+        <Route path="buyers/director/tasks" element={<TasksPage />} />
         <Route path="user/offer/confirmation" element={<OfferPage />} />
         <Route
           path="commercial/directory/services"

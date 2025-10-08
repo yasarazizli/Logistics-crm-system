@@ -65,6 +65,7 @@
     display: flex;
     gap: 16px;
     margin-bottom: 10px;
+    position: relative;
 
     .wagon {
       width: 100%;
@@ -122,18 +123,15 @@
   }
 
   .removeBtn {
-    background: #ff4d4d;
-    color: white;
+    font-size: 18px;
+    position: absolute;
+    color: #ff4d4d;
+    left: 48%;
     border: none;
-    padding: 0px 10px;
-    border-radius: 4px;
     cursor: pointer;
     height: 54px;
-    margin-top: 38px;
+    margin-top: 39px;
 
-    &:hover {
-      background: #e60000;
-    }
   }
 
   .submitBtn {

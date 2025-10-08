@@ -17,26 +17,5 @@ export enum Roles {
   admin = "admin",
   user = "user",
   monitoring = "monitoring",
-  buyer_directory = "buyer_director",
-}
-
-// Transport Type
-export enum Transport {
-  truck = "truck",
-  filder = "filder",
-  plane = "plane",
-  railway = "railway",
-}
-
-// Order Status
-export enum OrderStatus {
-  pending = "pending",
-  processing = "Processing",
-}
-
-// Invoice Status Enum
-export enum InvoiceStatus {
-  waiting,
-  approved,
-  reject,
+  buyer_directory = "buyer_directory",
 }

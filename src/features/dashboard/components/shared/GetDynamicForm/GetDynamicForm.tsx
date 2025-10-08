@@ -40,10 +40,11 @@ export interface DynamicFormRef {
 
 interface DynamicFormProps {
   onFormDataChange?: (data: DynamicFormData) => void;
+  isRegister?: boolean;
 }
 
 const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
-  ({ onFormDataChange }, ref) => {
+  ({ onFormDataChange, isRegister = false }, ref) => {
     const [form, setForm] = useState<DynamicFormData>({
       shipper: "",
       consignee: "",
@@ -168,15 +169,12 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
         setForm(formData);
       },
     }));
+
     useEffect(() => {
       if (onFormDataChangeRef.current) {
         onFormDataChangeRef.current(form);
       }
     }, [form]);
-
-    const handleToggle = (field: keyof DynamicFormData) => {
-      setForm((prev) => ({ ...prev, [field]: !prev[field] }));
-    };
 
     const handleInputChange = (field: keyof DynamicFormData, value: string) => {
       setForm((prev) => ({ ...prev, [field]: value }));
@@ -190,8 +188,8 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
     const handleContainerWagonChange = (
       type: "containers" | "wagons",
       index: number,
-      field: "number" | "dropOff" | "requiredNumber" | "requiredDropOff",
-      value: string | boolean,
+      field: "number" | "dropOff",
+      value: string,
     ) => {
       setForm((prev) => {
         const updated = [...prev[type]];
@@ -251,119 +249,173 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.notifyParty}
-                onChange={() => handleToggle("notifyParty")}
-                className={styles.custom_checkbox}
-              />
-              Notify Party
-            </label>
-            <Input
-              placeholder="Notify Party"
-              value={
-                form.notifyPartyValue === null
-                  ? ""
-                  : form.notifyPartyValue.toString()
-              }
-              disabled={!form.notifyParty}
-              onChange={(e) => handleNotifyPartyChange(e.target.value)}
-            />
-          </div>
+          {!isRegister ? (
+            <>
+              <div className={styles.formGroup}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={form.notifyParty}
+                    onChange={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        notifyParty: !prev.notifyParty,
+                      }))
+                    }
+                    className={styles.custom_checkbox}
+                  />
+                  Notify Party
+                </label>
+                <Input
+                  placeholder="Notify Party"
+                  value={
+                    form.notifyPartyValue === null
+                      ? ""
+                      : form.notifyPartyValue.toString()
+                  }
+                  disabled={!form.notifyParty}
+                  onChange={(e) => handleNotifyPartyChange(e.target.value)}
+                />
+              </div>
 
-          <div className={styles.formGroup}>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.terminal}
-                onChange={() => handleToggle("terminal")}
-                className={styles.custom_checkbox}
-              />
-              Terminal
-            </label>
-            <Input
-              placeholder="Terminal"
-              className={styles.input}
-              value={form.terminalValue}
-              disabled={!form.terminal}
-              onChange={(e) =>
-                handleInputChange("terminalValue", e.target.value)
-              }
-            />
-          </div>
+              <div className={styles.formGroup}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={form.terminal}
+                    onChange={() =>
+                      setForm((prev) => ({ ...prev, terminal: !prev.terminal }))
+                    }
+                    className={styles.custom_checkbox}
+                  />
+                  Terminal
+                </label>
+                <Input
+                  placeholder="Terminal"
+                  className={styles.input}
+                  value={form.terminalValue}
+                  disabled={!form.terminal}
+                  onChange={(e) =>
+                    handleInputChange("terminalValue", e.target.value)
+                  }
+                />
+              </div>
 
-          <div className={styles.formGroup}>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.containerOwner}
-                onChange={() => handleToggle("containerOwner")}
-                className={styles.custom_checkbox}
-              />
-              Container Owner
-            </label>
-            <Input
-              placeholder="Container Owner"
-              className={styles.input}
-              value={form.containerOwnerValue}
-              disabled={!form.containerOwner}
-              onChange={(e) =>
-                handleInputChange("containerOwnerValue", e.target.value)
-              }
-            />
-          </div>
+              <div className={styles.formGroup}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={form.containerOwner}
+                    onChange={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        containerOwner: !prev.containerOwner,
+                      }))
+                    }
+                    className={styles.custom_checkbox}
+                  />
+                  Container Owner
+                </label>
+                <Input
+                  placeholder="Container Owner"
+                  className={styles.input}
+                  value={form.containerOwnerValue}
+                  disabled={!form.containerOwner}
+                  onChange={(e) =>
+                    handleInputChange("containerOwnerValue", e.target.value)
+                  }
+                />
+              </div>
 
-          <div className={styles.formGroup}>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.wagonOwner}
-                onChange={() => handleToggle("wagonOwner")}
-                className={styles.custom_checkbox}
-              />
-              Wagon Owner
-            </label>
-            <Input
-              placeholder="Wagon Owner"
-              className={styles.input}
-              value={form.wagonOwnerValue}
-              disabled={!form.wagonOwner}
-              onChange={(e) =>
-                handleInputChange("wagonOwnerValue", e.target.value)
-              }
-            />
-          </div>
+              <div className={styles.formGroup}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={form.wagonOwner}
+                    onChange={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        wagonOwner: !prev.wagonOwner,
+                      }))
+                    }
+                    className={styles.custom_checkbox}
+                  />
+                  Wagon Owner
+                </label>
+                <Input
+                  placeholder="Wagon Owner"
+                  className={styles.input}
+                  value={form.wagonOwnerValue}
+                  disabled={!form.wagonOwner}
+                  onChange={(e) =>
+                    handleInputChange("wagonOwnerValue", e.target.value)
+                  }
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={styles.formGroup}>
+                <label>Notify Party</label>
+                <Input
+                  placeholder="Notify Party"
+                  value={
+                    form.notifyPartyValue === null
+                      ? ""
+                      : form.notifyPartyValue.toString()
+                  }
+                  onChange={(e) => handleNotifyPartyChange(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Terminal</label>
+                <Input
+                  placeholder="Terminal"
+                  className={styles.input}
+                  value={form.terminalValue}
+                  onChange={(e) =>
+                    handleInputChange("terminalValue", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Container Owner</label>
+                <Input
+                  placeholder="Container Owner"
+                  className={styles.input}
+                  value={form.containerOwnerValue}
+                  onChange={(e) =>
+                    handleInputChange("containerOwnerValue", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Wagon Owner</label>
+                <Input
+                  placeholder="Wagon Owner"
+                  className={styles.input}
+                  value={form.wagonOwnerValue}
+                  onChange={(e) =>
+                    handleInputChange("wagonOwnerValue", e.target.value)
+                  }
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <div className={styles.section}>
           {form.containers.map((c, index) => (
             <div key={`container-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
-                <label>
-                  {index === 0 && (
-                    <input
-                      type="checkbox"
-                      checked={c.requiredNumber || false}
-                      onChange={() =>
-                        handleContainerWagonChange(
-                          "containers",
-                          index,
-                          "requiredNumber",
-                          !(c.requiredNumber || false),
-                        )
-                      }
-                      className={styles.custom_checkbox}
-                    />
-                  )}
-                  Container {index > 0 && `${index + 1}`}
-                </label>
+                <label>Container {index > 0 && `${index + 1}`}</label>
                 <Input
                   className={styles.input}
                   value={c.number}
                   placeholder="Container №"
-                  disabled={index > 0 ? false : !(c.requiredNumber || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -377,29 +429,11 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
               </div>
 
               <div className={styles.wagon}>
-                <label>
-                  {index === 0 && (
-                    <input
-                      type="checkbox"
-                      checked={c.requiredDropOff || false}
-                      onChange={() =>
-                        handleContainerWagonChange(
-                          "containers",
-                          index,
-                          "requiredDropOff",
-                          !(c.requiredDropOff || false),
-                        )
-                      }
-                      className={styles.custom_checkbox}
-                    />
-                  )}
-                  Drop-off {index > 0 && `${index + 1}`}
-                </label>
+                <label>Drop-off {index > 0 && `${index + 1}`}</label>
                 <Input
                   className={styles.input}
                   value={c.dropOff}
                   placeholder="Drop-off"
-                  disabled={index > 0 ? false : !(c.requiredDropOff || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -428,29 +462,11 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           {form.wagons.map((w, index) => (
             <div key={`wagon-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
-                <label>
-                  {index === 0 && (
-                    <input
-                      type="checkbox"
-                      checked={w.requiredNumber || false}
-                      onChange={() =>
-                        handleContainerWagonChange(
-                          "wagons",
-                          index,
-                          "requiredNumber",
-                          !(w.requiredNumber || false),
-                        )
-                      }
-                      className={styles.custom_checkbox}
-                    />
-                  )}
-                  Wagon {index > 0 && `${index + 1}`}
-                </label>
+                <label>Wagon {index > 0 && `${index + 1}`}</label>
                 <Input
                   className={styles.input}
                   value={w.number}
                   placeholder="Wagon №"
-                  disabled={index > 0 ? false : !(w.requiredNumber || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",
@@ -464,29 +480,11 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
               </div>
 
               <div className={styles.wagon}>
-                <label>
-                  {index === 0 && (
-                    <input
-                      type="checkbox"
-                      checked={w.requiredDropOff || false}
-                      onChange={() =>
-                        handleContainerWagonChange(
-                          "wagons",
-                          index,
-                          "requiredDropOff",
-                          !(w.requiredDropOff || false),
-                        )
-                      }
-                      className={styles.custom_checkbox}
-                    />
-                  )}
-                  Drop-off {index > 0 && `${index + 1}`}
-                </label>
+                <label>Drop-off {index > 0 && `${index + 1}`}</label>
                 <Input
                   className={styles.input}
                   value={w.dropOff}
                   placeholder="Drop-off"
-                  disabled={index > 0 ? false : !(w.requiredDropOff || false)}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",

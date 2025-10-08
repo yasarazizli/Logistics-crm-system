@@ -113,4 +113,12 @@ export const navigation = [
     icon: OrdersIcon,
     roles: ["commercial_specialist"],
   },
+
+  // Buyers Directory
+  {
+    name: "main.title__7",
+    path: "buyers/director/tasks",
+    icon: TasksIcon,
+    roles: ["buyer_directory"],
+  },
 ];

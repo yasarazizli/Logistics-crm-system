@@ -71,6 +71,9 @@ const Login = () => {
         case "commercial_specialist":
           navigate(`/${i18n.language}/commercial/specialist`);
           break;
+        case "buyer_directory":
+          navigate(`/${i18n.language}/buyers/director/tasks`);
+          break;
       }
     } else toast.error(errorMessageHandler(data));
 

@@ -188,6 +188,8 @@ const CustomerInformationEdit = () => {
   const [offers, setOffers] = useState<OfferData[]>([]);
   const [deletedServiceIds, setDeletedServiceIds] = useState<number[]>([]);
 
+  const isRegister = order?.order_type === "RegisterPriceQuotation";
+
   const handleWagonTypeChange = useCallback((type: string) => {
     setWagonType(type);
   }, []);
@@ -864,18 +866,20 @@ const CustomerInformationEdit = () => {
                 ref={(ref: DynamicFormRef | null) =>
                   setDynamicFormRef(index, ref)
                 }
+                isRegister={isRegister}
               />
             </div>
           </div>
         ))}
 
-        <Button
-          viewType="green__light"
-          text="Add Commercial Offer"
-          icon={PlusIcon}
-          onClick={handleAddOffer}
-        />
-
+        {!isRegister && (
+          <Button
+            viewType="green__light"
+            text="Add Commercial Offer"
+            icon={PlusIcon}
+            onClick={handleAddOffer}
+          />
+        )}
         <div className={styles.note}>
           <label className={styles.label}>Note</label>
           <input

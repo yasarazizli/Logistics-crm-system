@@ -4,6 +4,7 @@ import Button from "@/components/Button/Button.tsx";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
+  AgreeIcon,
   FileIcon,
   GreenAddIcon,
   PenIcon,
@@ -161,6 +162,13 @@ const Users = () => {
     });
   };
 
+  const handleEditClick = (orderId: number) => {
+    const selectedOrder = data.find((item) => item.order_id === orderId);
+    navigate(`/${i18n.language}/users/ask/quotation/edit`, {
+      state: { order: selectedOrder },
+    });
+  };
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -235,7 +243,8 @@ const Users = () => {
             { name: "Status" },
             { name: "Invoice document" },
             { name: "Instruction document" },
-            { name: "Istifadəçi təsdiqi" },
+            { name: "User confirmation" },
+            { name: "Edit Quotation" },
           ]}
           filters={
             <>
@@ -249,6 +258,7 @@ const Users = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -297,8 +307,18 @@ const Users = () => {
               <td>
                 <div className={styles.icon}>
                   <div
-                    className={styles.icon__2}
+                    className={styles.icon__3}
                     onClick={() => handleClickEdit(item.order_id)}
+                  >
+                    <AgreeIcon />
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => handleEditClick(item.order_id)}
                   >
                     <PenIcon />
                   </div>

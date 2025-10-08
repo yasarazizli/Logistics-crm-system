@@ -501,13 +501,6 @@ const CustomerInformation = () => {
                     />
                   </div>
                 </div>
-
-                {offerNotes[offer.id] && (
-                  <div className={styles.offerNote}>
-                    <strong>Not:</strong> {offerNotes[offer.id]}
-                  </div>
-                )}
-
                 <Table
                   headers={[
                     { name: "Services" },
@@ -620,7 +613,7 @@ const CustomerInformation = () => {
         </div>
 
         <div className={styles.note}>
-          <label className={styles.label}>Genel Not</label>
+          <label className={styles.label}>Note</label>
           <input
             className={styles.input}
             type="text"
