@@ -54,7 +54,7 @@ const ChooseManager = ({ modalClose, id, onSelect }: SelectManagerProps) => {
   useEffect(() => {
     const fetchEmployees = async () => {
       setLoader(true);
-      const response = await getAllCm("buyer_directory");
+      const response = await getAllCm("buyer_manager");
       if (response?.status === 200) {
         setEmployees(response.data?.employee || []);
         console.log(response?.data?.employee);
@@ -74,7 +74,7 @@ const ChooseManager = ({ modalClose, id, onSelect }: SelectManagerProps) => {
 
     const formData = formCreator([
       { name: "manager_id", data: selectedEmployee },
-      { name: "role", data: "buyer_directory" },
+      { name: "role", data: "buyer_manager" },
     ]);
 
     const { status, data } = await putManager(

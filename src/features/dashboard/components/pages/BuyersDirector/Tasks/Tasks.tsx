@@ -87,7 +87,7 @@ const Tasks = () => {
     setData((prev) =>
       prev.map((user) =>
         user.id === selectedUserId
-          ? { ...user, buyer_directory: employee.full_name }
+          ? { ...user, buyer_manager: employee.full_name }
           : user,
       ),
     );
