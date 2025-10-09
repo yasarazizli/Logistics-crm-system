@@ -12,9 +12,9 @@ import Button from "@/components/Button/Button.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
 
-import Shipper, {
+import GetShipper, {
   DynamicFormRef,
-} from "@/features/dashboard/components/shared/Shipper/Shipper.tsx";
+} from "@/features/dashboard/components/shared/Shipper/GetShipper/GetShipper.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getCookie } from "@/libs/cookie.ts";
 import i18n from "i18next";
@@ -137,7 +137,7 @@ const AskQuotation = () => {
       route_type: ["full", "requested", "container", "wagon"][index] || "full",
     }));
 
-    const order = {
+    const quotation = {
       hs_code_id: selectedCode.value,
       total_weight: parseFloat(totalWeight),
       un_code: unCode,
@@ -153,23 +153,24 @@ const AskQuotation = () => {
       wagon_type: wagonType.toLowerCase(),
       note,
       routes: formattedRoutes,
+      shipment_serializer: transformedShipperData,
     };
 
-    const shipment = transformedShipperData;
-
     const formData = new FormData();
-    formData.append("order", JSON.stringify(order));
-    formData.append("shipment", JSON.stringify(shipment));
+    formData.append("order", JSON.stringify(quotation));
     formData.append("btn_status", status);
 
     if (msDs) formData.append("msds_file", msDs);
-    msDsPictures.forEach((file, index) =>
-      formData.append(`cargo_image_${index}`, file),
-    );
+
+    if (msDsPictures && Array.isArray(msDsPictures)) {
+      msDsPictures.forEach((file, index) => {
+        formData.append(`cargo_image_${index}`, file);
+      });
+    }
 
     try {
-      const response = await axios.post(
-        `${apiUrl}/commercial/send-price-quotation/`,
+      const response = await axios.put(
+        `${apiUrl}/commercial/update-price-quotation/?order_id=${order.order_id}`,
         formData,
         {
           headers: {
@@ -268,7 +269,7 @@ const AskQuotation = () => {
 
         {showShipper && (
           <div style={{ marginBottom: "32px" }}>
-            <Shipper ref={shipperRef} />
+            <GetShipper ref={shipperRef} />
           </div>
         )}
 
