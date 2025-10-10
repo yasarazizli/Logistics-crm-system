@@ -1,0 +1,135 @@
+import { useContext, useEffect, useState } from "react";
+import styles from "@/features/dashboard/components/pages/Controls/HsCode/HsCode.module.scss";
+import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
+import { useDebounce } from "@/hooks/useDebounce";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
+import { GetAllBuyers } from "@/features/dashboard/services/BuyersDirector/buyersdirector.service.ts";
+
+interface Buyers {
+  id: number;
+  service: string;
+  location: string;
+  transport_mode: string;
+  transport_type: boolean;
+  from: number;
+  to: string;
+  buyers: string;
+}
+
+const filterKeys = [
+  "service_name",
+  "location",
+  "transport_mode",
+  "transport_type",
+  "from_name",
+  "to_name",
+] as const;
+
+const Tasks = () => {
+  const { setLoader } = useContext(LoaderContext);
+  const [filters, setFilters] = useState({
+    service_name: "",
+    location: "",
+    transport_mode: "",
+    transport_type: "",
+    from_name: "",
+    to_name: "",
+  });
+
+  const debouncedFilters = {
+    service_name: useDebounce(filters.service_name, 700),
+    location: useDebounce(filters.location, 700),
+    transport_mode: useDebounce(filters.transport_mode, 700),
+    transport_type: useDebounce(filters.transport_type, 700),
+    from_name: useDebounce(filters.from_name, 700),
+    to_name: useDebounce(filters.to_name, 700),
+  };
+
+  const [data, setData] = useState<Buyers[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  useEffect(() => {
+    setLoader(true);
+    const fetchData = async () => {
+      const response = await GetAllBuyers({
+        ...debouncedFilters,
+        page,
+        pageSize,
+      });
+      if (response?.status === 200) {
+        setData(response.data?.data || []);
+        setTotal(response.data?.count || 0);
+      }
+      setLoader(false);
+    };
+    fetchData();
+    setLoader(false);
+  }, [page, ...Object.values(debouncedFilters)]);
+
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    key: string,
+  ) => {
+    setFilters((prev) => ({ ...prev, [key]: e.target.value }));
+    setPage(1);
+  };
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  return (
+    <div className={styles.hscode}>
+      <div className={styles.title__btn}>
+        <h1>Tasks</h1>
+      </div>
+
+      <div className={styles.table}>
+        <Table
+          headers={[
+            { name: "Service name" },
+            { name: "Location" },
+            { name: "Transport Mode" },
+            { name: "Transport Type" },
+            { name: "From" },
+            { name: "To" },
+          ]}
+          filters={
+            <>
+              {filterKeys.map((key) => (
+                <td key={key}>
+                  <input
+                    type={key.includes("date") ? "date" : "text"}
+                    placeholder={`Filter by ${key.replace("_", " ")}`}
+                    value={filters[key]}
+                    onChange={(e) => handleFilterChange(e, key)}
+                  />
+                </td>
+              ))}
+            </>
+          }
+        >
+          {data.map((item) => (
+            <tr key={item.id}>
+              <td>{item.service}</td>
+              <td>{item.location}</td>
+              <td>{item.transport_mode}</td>
+              <td>{item.transport_type}</td>
+              <td>{item.from}</td>
+              <td>{item.to}</td>
+            </tr>
+          ))}
+        </Table>
+
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(pg) => setPage(pg)}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Tasks;

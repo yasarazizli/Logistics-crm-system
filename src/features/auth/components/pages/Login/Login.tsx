@@ -60,7 +60,7 @@ const Login = () => {
           navigate(`/${i18n.language}/accountant/users`);
           break;
         case "buyer_manager":
-          navigate(`/${i18n.language}/services`);
+          navigate(`/${i18n.language}/vendors`);
           break;
         case "commercial_directory":
           navigate(`/${i18n.language}/commercial/directory/users`);

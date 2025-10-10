@@ -15,7 +15,7 @@ export const navigation = [
     name: "main.title",
     path: "users",
     icon: HomeIcon,
-    roles: ["admin", "directory", "buyer_manager"],
+    roles: ["admin", "directory"],
   },
   {
     name: "main.title__2",
@@ -27,7 +27,7 @@ export const navigation = [
     name: "main.title__3",
     path: "employees",
     icon: VendorIcon,
-    roles: ["admin", "directory", "buyer_manager"],
+    roles: ["admin", "directory"],
   },
   {
     name: "main.title__4",
@@ -39,25 +39,25 @@ export const navigation = [
     name: "main.title__5",
     path: "orders",
     icon: OrdersIcon,
-    roles: ["admin", "directory", "buyer_manager"],
+    roles: ["admin", "directory"],
   },
   {
     name: "main.title__6",
     path: "balance",
     icon: BalanceActivitiesIcon,
-    roles: ["admin", "directory", "buyer_manager"],
+    roles: ["admin", "directory"],
   },
   {
     name: "main.title__7",
     path: "tasks",
     icon: TasksIcon,
-    roles: ["admin", "directory", "buyer_manager"],
+    roles: ["admin", "directory"],
   },
   {
     name: "main.title__8",
     path: "controls",
     icon: ControlsIcon,
-    roles: ["admin", "directory", "buyer_manager"],
+    roles: ["admin", "directory"],
   },
 
   // lawyer
@@ -120,5 +120,13 @@ export const navigation = [
     path: "buyers/director/tasks",
     icon: TasksIcon,
     roles: ["buyer_directory"],
+  },
+
+  // Buyers Manager
+  {
+    name: "main.title__7",
+    path: "buyers/manager/tasks",
+    icon: TasksIcon,
+    roles: ["buyer_manager"],
   },
 ];

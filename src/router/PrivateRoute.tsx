@@ -48,9 +48,9 @@ export default function PrivateRoute() {
 
   // Buyer Manager
   if (auth.role === Roles.buyer_manager) {
-    const accessiblePages = ["/services", "/vendors"];
+    const accessiblePages = ["/services", "/vendors", "/buyers/manager/tasks"];
     if (!accessiblePages.includes(normalizedPath)) {
-      return <Navigate to={`/${i18n.language}/services`} />;
+      return <Navigate to={`/${i18n.language}/vendors`} />;
     }
   }
 
