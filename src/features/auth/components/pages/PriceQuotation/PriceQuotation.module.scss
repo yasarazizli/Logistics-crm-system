@@ -185,5 +185,8 @@
     gap: 16px;
     justify-content: flex-end;
   }
+}
 
+.readOnly {
+  pointer-events: none;
 }

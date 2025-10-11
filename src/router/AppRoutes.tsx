@@ -46,6 +46,7 @@ import CommercialSpecialistPage from "@/features/dashboard/pages/CommercialSpeci
 import TasksPage from "@/features/dashboard/pages/BuyersDirector/Tasks/TasksPage.tsx";
 import AskQuotationEditPage from "@/features/dashboard/pages/Others/AskQuotationEditPage.tsx";
 import ManagerTasksPage from "@/features/dashboard/pages/BuyersManager/Tasks/ManagerTasksPage.tsx";
+import DetailsPage from "@/features/dashboard/pages/BuyersManager/Details/DetailsPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -132,6 +133,7 @@ const AppRoutes = () => {
         />
         <Route path="buyers/director/tasks" element={<TasksPage />} />
         <Route path="buyers/manager/tasks" element={<ManagerTasksPage />} />
+        <Route path="buyers/details" element={<DetailsPage />} />
         <Route path="user/offer/confirmation" element={<OfferPage />} />
         <Route
           path="commercial/directory/services"

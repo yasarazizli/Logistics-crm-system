@@ -4,6 +4,8 @@ import Select, { StylesConfig } from "react-select";
 import { DeleteIcon, SharedIcon } from "@/assets/icons/shared.vectors.tsx";
 import CreateServicesTable from "@/features/dashboard/components/shared/Modals/ServicesTable/CreateServicesTable.tsx";
 import PriceTable from "@/features/dashboard/components/shared/Modals/PriceTable/PriceTable.tsx";
+import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import { useLocation } from "react-router-dom";
 
 interface OptionType {
   value: string;
@@ -196,6 +198,8 @@ export default function Table({
   onDeleteService,
   onServiceSelect,
 }: TableProps) {
+  const location = useLocation();
+  const order = location.state?.order;
   const [columns, setColumns] = useState<number[]>([]);
   const [selectedTransportType, setSelectedTransportType] = useState<
     (OptionType | null)[]
@@ -921,6 +925,24 @@ export default function Table({
     [summaryData],
   );
 
+  const [orderId, setOrderId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const response = await QuotationData(order.order_id);
+        if (response?.status === 200) {
+          const apiData = response?.data;
+          setOrderId(apiData.order_id);
+        }
+      } catch (error) {
+        console.error("Error fetching quotation:", error);
+      }
+    };
+
+    fetchRequest();
+  }, [order]);
+
   return (
     <div className={styles.table_container}>
       <div className={styles.vat}>
@@ -1278,7 +1300,7 @@ export default function Table({
           modalClose={() => {
             setModal(null);
           }}
-          order_id={modal.id}
+          order_id={orderId}
         />
       )}
     </div>

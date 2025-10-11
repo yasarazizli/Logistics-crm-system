@@ -81,7 +81,7 @@ const PriceTable = ({
   order_id,
 }: {
   modalClose: (isRender: boolean) => void;
-  order_id: number;
+  order_id: number | null;
 }) => {
   const [service, setService] = useState<Service>({
     id: Date.now(),
@@ -154,6 +154,11 @@ const PriceTable = ({
   );
 
   const handleSend = async () => {
+    if (!order_id) {
+      toast.error("Order ID is required");
+      return;
+    }
+
     const formData = new FormData();
 
     formData.append("order_id", order_id.toString());
