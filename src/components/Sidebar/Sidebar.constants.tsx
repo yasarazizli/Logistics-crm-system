@@ -21,7 +21,13 @@ export const navigation = [
     name: "main.title__2",
     path: "vendors",
     icon: HumansIcon,
-    roles: ["admin", "buyer_manager"],
+    roles: ["admin"],
+  },
+  {
+    name: "main.title__2",
+    path: "vendors",
+    icon: HomeIcon,
+    roles: ["buyer_manager"],
   },
   {
     name: "main.title__3",

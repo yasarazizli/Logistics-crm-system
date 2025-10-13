@@ -23,6 +23,7 @@ interface OfferData {
   tableData: TableRowData[];
   summary: TableSummaryData;
   note: string;
+  shipmentData?: any;
 }
 
 interface ApiOfferData {
@@ -70,9 +71,32 @@ interface ApiOfferData {
       length: number;
     };
   }>;
+  shipment: {
+    id: number;
+    shipper: string;
+    shipper_required: boolean;
+    consignee: string;
+    consignee_required: boolean;
+    notify_party: number;
+    notify_party_required: boolean;
+    terminal: string;
+    terminal_required: boolean;
+    container_owner: string;
+    container_owner_required: boolean;
+    wagon_owner: string;
+    wagon_owner_required: boolean;
+    container_no: string;
+    container_no_required: boolean;
+    container_drop_off: string;
+    container_drop_off_required: boolean;
+    wagon_no: string;
+    wagon_no_required: boolean;
+    wagon_drop_off: string;
+    wagon_drop_off_required: boolean;
+  };
 }
 
-const AskQuotation = () => {
+const Details = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const order = location.state?.order;
@@ -102,12 +126,37 @@ const AskQuotation = () => {
     (index: number, ref: DynamicFormRef | null) => {
       if (ref) {
         dynamicFormRefs.current.set(index, ref);
+
+        const offer = offers[index];
+        if (offer?.shipmentData) {
+          setTimeout(() => {
+            ref.setFormData(offer.shipmentData);
+          }, 100);
+        }
       } else {
         dynamicFormRefs.current.delete(index);
       }
     },
-    [],
+    [offers],
   );
+
+  const convertToISO = useCallback((dateStr?: string) => {
+    if (!dateStr) return "";
+
+    if (dateStr.includes("-")) {
+      return dateStr;
+    }
+
+    const parts = dateStr.split(".");
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      const formattedMonth = month.padStart(2, "0");
+      const formattedDay = day.padStart(2, "0");
+      return `${year}-${formattedMonth}-${formattedDay}`;
+    }
+
+    return "";
+  }, []);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -118,14 +167,18 @@ const AskQuotation = () => {
 
           if (apiData) {
             setTotalWeight(apiData.total_weight?.toString() || "");
-            const convertToISO = (dateStr?: string) => {
-              if (!dateStr) return "";
-              const [day, month, year] = dateStr.split(".");
-              return `${year}-${month}-${day}`;
-            };
-            setStartDate(convertToISO(apiData.start_date));
-            setEndDate(convertToISO(apiData.end_date));
-            setNote(apiData.not);
+
+            const formattedStartDate = convertToISO(apiData.start_date);
+            const formattedEndDate = convertToISO(apiData.end_date);
+
+            console.log("Original start_date:", apiData.start_date);
+            console.log("Formatted start_date:", formattedStartDate);
+            console.log("Original end_date:", apiData.end_date);
+            console.log("Formatted end_date:", formattedEndDate);
+
+            setStartDate(formattedStartDate);
+            setEndDate(formattedEndDate);
+            setNote(apiData.not || "");
           }
         }
       } catch (error) {
@@ -133,8 +186,10 @@ const AskQuotation = () => {
       }
     };
 
-    fetchRequest();
-  }, [order]);
+    if (order?.order_id) {
+      fetchRequest();
+    }
+  }, [order, convertToISO]);
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -144,6 +199,8 @@ const AskQuotation = () => {
           const apiData = response.data;
 
           if (apiData && Array.isArray(apiData)) {
+            console.log("API Data:", apiData);
+
             const formattedOffers = apiData.map((offer: ApiOfferData) => {
               const tableData: TableRowData[] =
                 offer.service?.map((service) => ({
@@ -191,10 +248,44 @@ const AskQuotation = () => {
                   offer.transportation_time?.toString() || "0",
               };
 
+              const shipmentData = offer.shipment
+                ? {
+                    shipper: offer.shipment.shipper || "",
+                    consignee: offer.shipment.consignee || "",
+                    notify_party: offer.shipment.notify_party,
+                    terminal: offer.shipment.terminal || "",
+                    container_owner: offer.shipment.container_owner || "",
+                    wagon_owner: offer.shipment.wagon_owner || "",
+                    notify_party_required:
+                      offer.shipment.notify_party_required || false,
+                    terminal_required:
+                      offer.shipment.terminal_required || false,
+                    container_owner_required:
+                      offer.shipment.container_owner_required || false,
+                    wagon_owner_required:
+                      offer.shipment.wagon_owner_required || false,
+                    container_no: offer.shipment.container_no || "",
+                    container_drop_off: offer.shipment.container_drop_off || "",
+                    wagon_no: offer.shipment.wagon_no || "",
+                    wagon_drop_off: offer.shipment.wagon_drop_off || "",
+                    container_no_required:
+                      offer.shipment.container_no_required || false,
+                    container_drop_off_required:
+                      offer.shipment.container_drop_off_required || false,
+                    wagon_no_required:
+                      offer.shipment.wagon_no_required || false,
+                    wagon_drop_off_required:
+                      offer.shipment.wagon_drop_off_required || false,
+                  }
+                : null;
+
+              console.log(`Shipment data for offer ${offer.id}:`, shipmentData);
+
               return {
                 tableData,
                 summary,
                 note: offer.note || "",
+                shipmentData: shipmentData,
               };
             });
 
@@ -210,6 +301,23 @@ const AskQuotation = () => {
       fetchOffers();
     }
   }, [order]);
+
+  useEffect(() => {
+    if (offers.length > 0) {
+      offers.forEach((offer, index) => {
+        const ref = dynamicFormRefs.current.get(index);
+        if (ref && offer.shipmentData) {
+          console.log(
+            `Updating form data for index ${index}`,
+            offer.shipmentData,
+          );
+          setTimeout(() => {
+            ref.setFormData(offer.shipmentData);
+          }, 200);
+        }
+      });
+    }
+  }, [offers]);
 
   return (
     <div className={`${styles.price__quotation} ${styles.readOnly}`}>
@@ -274,12 +382,6 @@ const AskQuotation = () => {
                 onDeleteService={() => {}}
                 onServiceSelect={() => {}}
               />
-              <div className={styles.noteDisplay}>
-                <label className={styles.label}>Customer note</label>
-                <div className={styles.noteText}>
-                  {offer.note || "No note provided"}
-                </div>
-              </div>
             </div>
 
             <div style={{ marginBottom: "32px" }}>
@@ -327,4 +429,4 @@ const AskQuotation = () => {
   );
 };
 
-export default AskQuotation;
+export default Details;
