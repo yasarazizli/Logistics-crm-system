@@ -189,4 +189,10 @@
 
 .readOnly {
   pointer-events: none;
+  .button {
+    pointer-events: auto;
+  }
+  .modal {
+    pointer-events: auto;
+  }
 }

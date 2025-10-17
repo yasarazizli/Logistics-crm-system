@@ -40,7 +40,7 @@ export default function PrivateRoute() {
 
   // Accountant
   if (auth.role === Roles.accountant) {
-    const accessiblePages = ["/accountant/users"];
+    const accessiblePages = ["/accountant/users", "/accountant/balance"];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/accountant/users`} />;
     }
@@ -53,6 +53,8 @@ export default function PrivateRoute() {
       "/vendors",
       "/buyers/manager/tasks",
       "/buyers/details",
+      "/buyers/manager/order",
+      "/buyers/manager/order/subcode",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/vendors`} />;
@@ -99,6 +101,14 @@ export default function PrivateRoute() {
     const accessiblePages = ["/buyers/director/tasks"];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/buyers/director/tasks`} />;
+    }
+  }
+
+  // Monitoring
+  if (auth.role === Roles.monitoring) {
+    const accessiblePages = ["/monitoring", "/monitoring/order"];
+    if (!accessiblePages.includes(normalizedPath)) {
+      return <Navigate to={`/${i18n.language}/monitoring`} />;
     }
   }
 

@@ -8,6 +8,7 @@ import { GetAllBuyers } from "@/features/dashboard/services/BuyersDirector/buyer
 import { AgreeIcon, EyesIcon } from "@/assets/icons/shared.vectors.tsx";
 import i18n from "@/locales/i18n.ts";
 import { useNavigate } from "react-router-dom";
+import Complated from "@/features/dashboard/components/shared/Modals/Complated/Complated.tsx";
 
 interface Buyers {
   order_id: number;
@@ -42,6 +43,10 @@ const Tasks = () => {
     to_name: "",
   });
 
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [pageHelper, setPageHelper] = useState({ render: false });
+  const [modal, setModal] = useState<null | { type: "completed" }>(null);
+
   const debouncedFilters = {
     service_name: useDebounce(filters.service_name, 700),
     location: useDebounce(filters.location, 700),
@@ -72,7 +77,7 @@ const Tasks = () => {
     };
     fetchData();
     setLoader(false);
-  }, [page, ...Object.values(debouncedFilters)]);
+  }, [page, pageHelper, ...Object.values(debouncedFilters)]);
 
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -136,7 +141,13 @@ const Tasks = () => {
               <td>{item.to}</td>
               <td>
                 <div className={styles.icon}>
-                  <div className={styles.icon__3}>
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => {
+                      setSelectedId(item.id);
+                      setModal({ type: "completed" });
+                    }}
+                  >
                     <AgreeIcon />
                   </div>
                 </div>
@@ -160,6 +171,16 @@ const Tasks = () => {
           totalPages={totalPages}
           onPageChange={(pg) => setPage(pg)}
         />
+
+        {modal?.type === "completed" && (
+          <Complated
+            modalClose={() => {
+              setModal(null);
+              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+            }}
+            selectedId={selectedId}
+          />
+        )}
       </div>
     </div>
   );

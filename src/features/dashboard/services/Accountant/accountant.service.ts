@@ -36,3 +36,36 @@ export const addBalanceAccountant = async (formData: FormData, id: number) => {
       return err.response;
     });
 };
+
+export const getAllInvoices = async (params: {
+  page: number;
+  pageSize: number;
+  invoice_status: string;
+  user: string;
+  date?: string;
+  amount: string;
+  not: string;
+}) => {
+  return await axios
+    .get(`${apiUrl}/invoice/get-all-invoice/`, {
+      params,
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const EditBalance = async (formData: FormData, id: number) => {
+  return await axios
+    .put(`${apiUrl}/invoice/approve-invoice/?id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

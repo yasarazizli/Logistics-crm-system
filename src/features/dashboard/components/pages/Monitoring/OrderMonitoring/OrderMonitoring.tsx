@@ -1,10 +1,9 @@
 import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.module.scss";
 import Header from "@/components/Header/Header.tsx";
-import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useContext } from "react";
 import GetPackagingForm from "@/features/dashboard/components/shared/GetPackagingForm/GetPackagingForm.tsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import GetExpandableSection from "@/features/dashboard/components/shared/GetExpandableSection/GetExpandableSection.tsx";
 import GetSelectList from "@/features/dashboard/components/shared/GetSelectList/GetSelectList.tsx";
 import {
@@ -18,6 +17,14 @@ import Table, {
 import GetDynamicForm, {
   DynamicFormRef,
 } from "@/features/dashboard/components/shared/GetDynamicForm/GetDynamicForm.tsx";
+import Button from "@/components/Button/Button.tsx";
+import axios from "axios";
+import { getCookie } from "@/libs/cookie.ts";
+import { toast } from "react-toastify";
+import { errorMessageHandler } from "@/libs/error.ts";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import i18n from "@/locales/i18n.ts";
+import RejectNote from "@/features/dashboard/components/shared/Modals/RejectNote/RejectNote.tsx";
 
 interface OfferData {
   tableData: TableRowData[];
@@ -96,8 +103,11 @@ interface ApiOfferData {
   };
 }
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const Details = () => {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { setLoader } = useContext(LoaderContext);
   const location = useLocation();
   const order = location.state?.order;
 
@@ -121,6 +131,9 @@ const Details = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [note, setNote] = useState("");
+
+  const [modal, setModal] = useState<null | { type: "note" }>(null);
+  const [, setRejectNote] = useState<string>("");
 
   const setDynamicFormRef = useCallback(
     (index: number, ref: DynamicFormRef | null) => {
@@ -170,11 +183,6 @@ const Details = () => {
 
             const formattedStartDate = convertToISO(apiData.start_date);
             const formattedEndDate = convertToISO(apiData.end_date);
-
-            console.log("Original start_date:", apiData.start_date);
-            console.log("Formatted start_date:", formattedStartDate);
-            console.log("Original end_date:", apiData.end_date);
-            console.log("Formatted end_date:", formattedEndDate);
 
             setStartDate(formattedStartDate);
             setEndDate(formattedEndDate);
@@ -319,12 +327,62 @@ const Details = () => {
     }
   }, [offers]);
 
+  const handleSubmit = async (status: "reject" | "send", noteText?: string) => {
+    if (!selectedCode || !totalWeight) {
+      alert("Lütfen tüm gerekli alanları doldurun");
+      return;
+    }
+
+    setLoader(true);
+
+    const formData = new FormData();
+    formData.append("btn_status", status);
+
+    if (status === "reject" && noteText) {
+      formData.append("note", noteText);
+    }
+
+    try {
+      const response = await axios.put(
+        `${apiUrl}/commercial/approve-monitoring/?order_id=${order.order_id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
+          },
+        },
+      );
+
+      if (response?.status === 200) {
+        toast.success(errorMessageHandler(response.data));
+        navigate(`/${i18n.language}/monitoring`);
+      } else {
+        toast.error(errorMessageHandler(response.data));
+      }
+    } catch (error) {
+      console.error("Error submitting offer:", error);
+      toast.error("An error occurred while submitting the offer");
+    }
+    setLoader(false);
+  };
+
+  const handleRejectClick = () => {
+    setModal({ type: "note" });
+  };
+
+  const handleNoteSave = (noteText: string) => {
+    setRejectNote(noteText);
+    handleSubmit("reject", noteText);
+    setModal(null);
+  };
+
   return (
     <div className={`${styles.price__quotation} ${styles.readOnly}`}>
       <Header />
       <div className={styles.price}>
         <div className={styles.input__name}>
-          <h1 className={styles.title}>{t("price.title")}</h1>
+          <h1 className={styles.title}>Monitoring</h1>
           <div className={styles.input__list}>
             <GetSelectList
               selectedCargo={selectedCargo}
@@ -424,6 +482,26 @@ const Details = () => {
             onChange={(e) => setNote(e.target.value)}
           />
         </div>
+        <div className={styles.button}>
+          <Button onClick={handleRejectClick} text="Reject" viewType="red" />
+          <Button
+            onClick={() => handleSubmit("send")}
+            text="Send"
+            viewType="dark-green"
+          />
+        </div>
+      </div>
+      <div className={styles.modal}>
+        {modal?.type === "note" && (
+          <RejectNote
+            modalClose={(noteText) => {
+              setModal(null);
+              if (noteText) {
+                handleNoteSave(noteText);
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );

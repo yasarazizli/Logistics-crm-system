@@ -1,10 +1,9 @@
 import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.module.scss";
 import Header from "@/components/Header/Header.tsx";
-import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useContext } from "react";
 import GetPackagingForm from "@/features/dashboard/components/shared/GetPackagingForm/GetPackagingForm.tsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import GetExpandableSection from "@/features/dashboard/components/shared/GetExpandableSection/GetExpandableSection.tsx";
 import GetSelectList from "@/features/dashboard/components/shared/GetSelectList/GetSelectList.tsx";
 import {
@@ -14,16 +13,43 @@ import {
 import Table, {
   TableRowData,
   TableSummaryData,
+  CompleteTableData,
 } from "@/features/dashboard/components/shared/GetRowTable/DetailsTable/DetailsTable.tsx";
 import GetDynamicForm, {
   DynamicFormRef,
 } from "@/features/dashboard/components/shared/GetDynamicForm/GetDynamicForm.tsx";
+import Button from "@/components/Button/Button.tsx";
+import axios from "axios";
+import { getCookie } from "@/libs/cookie.ts";
+import { toast } from "react-toastify";
+import { errorMessageHandler } from "@/libs/error.ts";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import i18n from "@/locales/i18n.ts";
 
 interface OfferData {
   tableData: TableRowData[];
   summary: TableSummaryData;
   note: string;
-  shipmentData?: any;
+  shipmentData?: {
+    shipper: string;
+    consignee: string;
+    notify_party: number;
+    terminal: string;
+    container_owner: string;
+    wagon_owner: string;
+    notify_party_required: boolean;
+    terminal_required: boolean;
+    container_owner_required: boolean;
+    wagon_owner_required: boolean;
+    container_no: string;
+    container_drop_off: string;
+    wagon_no: string;
+    wagon_drop_off: string;
+    container_no_required: boolean;
+    container_drop_off_required: boolean;
+    wagon_no_required: boolean;
+    wagon_drop_off_required: boolean;
+  } | null;
 }
 
 interface ApiOfferData {
@@ -36,7 +62,7 @@ interface ApiOfferData {
   per_ton_price: number;
   transportation_time: number;
   service: Array<{
-    id: number;
+    id: number; // Bu API-dan gələn id
     service_id: number;
     name_of_service: string;
     location: string;
@@ -96,13 +122,26 @@ interface ApiOfferData {
   };
 }
 
-const Details = () => {
-  const { t } = useTranslation();
+interface OrderServiceData {
+  service_id: number;
+  sub_code: string;
+}
+
+interface OrderOfferData {
+  order_service_serializer: OrderServiceData[];
+}
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
+const SubCode = () => {
+  const navigate = useNavigate();
+  const { setLoader } = useContext(LoaderContext);
   const location = useLocation();
   const order = location.state?.order;
 
   const dynamicFormRefs = useRef<Map<number, DynamicFormRef>>(new Map());
   const [offers, setOffers] = useState<OfferData[]>([]);
+  const [textValues, setTextValues] = useState<{ [key: string]: string }>({});
 
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
@@ -171,11 +210,6 @@ const Details = () => {
             const formattedStartDate = convertToISO(apiData.start_date);
             const formattedEndDate = convertToISO(apiData.end_date);
 
-            console.log("Original start_date:", apiData.start_date);
-            console.log("Formatted start_date:", formattedStartDate);
-            console.log("Original end_date:", apiData.end_date);
-            console.log("Formatted end_date:", formattedEndDate);
-
             setStartDate(formattedStartDate);
             setEndDate(formattedEndDate);
             setNote(apiData.not || "");
@@ -204,7 +238,7 @@ const Details = () => {
             const formattedOffers = apiData.map((offer: ApiOfferData) => {
               const tableData: TableRowData[] =
                 offer.service?.map((service) => ({
-                  id: service.id,
+                  id: service.id, // API-dan gələn id burada saxlanılır
                   serviceName: service.name_of_service?.toString() || "",
                   location: service.location || "",
                   transportMode: service.transport_mode || "",
@@ -319,12 +353,118 @@ const Details = () => {
     }
   }, [offers]);
 
+  const handleTableDataChange = useCallback(
+    (index: number, data: CompleteTableData) => {
+      setOffers((prevOffers) => {
+        const newOffers = [...prevOffers];
+        if (!newOffers[index]) {
+          newOffers[index] = {
+            tableData: [],
+            summary: {
+              amount: "0",
+              vat: "0",
+              totalAmount: "0",
+              perTonPrice: "0",
+              transportationTime: "0",
+            },
+            note: "",
+            shipmentData: null,
+          };
+        }
+
+        newOffers[index] = {
+          ...newOffers[index],
+          tableData: data.rows,
+          summary: data.summary,
+        };
+
+        return newOffers;
+      });
+
+      setTextValues((prev) => {
+        const newValues = { ...prev };
+
+        data.rows.forEach((row: TableRowData, colIndex: number) => {
+          if (row.subCode) {
+            newValues[`Sub Code-${colIndex}-${index}`] = row.subCode.toString();
+          }
+        });
+
+        return newValues;
+      });
+    },
+    [],
+  );
+
+  const handleSubmit = async (status: "send") => {
+    if (!selectedCode || !totalWeight) {
+      alert("Lütfen tüm gerekli alanları doldurun");
+      return;
+    }
+
+    setLoader(true);
+
+    const order_offers: OrderOfferData[] = offers.map((offer, offerIndex) => {
+      const orderServiceData: OrderServiceData[] = offer.tableData.map(
+        (row, rowIndex) => {
+          const subCodeKey = `Sub Code-${rowIndex}-${offerIndex}`;
+          const subCodeValue = textValues[subCodeKey] || "";
+
+          const serviceId = row.id || 0;
+
+          console.log(
+            `Row ${rowIndex}: id=${serviceId}, subCode=${subCodeValue}`,
+          );
+
+          return {
+            service_id: serviceId,
+            sub_code: subCodeValue,
+          };
+        },
+      );
+
+      return {
+        order_service_serializer: orderServiceData,
+      };
+    });
+
+    console.log("Sending data:", order_offers);
+
+    const formData = new FormData();
+    formData.append("offers", JSON.stringify(order_offers));
+    formData.append("btn_status", status);
+
+    try {
+      const response = await axios.put(
+        `${apiUrl}/commercial/add-subcode/?order_id=${order.order_id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
+          },
+        },
+      );
+
+      if (response?.status === 200) {
+        toast.success(errorMessageHandler(response.data));
+        navigate(`/${i18n.language}/buyers/manager/order`);
+      } else {
+        toast.error(errorMessageHandler(response.data));
+      }
+    } catch (error) {
+      console.error("Error submitting offer:", error);
+      toast.error("An error occurred while submitting the offer");
+    }
+    setLoader(false);
+  };
+
   return (
-    <div className={`${styles.price__quotation} ${styles.readOnly}`}>
+    <div className={styles.price__quotation}>
       <Header />
       <div className={styles.price}>
         <div className={styles.input__name}>
-          <h1 className={styles.title}>{t("price.title")}</h1>
+          <h1 className={styles.title}>Add SubCode</h1>
           <div className={styles.input__list}>
             <GetSelectList
               selectedCargo={selectedCargo}
@@ -378,9 +518,10 @@ const Details = () => {
                 index={index}
                 rows={offer.tableData}
                 summary={offer.summary}
-                onTableDataChange={() => {}}
+                onTableDataChange={handleTableDataChange}
                 onDeleteService={() => {}}
                 onServiceSelect={() => {}}
+                subcode={true}
               />
             </div>
 
@@ -424,9 +565,16 @@ const Details = () => {
             onChange={(e) => setNote(e.target.value)}
           />
         </div>
+        <div className={styles.button}>
+          <Button
+            onClick={() => handleSubmit("send")}
+            text="Send"
+            viewType="dark-green"
+          />
+        </div>
       </div>
     </div>
   );
 };
 
-export default Details;
+export default SubCode;

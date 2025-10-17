@@ -17,17 +17,18 @@ export const navigation = [
     icon: HomeIcon,
     roles: ["admin", "directory"],
   },
+
   {
-    name: "main.title__2",
-    path: "vendors",
-    icon: HumansIcon,
-    roles: ["admin"],
+    name: "main.title__5",
+    path: "buyers/manager/order",
+    icon: HomeIcon,
+    roles: ["buyer_manager"],
   },
   {
     name: "main.title__2",
     path: "vendors",
-    icon: HomeIcon,
-    roles: ["buyer_manager"],
+    icon: HumansIcon,
+    roles: ["admin", "buyer_manager"],
   },
   {
     name: "main.title__3",
@@ -89,6 +90,12 @@ export const navigation = [
     icon: LawyerIcon,
     roles: ["accountant"],
   },
+  {
+    name: "main.title__6",
+    path: "accountant/balance",
+    icon: BalanceActivitiesIcon,
+    roles: ["accountant"],
+  },
 
   // Commercial Directory
   {
@@ -129,10 +136,19 @@ export const navigation = [
   },
 
   // Buyers Manager
+
   {
     name: "main.title__7",
     path: "buyers/manager/tasks",
     icon: TasksIcon,
     roles: ["buyer_manager"],
+  },
+
+  // Monitoring
+  {
+    name: "main.title__5",
+    path: "monitoring",
+    icon: OrdersIcon,
+    roles: ["monitoring"],
   },
 ];

@@ -7,7 +7,7 @@ import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { logoutRequest } from "@/features/auth/services/auth.service.ts";
 import { SiteDarkLogo } from "@/assets/icons/logo.vectors.tsx";
-import { LogoutIcon, SettingIcon } from "@/assets/icons/sidebar.vectors.tsx";
+import { LogoutIcon } from "@/assets/icons/sidebar.vectors.tsx";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -61,12 +61,6 @@ const Sidebar = () => {
         </div>
 
         <div className={`${styles.navigation__list} ${styles.second}`}>
-          <Link to={`/en/profile`}>
-            <div className={`${styles.icon}`}>
-              <SettingIcon />
-              <p>{t("main.setting")}</p>
-            </div>
-          </Link>
           <button className={`${styles.icon}`} onClick={logOut}>
             <LogoutIcon />
             <p>{t("main.log__out")}</p>

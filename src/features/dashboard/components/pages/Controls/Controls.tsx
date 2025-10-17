@@ -5,7 +5,6 @@ import {
   CountryIcon,
   HsIcon,
   PortIcon,
-  ServiceIcon,
   StationIcon,
 } from "@/assets/icons/shared.vectors.tsx";
 import { useNavigate } from "react-router-dom";
@@ -31,12 +30,6 @@ const Controls = () => {
       title: "Station",
       icon: <StationIcon />,
       path: "station",
-    },
-    {
-      id: 4,
-      title: "Service",
-      icon: <ServiceIcon />,
-      path: "service",
     },
     {
       id: 5,

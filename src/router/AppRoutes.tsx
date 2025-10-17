@@ -47,6 +47,11 @@ import TasksPage from "@/features/dashboard/pages/BuyersDirector/Tasks/TasksPage
 import AskQuotationEditPage from "@/features/dashboard/pages/Others/AskQuotationEditPage.tsx";
 import ManagerTasksPage from "@/features/dashboard/pages/BuyersManager/Tasks/ManagerTasksPage.tsx";
 import DetailsPage from "@/features/dashboard/pages/BuyersManager/Details/DetailsPage.tsx";
+import MonitoringPage from "@/features/dashboard/pages/Monitoring/MonitoringPage.tsx";
+import OrderMonitoringPage from "@/features/dashboard/pages/Monitoring/OrderMonitoring/OrderMonitoringPage.tsx";
+import OrderPage from "@/features/dashboard/pages/BuyersManager/Order/OrderPage.tsx";
+import SubCodePage from "@/features/dashboard/pages/BuyersManager/Order/SubCode/SubCodePage.tsx";
+import BalancePage from "@/features/dashboard/pages/Accountant/Balance/BalancePage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -106,6 +111,7 @@ const AppRoutes = () => {
         <Route path="users" element={<UsersPage />} />
         <Route path="lawyer/users" element={<LawyerPage />} />
         <Route path="accountant/users" element={<AccountantUserPage />} />
+        <Route path="accountant/balance" element={<BalancePage />} />
         <Route
           path="commercial/directory/users"
           element={<CommercialDirectoryUserPage />}
@@ -133,8 +139,12 @@ const AppRoutes = () => {
         />
         <Route path="buyers/director/tasks" element={<TasksPage />} />
         <Route path="buyers/manager/tasks" element={<ManagerTasksPage />} />
+        <Route path="buyers/manager/order" element={<OrderPage />} />
+        <Route path="buyers/manager/order/subcode" element={<SubCodePage />} />
         <Route path="buyers/details" element={<DetailsPage />} />
         <Route path="user/offer/confirmation" element={<OfferPage />} />
+        <Route path="monitoring" element={<MonitoringPage />} />
+        <Route path="monitoring/order" element={<OrderMonitoringPage />} />
         <Route
           path="commercial/directory/services"
           element={<CommercialDirectoryServicesPage />}

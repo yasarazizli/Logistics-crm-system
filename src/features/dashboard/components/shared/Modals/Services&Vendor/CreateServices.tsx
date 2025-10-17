@@ -2,7 +2,7 @@
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import Select, { SingleValue } from "react-select";
+import Select, { StylesConfig } from "react-select";
 
 import styles from "@/components/Modal/Modal.module.scss";
 import Input from "@/components/Input/Input.tsx";
@@ -25,6 +25,68 @@ interface OptionType {
   label: string;
 }
 
+const customStyles: StylesConfig<OptionType, false> = {
+  control: (provided) => ({
+    ...provided,
+    borderRadius: 6,
+    border: "1px solid #E7E7E7",
+    backgroundColor: "#F5F5F5",
+    height: "53px",
+    fontFamily: "Manrope",
+    fontSize: "14px",
+    fontWeight: 500,
+    boxShadow: "none",
+    color: "#7b7979",
+    "&:hover": {
+      border: "1px solid #E7E7E7",
+    },
+  }),
+  valueContainer: (provided) => ({
+    ...provided,
+    padding: "10px 10px",
+    overflow: "visible",
+  }),
+  input: (provided) => ({
+    ...provided,
+    margin: 0,
+    padding: 0,
+    color: "#000",
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: "#000",
+    overflow: "visible",
+  }),
+  placeholder: (provided) => ({ ...provided, color: "rgba(0,0,0,0.48)" }),
+  clearIndicator: (provided) => ({
+    ...provided,
+    cursor: "pointer",
+    color: "#000000",
+    ":hover": {
+      color: "#000",
+    },
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
+  dropdownIndicator: () => ({ display: "none" }),
+  option: (provided, state) => ({
+    ...provided,
+    fontFamily: "Manrope",
+    fontSize: "14px",
+    fontWeight: 500,
+    cursor: "pointer",
+    backgroundColor: state.isSelected
+      ? "#1D736B"
+      : state.isFocused
+        ? "#beeabe"
+        : "white",
+    color: state.isSelected ? "white" : "#000",
+    ":active": {
+      backgroundColor: "#1D736B",
+      color: "white",
+    },
+  }),
+};
+
 const CreateServices = ({
   modalClose,
 }: {
@@ -34,31 +96,68 @@ const CreateServices = ({
   const { t } = useTranslation();
 
   const inputsRef = {
-    vendor_id: useRef<HTMLSelectElement>(null),
     service_name: useRef<HTMLInputElement>(null),
     location: useRef<HTMLInputElement>(null),
-    hs_code_id: useRef<HTMLSelectElement>(null),
-    country_id: useRef<HTMLSelectElement>(null),
-    from_id: useRef<HTMLSelectElement>(null),
-    to_id: useRef<HTMLSelectElement>(null),
-    transport_type: useRef<HTMLSelectElement>(null),
-    transport_mode: useRef<HTMLSelectElement>(null),
-    contract_experied_date: useRef<HTMLInputElement>(null),
-    protocol_experied_date: useRef<HTMLInputElement>(null),
+    from_id: useRef<HTMLInputElement>(null),
+    to_id: useRef<HTMLInputElement>(null),
     purchase_price_unit: useRef<HTMLInputElement>(null),
     purchase_price_ton: useRef<HTMLInputElement>(null),
-    language: useRef<HTMLSelectElement>(null),
+    contract_experied_date: useRef<HTMLInputElement>(null),
+    protocol_experied_date: useRef<HTMLInputElement>(null),
     contract_file: useRef<HTMLInputElement>(null),
     protocol_file: useRef<HTMLInputElement>(null),
   };
 
-  const [vendors, setVendors] = useState<{ id: number; name: string }[]>([]);
+  const [vendors, setVendors] = useState<OptionType[]>([]);
+  const [selectedVendor, setSelectedVendor] = useState<OptionType | null>(null);
+
   const [hscode, setHsCode] = useState<OptionType[]>([]);
   const [selectedHsCode, setSelectedHsCode] = useState<OptionType | null>(null);
-  const [countries, setCountries] = useState<{ id: number; name: string }[]>(
-    [],
+
+  const [countries, setCountries] = useState<OptionType[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<OptionType | null>(
+    null,
   );
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
+
+  const [transportModes] = useState<OptionType[]>([
+    { value: 1, label: "Road" },
+    { value: 2, label: "Rail" },
+    { value: 3, label: "Sea" },
+  ]);
+  const [selectedTransportMode, setSelectedTransportMode] =
+    useState<OptionType | null>(null);
+
+  const [transportTypes] = useState<OptionType[]>([
+    { value: 1, label: "Container" },
+    { value: 2, label: "Break Bulk" },
+    { value: 3, label: "Bulk" },
+    { value: 4, label: "Oversize cargo" },
+  ]);
+  const [selectedTransportType, setSelectedTransportType] =
+    useState<OptionType | null>(null);
+
+  const [languages] = useState<OptionType[]>([
+    { value: 1, label: "Azerbaijani" },
+    { value: 2, label: "Russian" },
+    { value: 3, label: "English" },
+  ]);
+  const [selectedLanguage, setSelectedLanguage] = useState<OptionType | null>(
+    null,
+  );
+
+  const [stationCodes, setStationCodes] = useState<OptionType[]>([]);
+  const [selectedFromStation, setSelectedFromStation] =
+    useState<OptionType | null>(null);
+  const [selectedToStation, setSelectedToStation] = useState<OptionType | null>(
+    null,
+  );
+
+  const [ports, setPorts] = useState<OptionType[]>([]);
+  const [selectedFromPort, setSelectedFromPort] = useState<OptionType | null>(
+    null,
+  );
+  const [selectedToPort, setSelectedToPort] = useState<OptionType | null>(null);
+
   const [contractFileName, setContractFileName] = useState<string>("");
   const [protocolFileName, setProtocolFileName] = useState<string>("");
 
@@ -66,7 +165,13 @@ const CreateServices = ({
     setLoader(true);
     const fetchVendors = async () => {
       const { data, status } = await getAllVendors();
-      if (status === 200) setVendors(data);
+      if (status === 200) {
+        const mapped = data.map((vendor: { id: number; name: string }) => ({
+          value: vendor.id,
+          label: vendor.name,
+        }));
+        setVendors(mapped);
+      }
     };
 
     const fetchHsCode = async () => {
@@ -84,41 +189,58 @@ const CreateServices = ({
 
     const fetchCountry = async () => {
       const { data, status } = await getAllCountry();
-      if (status === 200 && Array.isArray(data.data)) setCountries(data.data);
+      if (status === 200 && Array.isArray(data.data)) {
+        const mapped = data.data.map(
+          (country: { id: number; name: string }) => ({
+            value: country.id,
+            label: country.name,
+          }),
+        );
+        setCountries(mapped);
+      }
     };
 
-    fetchVendors();
-    fetchHsCode();
-    fetchCountry();
-    setLoader(false);
+    Promise.all([fetchVendors(), fetchHsCode(), fetchCountry()]).finally(() => {
+      setLoader(false);
+    });
   }, []);
 
-  const [transportMode, setTransportMode] = useState<string>("Road");
-  const [stationCodes, setStationCodes] = useState<any[]>([]);
-  const [ports, setPorts] = useState<any[]>([]);
-
   useEffect(() => {
-    if (!selectedCountry) return;
+    if (!selectedCountry || !selectedTransportMode) return;
     setLoader(true);
 
-    const countryName = countries.find(
-      (c) => c.id === Number(selectedCountry),
-    )?.name;
-    if (!countryName) return;
+    const countryName = selectedCountry.label;
+    const transportMode = selectedTransportMode.label;
 
     const fetchData = async () => {
       if (transportMode === "Rail") {
         const { data, status } = await getAllStationCode(countryName);
-        if (status === 200) setStationCodes(data);
-        console.log("data", data);
+        if (status === 200) {
+          const mapped = data.map(
+            (station: { value: number; name: string }) => ({
+              value: station.value,
+              label: station.name,
+            }),
+          );
+          setStationCodes(mapped);
+        }
       } else if (transportMode === "Sea") {
         const { data, status } = await getAllPort(countryName);
-        if (status === 200) setPorts(data?.data);
+        if (status === 200) {
+          const mapped =
+            data?.data?.map((port: { id: number; name: string }) => ({
+              value: port.id,
+              label: port.name,
+            })) || [];
+          setPorts(mapped);
+        }
       }
     };
-    fetchData();
-    setLoader(false);
-  }, [transportMode, selectedCountry]);
+
+    fetchData().finally(() => {
+      setLoader(false);
+    });
+  }, [selectedCountry, selectedTransportMode]);
 
   const handleFileChange = () => {
     const file = inputsRef.contract_file.current?.files?.[0];
@@ -135,15 +257,31 @@ const CreateServices = ({
     setLoader(true);
 
     const formData = formCreator([
-      { name: "vendor_id", data: inputsRef.vendor_id.current?.value },
+      { name: "vendor_id", data: selectedVendor?.value || null },
       { name: "service_name", data: inputsRef.service_name.current?.value },
       { name: "location", data: inputsRef.location.current?.value },
       { name: "hs_code_id", data: selectedHsCode?.value || null },
-      { name: "country_id", data: inputsRef.country_id.current?.value },
-      { name: "from_id", data: inputsRef.from_id.current?.value },
-      { name: "to_id", data: inputsRef.to_id.current?.value },
-      { name: "transport_type", data: inputsRef.transport_type.current?.value },
-      { name: "transport_mode", data: inputsRef.transport_mode.current?.value },
+      { name: "country_id", data: selectedCountry?.value || null },
+      {
+        name: "from_id",
+        data:
+          selectedTransportMode?.label === "Road"
+            ? inputsRef.from_id.current?.value
+            : selectedTransportMode?.label === "Rail"
+              ? selectedFromStation?.value
+              : selectedFromPort?.value,
+      },
+      {
+        name: "to_id",
+        data:
+          selectedTransportMode?.label === "Road"
+            ? inputsRef.to_id.current?.value
+            : selectedTransportMode?.label === "Rail"
+              ? selectedToStation?.value
+              : selectedToPort?.value,
+      },
+      { name: "transport_type", data: selectedTransportType?.label || null },
+      { name: "transport_mode", data: selectedTransportMode?.label || null },
       {
         name: "contract_experied_date",
         data: inputsRef.contract_experied_date.current?.value
@@ -170,7 +308,7 @@ const CreateServices = ({
       },
       {
         name: "language",
-        data: inputsRef.language.current?.value,
+        data: selectedLanguage?.label || null,
       },
       {
         name: "contract_file",
@@ -208,20 +346,15 @@ const CreateServices = ({
                   <label className={styles.label}>
                     {t("services.modals.create.vendor_select")}
                   </label>
-                  <select
-                    className={styles.select}
+                  <Select
+                    options={vendors}
+                    value={selectedVendor}
+                    onChange={setSelectedVendor}
+                    styles={customStyles}
+                    placeholder={t("services.modals.create.value")}
+                    isSearchable
                     required
-                    ref={inputsRef.vendor_id}
-                  >
-                    <option value="">
-                      {t("services.modals.create.value")}
-                    </option>
-                    {vendors.map((vendor) => (
-                      <option key={vendor.id} value={vendor.id}>
-                        {vendor.name}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
                 {/* Service Name */}
@@ -254,45 +387,29 @@ const CreateServices = ({
                   <Select
                     options={hscode}
                     value={selectedHsCode}
-                    onChange={(val: SingleValue<OptionType>) =>
-                      setSelectedHsCode(val)
-                    }
-                    isSearchable
+                    onChange={setSelectedHsCode}
+                    styles={customStyles}
                     placeholder={t(
                       "services.modals.create.hs_code_placeholder",
                     )}
-                    styles={{
-                      control: (base) => ({
-                        ...base,
-                        height: "52px",
-                        minHeight: "52px",
-                        backgroundColor: "#F5F5F5",
-                        borderColor: "#ccc",
-                        boxShadow: "none",
-                      }),
-                    }}
+                    isSearchable
                   />
                 </div>
-                {/* Country */}
+
+                {/* Country Select */}
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
                     {t("services.modals.create.select_country")}
                   </label>
-                  <select
-                    className={styles.select}
+                  <Select
+                    options={countries}
+                    value={selectedCountry}
+                    onChange={setSelectedCountry}
+                    styles={customStyles}
+                    placeholder={t("services.modals.create.value")}
+                    isSearchable
                     required
-                    ref={inputsRef.country_id}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
-                  >
-                    <option value="">
-                      {t("services.modals.create.value")}
-                    </option>
-                    {countries.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -301,21 +418,19 @@ const CreateServices = ({
                 <label className={styles.label}>
                   {t("services.modals.create.transport__mode")}
                 </label>
-                <select
-                  className={styles.select}
+                <Select
+                  options={transportModes}
+                  value={selectedTransportMode}
+                  onChange={setSelectedTransportMode}
+                  styles={customStyles}
+                  placeholder={t("services.modals.create.value")}
+                  isSearchable
                   required
-                  ref={inputsRef.transport_mode}
-                  onChange={(e) => setTransportMode(e.target.value)}
-                >
-                  <option value="">{t("services.modals.create.value")}</option>
-                  <option value="Road">Road</option>
-                  <option value="Rail">Rail</option>
-                  <option value="Sea">Sea</option>
-                </select>
+                />
               </div>
 
               <div className={styles.flex__mode}>
-                {transportMode === "Road" ? (
+                {selectedTransportMode?.label === "Road" ? (
                   <>
                     <div className={styles.selectWrapper}>
                       <label className={styles.label}>From</label>
@@ -334,54 +449,54 @@ const CreateServices = ({
                       />
                     </div>
                   </>
-                ) : transportMode === "Rail" ? (
+                ) : selectedTransportMode?.label === "Rail" ? (
                   <>
                     <div className={styles.selectWrapper}>
                       <label className={styles.label}>From Station</label>
-                      <select ref={inputsRef.from_id} className={styles.select}>
-                        <option value="">Select From Station</option>
-                        {stationCodes.map((st) => (
-                          <option key={st.value} value={st.value}>
-                            {st.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select
+                        options={stationCodes}
+                        value={selectedFromStation}
+                        onChange={setSelectedFromStation}
+                        styles={customStyles}
+                        placeholder="Select From Station"
+                        isSearchable
+                      />
                     </div>
                     <div className={styles.selectWrapper}>
                       <label className={styles.label}>To Station</label>
-                      <select ref={inputsRef.to_id} className={styles.select}>
-                        <option value="">Select To Station</option>
-                        {stationCodes.map((st) => (
-                          <option key={st.value} value={st.value}>
-                            {st.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select
+                        options={stationCodes}
+                        value={selectedToStation}
+                        onChange={setSelectedToStation}
+                        styles={customStyles}
+                        placeholder="Select To Station"
+                        isSearchable
+                      />
                     </div>
                   </>
-                ) : transportMode === "Sea" ? (
+                ) : selectedTransportMode?.label === "Sea" ? (
                   <>
                     <div className={styles.selectWrapper}>
                       <label className={styles.label}>From Port</label>
-                      <select ref={inputsRef.from_id} className={styles.select}>
-                        <option value="">Select From Port</option>
-                        {ports.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select
+                        options={ports}
+                        value={selectedFromPort}
+                        onChange={setSelectedFromPort}
+                        styles={customStyles}
+                        placeholder="Select From Port"
+                        isSearchable
+                      />
                     </div>
                     <div className={styles.selectWrapper}>
                       <label className={styles.label}>To Port</label>
-                      <select ref={inputsRef.to_id} className={styles.select}>
-                        <option value="">Select To Port</option>
-                        {ports.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select
+                        options={ports}
+                        value={selectedToPort}
+                        onChange={setSelectedToPort}
+                        styles={customStyles}
+                        placeholder="Select To Port"
+                        isSearchable
+                      />
                     </div>
                   </>
                 ) : null}
@@ -393,25 +508,22 @@ const CreateServices = ({
                   <label className={styles.label}>
                     {t("services.modals.create.transport__type")}
                   </label>
-                  <select
-                    className={styles.select}
+                  <Select
+                    options={transportTypes}
+                    value={selectedTransportType}
+                    onChange={setSelectedTransportType}
+                    styles={customStyles}
+                    placeholder={t("services.modals.create.value")}
+                    isSearchable
                     required
-                    ref={inputsRef.transport_type}
-                  >
-                    <option value="">
-                      {t("services.modals.create.value")}
-                    </option>
-                    <option value="Container">Container</option>
-                    <option value="Break Bulk">Break Bulk</option>
-                    <option value="Bulk">Bulk</option>
-                    <option value="Oversize cargo">Oversize cargo</option>
-                  </select>
+                  />
                 </div>
               </div>
             </div>
+
             <div className={styles.right}>
               <div className={styles.flex__mode}>
-                {/* Contract End Start */}
+                {/* Contract End Date */}
                 <Input
                   type="date"
                   label={t("services.modals.create.contract__date")}
@@ -420,7 +532,7 @@ const CreateServices = ({
                   required
                 />
 
-                {/* Contract End Date */}
+                {/* Protocol End Date */}
                 <Input
                   type="date"
                   label={t("services.modals.create.protocol__date")}
@@ -431,7 +543,7 @@ const CreateServices = ({
               </div>
 
               <div className={styles.flex__mode}>
-                {/* Service Name */}
+                {/* Purchase Price Unit */}
                 <Input
                   type="text"
                   label={t("services.modals.create.per__unit")}
@@ -440,7 +552,8 @@ const CreateServices = ({
                   autoComplete="off"
                   required
                 />
-                {/* Service Name */}
+
+                {/* Purchase Price Ton */}
                 <Input
                   type="text"
                   label={t("services.modals.create.per__ton")}
@@ -457,18 +570,15 @@ const CreateServices = ({
                   <label className={styles.label}>
                     {t("services.modals.create.contract_language")}
                   </label>
-                  <select
-                    className={styles.select}
+                  <Select
+                    options={languages}
+                    value={selectedLanguage}
+                    onChange={setSelectedLanguage}
+                    styles={customStyles}
+                    placeholder={t("services.modals.create.value")}
+                    isSearchable
                     required
-                    ref={inputsRef.language}
-                  >
-                    <option value="">
-                      {t("services.modals.create.value")}
-                    </option>
-                    <option value="Azerbaijani">Azerbaijani</option>
-                    <option value="Russian">Russian</option>
-                    <option value="English">English</option>
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -500,6 +610,7 @@ const CreateServices = ({
                   />
                 </div>
               </div>
+
               {/* Protocol File */}
               <div className={styles.dropzone}>
                 <div

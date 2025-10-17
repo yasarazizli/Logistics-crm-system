@@ -74,6 +74,9 @@ const Login = () => {
         case "buyer_directory":
           navigate(`/${i18n.language}/buyers/director/tasks`);
           break;
+        case "monitoring":
+          navigate(`/${i18n.language}/monitoring`);
+          break;
       }
     } else toast.error(errorMessageHandler(data));
 

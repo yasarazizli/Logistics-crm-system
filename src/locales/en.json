@@ -481,6 +481,12 @@
       "verified": "Verified contracts",
       "empty":"Contracts Pending Approval",
       "unverified": "Deactivated contract"
+    },
+
+    "balance": {
+      "approved": "Approved",
+      "reject":"Unapproved",
+      "waiting": "Pending Approval"
     }
 
   },
