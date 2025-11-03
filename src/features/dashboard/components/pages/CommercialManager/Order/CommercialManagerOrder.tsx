@@ -24,7 +24,7 @@ import { errorMessageHandler } from "@/libs/error.ts";
 import InvoicePdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoicePdf.tsx";
 import InvoiceApprove from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceApprove/InvoiceApprove.tsx";
 import InstructionPdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InstructionDocument/InstructionPdf.tsx";
-import SelectBank from "@/features/dashboard/components/shared/Modals/SelectBank/SelectBank.tsx"; // ✅ əlavə et
+import SelectBank from "@/features/dashboard/components/shared/Modals/SelectBank/SelectBank.tsx";
 
 const filterKeys = [
   "order_code",
@@ -186,6 +186,13 @@ const CommercialManager = () => {
     setModal({ type: "bank", id: orderId });
   };
 
+  const canAddOffer = (orderType: string) => {
+    return (
+      orderType === "NoRegisterPriceQuotation" ||
+      orderType === "RegisterPriceQuotation"
+    );
+  };
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -332,24 +339,34 @@ const CommercialManager = () => {
                 <div className={styles.icon}>
                   <div
                     className={`${styles.icon__2} ${
-                      item.order_type === "RegisterPriceQuotation"
-                        ? styles.disabled
-                        : ""
+                      !canAddOffer(item.order_type) ? styles.disabled : ""
                     }`}
                     onClick={() => {
-                      if (item.order_type !== "RegisterPriceQuotation") {
+                      if (canAddOffer(item.order_type)) {
                         handleClickEdit(item.order_id);
                       }
                     }}
+                    style={{
+                      cursor: canAddOffer(item.order_type)
+                        ? "pointer"
+                        : "not-allowed",
+                      opacity: canAddOffer(item.order_type) ? 1 : 1,
+                    }}
+                    title={
+                      canAddOffer(item.order_type)
+                        ? "Add Offer"
+                        : "Add Offer not available for this order type"
+                    }
                   >
-                    {item.order_type === "RegisterPriceQuotation" ? (
-                      <CrossIcon />
-                    ) : (
+                    {canAddOffer(item.order_type) ? (
                       <AddIconTable />
+                    ) : (
+                      <CrossIcon />
                     )}
                   </div>
                 </div>
               </td>
+
               <td>
                 <div className={styles.icon}>
                   <div

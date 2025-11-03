@@ -126,7 +126,7 @@ const PriceQuotation = () => {
     const formData = new FormData();
     formData.append("user", JSON.stringify(user));
     formData.append("order", JSON.stringify(order));
-    formData.append("btn_status:", status);
+    formData.append("btn_status", status);
 
     if (msDs) formData.append("msds_file", msDs);
     msDsPictures.forEach((file, index) =>
