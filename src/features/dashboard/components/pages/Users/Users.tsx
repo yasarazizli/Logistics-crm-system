@@ -25,6 +25,7 @@ import InvoicePdf from "@/features/dashboard/components/shared/Modals/InvoiceDoc
 import InvoiceApprove from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceApprove/InvoiceApprove.tsx";
 import InstructionPdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InstructionDocument/InstructionPdf.tsx";
 import ReOrder from "@/features/dashboard/components/shared/Modals/ReOrder/ReOrder.tsx";
+import { CrossIcon } from "@/assets/icons/order.vectors.tsx";
 
 const filterKeys = [
   "order_code",
@@ -33,6 +34,16 @@ const filterKeys = [
   "start_date",
   "end_date",
 ] as const;
+
+interface Order {
+  order_id: number;
+  country_destination: string;
+  country_loading: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  order_type: string;
+}
 
 const Users = () => {
   const navigate = useNavigate();
@@ -67,7 +78,7 @@ const Users = () => {
   const [pageHelper, setPageHelper] = useState({ render: false });
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
 
   const debouncedFilters = {
@@ -161,7 +172,16 @@ const Users = () => {
     });
   };
 
+  const canEditOrder = (orderType: string) => {
+    return (
+      orderType === "NoRegisterPriceQuotation" ||
+      orderType === "RegisterPriceQuotation"
+    );
+  };
+
   const handleEditClick = (orderId: number) => {
+    if (!canEditOrder) return;
+
     const selectedOrder = data.find((item) => item.order_id === orderId);
     navigate(`/${i18n.language}/users/ask/quotation/edit`, {
       state: { order: selectedOrder },
@@ -385,11 +405,31 @@ const Users = () => {
               <td>
                 <div className={styles.icon}>
                   <div
-                    className={styles.icon__2}
-                    onClick={() => handleEditClick(item.order_id)}
-                    title="Edit Order"
+                    className={`${styles.icon__2} ${
+                      !canEditOrder(item.order_type) ? styles.disabled : ""
+                    }`}
+                    onClick={() => {
+                      if (canEditOrder(item.order_type)) {
+                        handleEditClick(item.order_id);
+                      }
+                    }}
+                    style={{
+                      cursor: canEditOrder(item.order_type)
+                        ? "pointer"
+                        : "not-allowed",
+                      opacity: canEditOrder(item.order_type) ? 1 : 1,
+                    }}
+                    title={
+                      canEditOrder(item.order_type)
+                        ? "Edit Order"
+                        : "Edit Order not available for this order type"
+                    }
                   >
-                    <PenIcon />
+                    {canEditOrder(item.order_type) ? (
+                      <PenIcon />
+                    ) : (
+                      <CrossIcon />
+                    )}
                   </div>
                 </div>
               </td>
