@@ -95,18 +95,6 @@ export const getAllCountry = async () => {
     });
 };
 
-export const getAllCity = async (country_id: string) => {
-  return await axios
-    .get(`${apiUrl}/geography/get-all-city/?country_id=${country_id}`, {
-      headers: {
-        Authorization: getCookie("allianceToken"),
-      },
-    })
-    .catch((err) => {
-      return err.response;
-    });
-};
-
 export const getVendorRequest = async (params: {
   contract_status?: string;
   name?: string;
@@ -152,6 +140,18 @@ export const getAllPort = async (country: string) => {
         },
       },
     )
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const getAllServicesName = async () => {
+  return await axios
+    .get(`${apiUrl}/buyers/all-service-name/?name`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
     .catch((err) => {
       return err.response;
     });

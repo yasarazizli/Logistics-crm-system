@@ -1,4 +1,3 @@
-"use client";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -16,6 +15,7 @@ import {
   createServices,
   getAllCountry,
   getAllPort,
+  getAllServicesName,
   getAllStationCode,
   getAllVendors,
 } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
@@ -96,7 +96,6 @@ const CreateServices = ({
   const { t } = useTranslation();
 
   const inputsRef = {
-    service_name: useRef<HTMLInputElement>(null),
     location: useRef<HTMLInputElement>(null),
     from_id: useRef<HTMLInputElement>(null),
     to_id: useRef<HTMLInputElement>(null),
@@ -161,8 +160,13 @@ const CreateServices = ({
   const [contractFileName, setContractFileName] = useState<string>("");
   const [protocolFileName, setProtocolFileName] = useState<string>("");
 
+  const [serviceNames, setServiceNames] = useState<OptionType[]>([]);
+  const [selectedServiceName, setSelectedServiceName] =
+    useState<OptionType | null>(null);
+
   useEffect(() => {
     setLoader(true);
+
     const fetchVendors = async () => {
       const { data, status } = await getAllVendors();
       if (status === 200) {
@@ -200,7 +204,34 @@ const CreateServices = ({
       }
     };
 
-    Promise.all([fetchVendors(), fetchHsCode(), fetchCountry()]).finally(() => {
+    const fetchServiceNames = async () => {
+      try {
+        const response = await getAllServicesName();
+
+        if (response.status === 200) {
+          const serviceData = response.data.data || response.data;
+
+          if (Array.isArray(serviceData)) {
+            const mapped = serviceData.map(
+              (service: { ID: number; name: string }) => ({
+                value: service.ID,
+                label: service.name,
+              }),
+            );
+            setServiceNames(mapped);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching service names:", error);
+      }
+    };
+
+    Promise.all([
+      fetchVendors(),
+      fetchHsCode(),
+      fetchCountry(),
+      fetchServiceNames(),
+    ]).finally(() => {
       setLoader(false);
     });
   }, []);
@@ -258,7 +289,7 @@ const CreateServices = ({
 
     const formData = formCreator([
       { name: "vendor_id", data: selectedVendor?.value || null },
-      { name: "service_name", data: inputsRef.service_name.current?.value },
+      { name: "service_name", data: selectedServiceName?.label || null },
       { name: "location", data: inputsRef.location.current?.value },
       { name: "hs_code_id", data: selectedHsCode?.value || null },
       { name: "country_id", data: selectedCountry?.value || null },
@@ -341,7 +372,6 @@ const CreateServices = ({
           <div className={styles.all}>
             <div className={styles.left}>
               <div className={styles.flex__mode}>
-                {/* Vendor Select */}
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
                     {t("services.modals.create.vendor_select")}
@@ -354,22 +384,28 @@ const CreateServices = ({
                     placeholder={t("services.modals.create.value")}
                     isSearchable
                     required
+                    isClearable
                   />
                 </div>
 
-                {/* Service Name */}
-                <Input
-                  type="text"
-                  label={t("services.modals.create.service_name")}
-                  placeholder={t("services.modals.create.service_name")}
-                  inputRef={inputsRef.service_name}
-                  autoComplete="off"
-                  required
-                />
+                <div className={styles.selectWrapper}>
+                  <label className={styles.label}>
+                    {t("services.modals.create.service_name")}
+                  </label>
+                  <Select
+                    options={serviceNames}
+                    value={selectedServiceName}
+                    onChange={setSelectedServiceName}
+                    styles={customStyles}
+                    placeholder={t("services.modals.create.service_name")}
+                    isSearchable
+                    required
+                    isClearable
+                  />
+                </div>
               </div>
 
               <div className={styles.flex__row}>
-                {/* Location */}
                 <Input
                   type="text"
                   label={t("services.modals.create.location")}
@@ -379,7 +415,6 @@ const CreateServices = ({
                   required
                 />
 
-                {/* HS Code */}
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
                     {t("services.modals.create.hs_code")}
@@ -393,10 +428,10 @@ const CreateServices = ({
                       "services.modals.create.hs_code_placeholder",
                     )}
                     isSearchable
+                    isClearable
                   />
                 </div>
 
-                {/* Country Select */}
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
                     {t("services.modals.create.select_country")}
@@ -409,11 +444,11 @@ const CreateServices = ({
                     placeholder={t("services.modals.create.value")}
                     isSearchable
                     required
+                    isClearable
                   />
                 </div>
               </div>
 
-              {/* Transport Mode */}
               <div className={styles.selectWrapper}>
                 <label className={styles.label}>
                   {t("services.modals.create.transport__mode")}
@@ -426,6 +461,7 @@ const CreateServices = ({
                   placeholder={t("services.modals.create.value")}
                   isSearchable
                   required
+                  isClearable
                 />
               </div>
 
@@ -460,6 +496,7 @@ const CreateServices = ({
                         styles={customStyles}
                         placeholder="Select From Station"
                         isSearchable
+                        isClearable
                       />
                     </div>
                     <div className={styles.selectWrapper}>
@@ -471,6 +508,7 @@ const CreateServices = ({
                         styles={customStyles}
                         placeholder="Select To Station"
                         isSearchable
+                        isClearable
                       />
                     </div>
                   </>
@@ -485,6 +523,7 @@ const CreateServices = ({
                         styles={customStyles}
                         placeholder="Select From Port"
                         isSearchable
+                        isClearable
                       />
                     </div>
                     <div className={styles.selectWrapper}>
@@ -496,6 +535,7 @@ const CreateServices = ({
                         styles={customStyles}
                         placeholder="Select To Port"
                         isSearchable
+                        isClearable
                       />
                     </div>
                   </>
@@ -503,7 +543,6 @@ const CreateServices = ({
               </div>
 
               <div className={styles.flex__row}>
-                {/* Transport Type */}
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
                     {t("services.modals.create.transport__type")}
@@ -516,6 +555,7 @@ const CreateServices = ({
                     placeholder={t("services.modals.create.value")}
                     isSearchable
                     required
+                    isClearable
                   />
                 </div>
               </div>
@@ -523,7 +563,6 @@ const CreateServices = ({
 
             <div className={styles.right}>
               <div className={styles.flex__mode}>
-                {/* Contract End Date */}
                 <Input
                   type="date"
                   label={t("services.modals.create.contract__date")}
@@ -532,7 +571,6 @@ const CreateServices = ({
                   required
                 />
 
-                {/* Protocol End Date */}
                 <Input
                   type="date"
                   label={t("services.modals.create.protocol__date")}
@@ -543,7 +581,6 @@ const CreateServices = ({
               </div>
 
               <div className={styles.flex__mode}>
-                {/* Purchase Price Unit */}
                 <Input
                   type="text"
                   label={t("services.modals.create.per__unit")}
@@ -553,7 +590,6 @@ const CreateServices = ({
                   required
                 />
 
-                {/* Purchase Price Ton */}
                 <Input
                   type="text"
                   label={t("services.modals.create.per__ton")}
@@ -565,7 +601,6 @@ const CreateServices = ({
               </div>
 
               <div className={styles.flex__row}>
-                {/* Contract Language */}
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
                     {t("services.modals.create.contract_language")}
@@ -578,11 +613,11 @@ const CreateServices = ({
                     placeholder={t("services.modals.create.value")}
                     isSearchable
                     required
+                    isClearable
                   />
                 </div>
               </div>
 
-              {/* Contract File */}
               <div className={styles.dropzone}>
                 <div
                   style={{
@@ -611,7 +646,6 @@ const CreateServices = ({
                 </div>
               </div>
 
-              {/* Protocol File */}
               <div className={styles.dropzone}>
                 <div
                   style={{
@@ -643,7 +677,6 @@ const CreateServices = ({
           </div>
         </div>
 
-        {/* Buttons */}
         <div className={styles.form__buttons}>
           <Button
             text={t("shared.buttons.cancel")}

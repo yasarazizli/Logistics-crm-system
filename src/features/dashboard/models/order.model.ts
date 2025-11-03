@@ -223,34 +223,65 @@ export interface OrdersModel {
   end_location: string | null;
 }
 
+interface Bank {
+  "Account Number": string;
+  Bank: string;
+  "Bank TIN": string;
+  "Bank address": string;
+  "Bank code": string;
+  "Beneficiary bank": string;
+  "Beneficiary name": string;
+  "Correspondent account1": string;
+  "Correspondent account2": string;
+  "Correspondent account3": string;
+  "Correspondent account4": string;
+  "Correspondent account5": string;
+  "Correspondent bank": string;
+  SWIFT: string;
+  TIN: string;
+}
+
 export interface InvoiceModel {
   to: string;
-  contractNo: string;
-  date: string;
+  tin: string;
+  address: string;
+  telephone: string;
   email: string;
+  date: string;
   invoice_is_valid: string;
   orderNo: number;
+  contractNo: string;
   other_conditions: string;
   payment_terms: string;
-  phone: string;
-  service: {
-    amount: number;
+  bank: Bank;
+  amount: number;
+  vat: number;
+  total: number;
+  services: {
+    no: number;
+    Amount: number;
     price: number;
     service: string;
+    vat: string;
     total: number;
   }[];
-  tin: string;
+  containers: {
+    no: number;
+    transport_no: number;
+    full_empty: string;
+    container: string;
+    owner: number;
+  }[];
 }
 
 export interface InstructionModel {
-  qrafa_1: string;
-  qrafa_2: string;
-  qrafa_4: string;
-  qrafa_5: string;
-  qrafa_6: string;
-  qrafa_7: string;
-  qrafa_15: string;
-  qrafa_22: string;
-  qrafa_23: string;
-  qrafa_25: string;
+  border_crossing_points: string;
+  from: string;
+  harmonized_system_code: string;
+  owner: string;
+  packing_type: string;
+  padcode: string;
+  shipper: string;
+  to: string;
+  vaqon_no: string;
 }

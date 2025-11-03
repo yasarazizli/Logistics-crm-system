@@ -1,6 +1,5 @@
 import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.module.scss";
 import Header from "@/components/Header/Header.tsx";
-import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -26,7 +25,6 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 const AskQuotation = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const location = useLocation();
   const order = location.state?.order;
   const showShipper = location.state?.showShipper ?? true;
@@ -49,7 +47,7 @@ const AskQuotation = () => {
   const [dangerous, setDangerous] = useState(false);
 
   const [packagingData, setPackagingData] = useState<PackagingData>({
-    packing_type: "Container",
+    package_type: "Container",
     total_quantity: 0,
     net_weight: 0,
     gross_weight: 0,
@@ -170,7 +168,7 @@ const AskQuotation = () => {
 
     try {
       const response = await axios.put(
-        `${apiUrl}/commercial/update-price-quotation/?order_id=${order.order_id}`,
+        `${apiUrl}/commercial/update-order-quotation/?order_id=${order.order_id}`,
         formData,
         {
           headers: {
@@ -223,7 +221,6 @@ const AskQuotation = () => {
       <Header />
       <div className={styles.price}>
         <div className={styles.input__name}>
-          <h1 className={styles.title}>{t("price.title")}</h1>
           <div className={styles.input__list}>
             <GetSelectList
               selectedCargo={selectedCargo}

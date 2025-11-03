@@ -9,7 +9,7 @@ import Pagination from "@/features/dashboard/components/shared/Pagination/Pagina
 import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import i18n from "@/locales/i18n.ts";
 import { useNavigate } from "react-router-dom";
-import { AddIconTable } from "@/assets/icons/order.vectors.tsx";
+import { AddIconTable, CrossIcon } from "@/assets/icons/order.vectors.tsx";
 
 const filterKeys = [
   "order_code",
@@ -32,6 +32,7 @@ interface Order {
   start_date: string;
   end_date: string;
   email: string;
+  order_type: string;
   instructions: string;
   invoice: string;
   phone_number: string;
@@ -205,10 +206,22 @@ const CommercialSpecialist = () => {
               <td>
                 <div className={styles.icon}>
                   <div
-                    className={styles.icon__2}
-                    onClick={() => handleClickEdit(item.order_id)}
+                    className={`${styles.icon__2} ${
+                      item.order_type === "RegisterPriceQuotation"
+                        ? styles.disabled
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (item.order_type !== "RegisterPriceQuotation") {
+                        handleClickEdit(item.order_id);
+                      }
+                    }}
                   >
-                    <AddIconTable />
+                    {item.order_type === "RegisterPriceQuotation" ? (
+                      <CrossIcon />
+                    ) : (
+                      <AddIconTable />
+                    )}
                   </div>
                 </div>
               </td>

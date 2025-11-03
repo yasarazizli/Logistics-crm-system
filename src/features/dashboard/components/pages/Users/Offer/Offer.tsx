@@ -313,26 +313,24 @@ const CustomerInformation = () => {
 
   useEffect(() => {
     const fetchRequest = async () => {
-      const response = await QuotationData(order.order_id);
-      if (response?.status === 200) {
-        const apiData = response?.data;
-        setQuotation(apiData || null);
+      try {
+        const response = await QuotationData(order.order_id);
+        if (response?.status === 200) {
+          const apiData = response?.data;
+          setQuotation(apiData || null);
 
-        if (apiData) {
-          setTotalWeight(apiData.total_weight?.toString() || "");
-          const convertToISO = (dateStr?: string) => {
-            if (!dateStr) return "";
-            const [day, month, year] = dateStr.split(".");
-            return `${year}-${month}-${day}`;
-          };
-          setStartDate(convertToISO(apiData.start_date));
-          setEndDate(convertToISO(apiData.end_date));
+          if (apiData) {
+            setTotalWeight(apiData.total_weight?.toString() || "");
+            setStartDate(apiData.start_date || "");
+            setEndDate(apiData.end_date || "");
+          }
         }
+      } catch (error) {
+        console.error("Error fetching quotation:", error);
       }
     };
 
     fetchRequest();
-    fetchOffers();
   }, [order]);
 
   const [extraInputs, setExtraInputs] = useState({

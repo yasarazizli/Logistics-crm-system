@@ -37,6 +37,18 @@ export const addBalanceAccountant = async (formData: FormData, id: number) => {
     });
 };
 
+export const addPayment = async (formData: FormData, order_id: number) => {
+  return await axios
+    .put(`${apiUrl}/commercial/pay-order/?order_id=${order_id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
 export const getAllInvoices = async (params: {
   page: number;
   pageSize: number;
@@ -61,6 +73,70 @@ export const getAllInvoices = async (params: {
 export const EditBalance = async (formData: FormData, id: number) => {
   return await axios
     .put(`${apiUrl}/invoice/approve-invoice/?id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const DebtOrder = async (params: {
+  page: number;
+  pageSize: number;
+  order_code: string;
+  customer: string;
+  phone_number: string;
+  email: string;
+  country_loading: string;
+  country_destination?: string;
+  start_date?: string;
+  end_date?: string;
+  status?: string;
+  payment_status?: string;
+}) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-all-order/`, {
+      params,
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const FullOrder = async (params: {
+  page: number;
+  pageSize: number;
+  order_code: string;
+  customer: string;
+  phone_number: string;
+  email: string;
+  country_loading: string;
+  country_destination?: string;
+  start_date?: string;
+  end_date?: string;
+  status?: string;
+  payment_status?: string;
+}) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-all-order/`, {
+      params,
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const EditOrder = async (formData: FormData, order_id: number) => {
+  return await axios
+    .put(`${apiUrl}/accountant-approve/?order_id=${order_id}`, formData, {
       headers: {
         Authorization: getCookie("allianceToken"),
       },

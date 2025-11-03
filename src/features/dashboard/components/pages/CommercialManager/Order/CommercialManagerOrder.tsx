@@ -3,18 +3,28 @@ import styles from "../../Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
-  FileIcon,
   PenIcon,
   SharedIcon,
+  EyesIcon,
+  AgreeIcon,
 } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import CreateStation from "@/features/dashboard/components/shared/Modals/Station/CreateStation.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
-import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import {
+  getAllOrder,
+  sendSpecialist,
+} from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import i18n from "@/locales/i18n.ts";
 import { useNavigate } from "react-router-dom";
 import SelectMember from "@/features/dashboard/components/shared/Modals/CommercialManager/SelectMember.tsx";
 import { AddIconTable, CrossIcon } from "@/assets/icons/order.vectors.tsx";
+import { toast } from "react-toastify";
+import { errorMessageHandler } from "@/libs/error.ts";
+import InvoicePdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoicePdf.tsx";
+import InvoiceApprove from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceApprove/InvoiceApprove.tsx";
+import InstructionPdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InstructionDocument/InstructionPdf.tsx";
+import SelectBank from "@/features/dashboard/components/shared/Modals/SelectBank/SelectBank.tsx"; // ✅ əlavə et
 
 const filterKeys = [
   "order_code",
@@ -42,6 +52,8 @@ interface Order {
   order_type: string;
   phone_number: string;
   status: string;
+  select_bank?: string;
+  bank?: string;
   price?: string | number;
 }
 
@@ -61,8 +73,22 @@ const CommercialManager = () => {
     status: "",
   });
 
-  const [modal, setModal] = useState<null | "create" | "accountant">(null);
+  const [modal, setModal] = useState<
+    | null
+    | "create"
+    | "accountant"
+    | "invoice"
+    | "instruction"
+    | { type: "invoice-approve"; id: number; actionType: "agree" | "reject" }
+    | {
+        type: "instruction-approve";
+        id: number;
+        actionType: "agree" | "reject";
+      }
+    | { type: "bank"; id: number }
+  >(null);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [data, setData] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -126,6 +152,40 @@ const CommercialManager = () => {
     });
   };
 
+  const handleSendToSpecialist = async (orderId: number) => {
+    setLoader(true);
+    const response = await sendSpecialist(orderId);
+    if (response?.status === 200) {
+      toast.success(errorMessageHandler(response.data));
+      setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+    } else {
+      toast.error(errorMessageHandler(response.data));
+    }
+    setLoader(false);
+  };
+
+  const handleOpenInvoice = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setModal("invoice");
+  };
+
+  const handleApproveInvoice = (orderId: number) => {
+    setModal({ type: "invoice-approve", id: orderId, actionType: "agree" });
+  };
+
+  const handleOpenInstruction = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setModal("instruction");
+  };
+
+  const handleApproveInstruction = (orderId: number) => {
+    setModal({ type: "instruction-approve", id: orderId, actionType: "agree" });
+  };
+
+  const handleSelectBank = (orderId: number) => {
+    setModal({ type: "bank", id: orderId });
+  };
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -144,9 +204,11 @@ const CommercialManager = () => {
             { name: "Start Date" },
             { name: "End Date" },
             { name: "Status" },
+            { name: "Select Bank" },
             { name: "Invoice document" },
             { name: "Instruction document" },
             { name: "Choose member" },
+            { name: "Send member" },
             { name: "Add Offer" },
             { name: "Edit" },
           ]}
@@ -167,6 +229,8 @@ const CommercialManager = () => {
               <td></td>
               <td></td>
               <td></td>
+              <td></td>
+              <td></td>
             </>
           }
         >
@@ -181,36 +245,67 @@ const CommercialManager = () => {
               <td>{item.start_date}</td>
               <td>{item.end_date}</td>
               <td>{item.status}</td>
+
               <td>
-                {item.invoice ? (
-                  <a
-                    href={item.invoice}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div className={styles.file__icon}>
-                      <FileIcon />
-                    </div>
-                  </a>
-                ) : (
-                  " - "
-                )}
+                <div
+                  className={styles.manager}
+                  onClick={() => handleSelectBank(item.order_id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {item.bank || "Select Bank"} <SharedIcon />
+                </div>
               </td>
+
               <td>
-                {item.instructions ? (
-                  <a
-                    href={item.instructions}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <div
+                  className={styles.icon}
+                  style={{ display: "flex", gap: "8px" }}
+                >
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => handleOpenInvoice(item.order_id)}
+                    style={{ cursor: "pointer" }}
+                    title="View Invoice PDF"
                   >
-                    <div className={styles.file__icon}>
-                      <FileIcon />
-                    </div>
-                  </a>
-                ) : (
-                  " - "
-                )}
+                    <EyesIcon />
+                  </div>
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => handleApproveInvoice(item.order_id)}
+                    style={{ cursor: "pointer" }}
+                    title="Approve Invoice"
+                  >
+                    <AgreeIcon />
+                  </div>
+                </div>
               </td>
+
+              <td>
+                <div
+                  className={styles.icon}
+                  style={{ display: "flex", gap: "8px" }}
+                >
+                  <>
+                    <div
+                      className={styles.icon__3}
+                      onClick={() => handleOpenInstruction(item.order_id)}
+                      style={{ cursor: "pointer" }}
+                      title="View Instruction PDF"
+                    >
+                      <EyesIcon />
+                    </div>
+                    <div
+                      className={styles.icon__3}
+                      onClick={() => handleApproveInstruction(item.order_id)}
+                      style={{ cursor: "pointer" }}
+                      title="Approve Instruction"
+                    >
+                      <AgreeIcon />
+                    </div>
+                  </>
+                </div>
+              </td>
+
               <td>
                 <div
                   className={styles.manager}
@@ -219,9 +314,20 @@ const CommercialManager = () => {
                     setModal("accountant");
                   }}
                 >
-                  {item.chose_member || "Seçilməyib"} <SharedIcon />
+                  {item.chose_member || "Select Manager"} <SharedIcon />
                 </div>
               </td>
+
+              <td>
+                <div
+                  className={styles.shared}
+                  onClick={() => handleSendToSpecialist(item.order_id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  Send
+                </div>
+              </td>
+
               <td>
                 <div className={styles.icon}>
                   <div
@@ -244,7 +350,6 @@ const CommercialManager = () => {
                   </div>
                 </div>
               </td>
-
               <td>
                 <div className={styles.icon}>
                   <div
@@ -290,6 +395,75 @@ const CommercialManager = () => {
           }}
         />
       )}
+
+      {modal === "invoice" && selectedOrderId && (
+        <InvoicePdf
+          id={selectedOrderId}
+          modalClose={() => {
+            setModal(null);
+            setSelectedOrderId(null);
+          }}
+        />
+      )}
+
+      {modal === "instruction" && selectedOrderId && (
+        <InstructionPdf
+          id={selectedOrderId}
+          modalClose={() => {
+            setModal(null);
+            setSelectedOrderId(null);
+          }}
+        />
+      )}
+
+      {modal && typeof modal === "object" && modal.type === "bank" && (
+        <SelectBank
+          id={modal.id}
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          onSelect={(bankName: string) => {
+            setData((prev) =>
+              prev.map((item) =>
+                item.order_id === modal.id
+                  ? { ...item, select_bank: bankName }
+                  : item,
+              ),
+            );
+          }}
+        />
+      )}
+
+      {modal &&
+        typeof modal === "object" &&
+        modal.type === "invoice-approve" && (
+          <InvoiceApprove
+            id={modal.id}
+            actionType={modal.actionType}
+            modalClose={(isRender: boolean) => {
+              setModal(null);
+              if (isRender) {
+                setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+              }
+            }}
+          />
+        )}
+
+      {modal &&
+        typeof modal === "object" &&
+        modal.type === "instruction-approve" && (
+          <InvoiceApprove
+            id={modal.id}
+            actionType={modal.actionType}
+            modalClose={(isRender: boolean) => {
+              setModal(null);
+              if (isRender) {
+                setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+              }
+            }}
+          />
+        )}
     </div>
   );
 };

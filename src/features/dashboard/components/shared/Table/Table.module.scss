@@ -12,8 +12,8 @@
       background: var(--Green-500, #1D736B);
 
       th {
-        min-width: 175px;
-        padding: 14px 24px;
+        min-width: 205px;
+        height: 50px;
         text-align: center;
         border: 1px solid #DEDEDE;
         color: #fff;
@@ -38,11 +38,16 @@
 
           input {
             width: 100%;
-            padding: 12px 10px;
+            padding: 8px;
+            height: 38px;
             font-size: 13px;
             text-align: center;
             border: none;
             outline: none;
+            font-family: Manrope;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
           }
         }
       }
@@ -50,7 +55,8 @@
 
     tbody {
       td {
-        padding: 12px 16px;
+        height: 55px;
+        padding: 12px;
         font-size: 14px;
         text-align: center;
         border: 1px solid #DEDEDE;

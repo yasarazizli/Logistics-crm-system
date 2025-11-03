@@ -52,6 +52,12 @@ import OrderMonitoringPage from "@/features/dashboard/pages/Monitoring/OrderMoni
 import OrderPage from "@/features/dashboard/pages/BuyersManager/Order/OrderPage.tsx";
 import SubCodePage from "@/features/dashboard/pages/BuyersManager/Order/SubCode/SubCodePage.tsx";
 import BalancePage from "@/features/dashboard/pages/Accountant/Balance/BalancePage.tsx";
+import ServicesMonitoringPage from "@/features/dashboard/pages/Monitoring/ServicesMonitoring/ServicesMonitoringPage.tsx";
+import AccountantOrderPage from "@/features/dashboard/pages/Accountant/Order/AccountantOrderPage.tsx";
+import CommercialDirectoryOrderPage from "@/features/dashboard/pages/CommercialDirectory/CommercialDirectoryOrder/CommercialDirectoryOrderPage.tsx";
+import OrdersPage from "@/features/dashboard/pages/CommercialDirectory/CommercialDirectoryOrder/OrdersPage.tsx";
+import AskOrderPage from "@/features/dashboard/pages/Others/AksOrderPage.tsx";
+import AskOrderEditPage from "@/features/dashboard/pages/Others/AskOrderEditPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -111,12 +117,23 @@ const AppRoutes = () => {
         <Route path="users" element={<UsersPage />} />
         <Route path="lawyer/users" element={<LawyerPage />} />
         <Route path="accountant/users" element={<AccountantUserPage />} />
+        <Route path="accountant/order" element={<AccountantOrderPage />} />
         <Route path="accountant/balance" element={<BalancePage />} />
         <Route
           path="commercial/directory/users"
           element={<CommercialDirectoryUserPage />}
         />
-        <Route path="users/ask/quotation" element={<AskQuotationPage />} />
+        <Route
+          path="commercial/director/order"
+          element={<CommercialDirectoryOrderPage />}
+        />
+        <Route path="commercial/director/orders" element={<OrdersPage />} />
+        <Route path="users/ask/order" element={<AskQuotationPage />} />
+        <Route path="users/ask/quotation" element={<AskOrderPage />} />
+        <Route
+          path="users/ask/quotation/update"
+          element={<AskOrderEditPage />}
+        />
         <Route
           path="users/ask/quotation/edit"
           element={<AskQuotationEditPage />}
@@ -145,6 +162,10 @@ const AppRoutes = () => {
         <Route path="user/offer/confirmation" element={<OfferPage />} />
         <Route path="monitoring" element={<MonitoringPage />} />
         <Route path="monitoring/order" element={<OrderMonitoringPage />} />
+        <Route
+          path="monitoring/services"
+          element={<ServicesMonitoringPage />}
+        />
         <Route
           path="commercial/directory/services"
           element={<CommercialDirectoryServicesPage />}

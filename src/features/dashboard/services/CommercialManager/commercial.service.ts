@@ -79,3 +79,67 @@ export const UserData = async (order_id: number) => {
       return err.response;
     });
 };
+
+export const sendSpecialist = async (order_id: number) => {
+  return await axios
+    .put(
+      `${apiUrl}/commercial/send-specialist/?order_id=${order_id}`,
+      {},
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
+      },
+    )
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const getOrderInvoiceDetailRequest = async (order_id: number) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-invoice/?order_id=${order_id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const getOrderInstructionDetailRequest = async (order_id: number) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-instruction/?order_id=${order_id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const ApproveDocument = async (formData: FormData, id: number) => {
+  return await axios
+    .post(`${apiUrl}/commercial/approve-user/?order_id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const CloneOrder = async (id: number) => {
+  return await axios
+    .post(`${apiUrl}/commercial/clone-order/?order_id=${id}`, undefined, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

@@ -62,7 +62,7 @@ interface ApiOfferData {
   per_ton_price: number;
   transportation_time: number;
   service: Array<{
-    id: number; // Bu API-dan gələn id
+    id: number;
     service_id: number;
     name_of_service: string;
     location: string;
@@ -238,7 +238,7 @@ const SubCode = () => {
             const formattedOffers = apiData.map((offer: ApiOfferData) => {
               const tableData: TableRowData[] =
                 offer.service?.map((service) => ({
-                  id: service.id, // API-dan gələn id burada saxlanılır
+                  id: service.id,
                   serviceName: service.name_of_service?.toString() || "",
                   location: service.location || "",
                   transportMode: service.transport_mode || "",

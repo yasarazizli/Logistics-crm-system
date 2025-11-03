@@ -4,8 +4,6 @@ import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { Roles } from "@/features/dashboard/constants/enum.constant.tsx";
 
-// Context
-
 export default function PrivateRoute() {
   const location = useLocation();
   const { auth } = useContext(AuthContext);
@@ -13,6 +11,7 @@ export default function PrivateRoute() {
 
   const normalizedPath = `/${location.pathname.replace(/^\/[^/]+\//, "")}`;
 
+  // Əgər login olmayıbsa, login səhifəsinə yönləndir
   // if (!auth.isAuth) {
   //   return <Navigate to={`/${i18n.language}/auth/login`} />;
   // }
@@ -23,7 +22,9 @@ export default function PrivateRoute() {
       "/users",
       "/user/offer/confirmation",
       "/users/ask/quotation",
+      "/users/ask/order",
       "/users/ask/quotation/edit",
+      "/users/ask/quotation/update",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/users`} />;
@@ -40,7 +41,11 @@ export default function PrivateRoute() {
 
   // Accountant
   if (auth.role === Roles.accountant) {
-    const accessiblePages = ["/accountant/users", "/accountant/balance"];
+    const accessiblePages = [
+      "/accountant/users",
+      "/accountant/balance",
+      "/accountant/order",
+    ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/accountant/users`} />;
     }
@@ -66,6 +71,8 @@ export default function PrivateRoute() {
     const accessiblePages = [
       "/commercial/directory/users",
       "/commercial/directory/services",
+      "/commercial/director/order",
+      "/commercial/director/orders",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/directory/users`} />;
@@ -106,31 +113,18 @@ export default function PrivateRoute() {
 
   // Monitoring
   if (auth.role === Roles.monitoring) {
-    const accessiblePages = ["/monitoring", "/monitoring/order"];
+    const accessiblePages = [
+      "/monitoring",
+      "/monitoring/order",
+      "/monitoring/services",
+    ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/monitoring`} />;
     }
   }
 
-  // Admin
   if (auth.role === Roles.admin) {
-    const accessiblePages = [
-      "/users",
-      "/controls",
-      "/controls/hscode",
-      "/profile",
-      "/controls/country",
-      "/controls/station",
-      "/controls/city",
-      "/employees",
-      "/controls/port",
-      "/lawyer/users",
-      "/services",
-      "/vendors",
-    ];
-    if (!accessiblePages.includes(normalizedPath)) {
-      return <Navigate to={`/${i18n.language}/users`} />;
-    }
+    return <Outlet />;
   }
 
   return <Outlet />;

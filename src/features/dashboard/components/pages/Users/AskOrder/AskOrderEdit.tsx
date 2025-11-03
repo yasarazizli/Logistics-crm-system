@@ -1,0 +1,285 @@
+import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.module.scss";
+import Header from "@/components/Header/Header.tsx";
+import Input from "@/components/Input/Input.tsx";
+import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+import GetPackagingForm, {
+  PackagingData,
+  RouteData,
+} from "@/features/dashboard/components/shared/GetPackagingForm/GetPackagingForm.tsx";
+import Button from "@/components/Button/Button.tsx";
+import { toast } from "react-toastify";
+import { errorMessageHandler } from "@/libs/error.ts";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getCookie } from "@/libs/cookie.ts";
+import i18n from "i18next";
+import GetExpandableSection from "@/features/dashboard/components/shared/GetExpandableSection/GetExpandableSection.tsx";
+import GetSelectList from "@/features/dashboard/components/shared/GetSelectList/GetSelectList.tsx";
+import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
+const AskOrderEdit = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const order = location.state?.order;
+
+  const [selectedCargo, setSelectedCargo] = useState<{
+    label: string;
+    value: number;
+  } | null>(null);
+  const [selectedCode, setSelectedCode] = useState<{
+    label: string;
+    value: number;
+  } | null>(null);
+  const [totalWeight, setTotalWeight] = useState<string>("");
+
+  const [unCode, setUnCode] = useState("");
+  const [msDs, setMsDs] = useState<File | null>(null);
+  const [msDsPictures, setMsDsPictures] = useState<File[]>([]);
+  const [dangerous, setDangerous] = useState(false);
+
+  const [packagingData, setPackagingData] = useState<PackagingData>({
+    package_type: "Container",
+    total_quantity: 0,
+    net_weight: 0,
+    gross_weight: 0,
+  });
+
+  const [stackable, setStackable] = useState(false);
+  const [inRow, setInRow] = useState(0);
+  const [requestContainerProvision, setRequestContainerProvision] =
+    useState(false);
+  const [requestWagonProvision, setRequestWagonProvision] = useState(false);
+  const [transportationType, setTransportationType] = useState<string>("Rail");
+  const [wagonType, setWagonType] = useState<string>("");
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [note, setNote] = useState("");
+
+  const [routes, setRoutes] = useState<RouteData[]>([]);
+
+  const handleWagonTypeChange = useCallback(
+    (type: string) => setWagonType(type),
+    [],
+  );
+  const handlePackagingDataChange = useCallback(
+    (data: PackagingData) => setPackagingData(data),
+    [],
+  );
+  const handleRoutesChange = useCallback(
+    (newRoutes: RouteData[]) => setRoutes(newRoutes),
+    [],
+  );
+  const handleTransportationTypeChange = useCallback(
+    (type: string) => setTransportationType(type),
+    [],
+  );
+
+  const handleSubmit = async (status: "draft" | "send") => {
+    if (!selectedCode || !totalWeight) {
+      alert("Lütfen tüm gerekli alanları doldurun");
+      return;
+    }
+
+    const filteredRoutes = routes.filter(
+      (route) =>
+        route.start_country_id !== null ||
+        route.end_country_id !== null ||
+        route.start_address !== "" ||
+        route.end_address !== "",
+    );
+
+    const formattedRoutes = filteredRoutes.map((route, index) => ({
+      start_country_id: route.start_country_id,
+      start_city_id: route.start_city_id,
+      start_address: route.start_address,
+      start_station_id: route.start_station_id,
+      start_port_id: route.start_port_id,
+      end_country_id: route.end_country_id,
+      end_city_id: route.end_city_id,
+      end_address: route.end_address,
+      end_station_id: route.end_station_id,
+      end_port_id: route.end_port_id,
+      is_main: index === 0,
+      route_type: ["full", "requested", "container", "wagon"][index] || "full",
+    }));
+
+    const quotation = {
+      hs_code_id: selectedCode.value,
+      total_weight: parseFloat(totalWeight),
+      un_code: unCode,
+      dangerous,
+      packing: packagingData,
+      stackable,
+      request_container_provision: requestContainerProvision,
+      request_wagon_provision: requestWagonProvision,
+      in_row: inRow,
+      start_date: startDate ? new Date(startDate).toISOString() : null,
+      end_date: endDate ? new Date(endDate).toISOString() : null,
+      transport_type: transportationType.toLowerCase(),
+      wagon_type: wagonType.toLowerCase(),
+      note,
+      routes: formattedRoutes,
+    };
+
+    const formData = new FormData();
+    formData.append("order", JSON.stringify(quotation));
+    formData.append("btn_status", status);
+
+    if (msDs) formData.append("msds_file", msDs);
+
+    if (msDsPictures && Array.isArray(msDsPictures)) {
+      msDsPictures.forEach((file, index) => {
+        formData.append(`cargo_image_${index}`, file);
+      });
+    }
+
+    try {
+      const response = await axios.put(
+        `${apiUrl}/commercial/update-price-quotation/?order_id=${order.order_id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
+          },
+        },
+      );
+      if (response && response.status === 200) {
+        navigate(`/${i18n.language}/users`);
+        toast.success(errorMessageHandler(response.data));
+      } else {
+        toast.error(errorMessageHandler(response.data));
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred while submitting the form");
+    }
+  };
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const response = await QuotationData(order.order_id);
+        if (response?.status === 200) {
+          const apiData = response?.data;
+
+          if (apiData) {
+            setTotalWeight(apiData.total_weight?.toString() || "");
+            const convertToISO = (dateStr?: string) => {
+              if (!dateStr) return "";
+              const [day, month, year] = dateStr.split(".");
+              return `${year}-${month}-${day}`;
+            };
+            setStartDate(convertToISO(apiData.start_date));
+            setEndDate(convertToISO(apiData.end_date));
+            setNote(apiData.not);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching quotation:", error);
+      }
+    };
+
+    fetchRequest();
+  }, [order]);
+
+  return (
+    <div className={styles.price__quotation}>
+      <Header />
+      <div className={styles.price}>
+        <div className={styles.input__name}>
+          <div className={styles.input__list}>
+            <GetSelectList
+              selectedCargo={selectedCargo}
+              setSelectedCargo={setSelectedCargo}
+              selectedCode={selectedCode}
+              setSelectedCode={setSelectedCode}
+            />
+            <div className={styles.input}>
+              <Input
+                label="Total Weight"
+                placeholder="Weight"
+                value={totalWeight}
+                onChange={(e) => setTotalWeight(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.expendable}>
+          <GetExpandableSection
+            unCode={unCode}
+            setUnCode={setUnCode}
+            msDs={msDs}
+            setMsDs={setMsDs}
+            msDsPictures={msDsPictures}
+            setMsDsPictures={setMsDsPictures}
+            dangerous={dangerous}
+            setDangerous={setDangerous}
+          />
+        </div>
+
+        <GetPackagingForm
+          onDataChange={handlePackagingDataChange}
+          onRoutesChange={handleRoutesChange}
+          onStackableChange={setStackable}
+          onInRowChange={setInRow}
+          onContainerProvisionChange={setRequestContainerProvision}
+          onWagonProvisionChange={setRequestWagonProvision}
+          onTransportationTypeChange={handleTransportationTypeChange}
+          onWagonTypeChange={handleWagonTypeChange}
+        />
+
+        <div>
+          <h1 className={styles.period}>Transport Period</h1>
+          <div className={styles.date}>
+            <Input
+              type="date"
+              label="Start Date"
+              style={{ height: "52px" }}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <Input
+              type="date"
+              label="End Date"
+              style={{ height: "52px" }}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className={styles.note}>
+          <label className={styles.label}>Note</label>
+          <input
+            className={styles.input}
+            type="text"
+            placeholder="Your note here"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </div>
+
+        <div className={styles.button}>
+          <Button
+            onClick={() => handleSubmit("draft")}
+            text="Save as draft"
+            viewType="green__light"
+          />
+          <Button
+            onClick={() => handleSubmit("send")}
+            text="Send"
+            viewType="dark-green"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AskOrderEdit;

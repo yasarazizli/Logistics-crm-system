@@ -4,6 +4,7 @@ import Select, { StylesConfig } from "react-select";
 import { DeleteIcon, SharedIcon } from "@/assets/icons/shared.vectors.tsx";
 import CreateServicesTable from "@/features/dashboard/components/shared/Modals/ServicesTable/CreateServicesTable.tsx";
 import PriceTable from "@/features/dashboard/components/shared/Modals/PriceTable/PriceTable.tsx";
+import DeleteColumn from "@/features/dashboard/components/shared/Modals/DeleteColumn/DeleteColumn.tsx";
 
 interface OptionType {
   value: string;
@@ -453,6 +454,10 @@ export default function Table({
   };
 
   const deleteColumn = (colIndex: number) => {
+    setModal({ type: "delete", colIndex });
+  };
+
+  const confirmDeleteColumn = (colIndex: number) => {
     setColumns((prev) => prev.filter((_, i) => i !== colIndex));
 
     setSelectedTransportType((prev) => prev.filter((_, i) => i !== colIndex));
@@ -465,6 +470,28 @@ export default function Table({
     setSelectedPackaging((prev) =>
       prev.map((row) => row.filter((_, i) => i !== colIndex)),
     );
+
+    setTextValues((prev) => {
+      const newValues = { ...prev };
+      Object.keys(newValues).forEach((key) => {
+        if (key.endsWith(`-${colIndex}`)) {
+          delete newValues[key];
+        }
+      });
+      return newValues;
+    });
+
+    setCalculatedValues((prev) => {
+      const newValues = { ...prev };
+      Object.keys(newValues).forEach((key) => {
+        if (key.endsWith(`-${colIndex}`)) {
+          delete newValues[key];
+        }
+      });
+      return newValues;
+    });
+
+    setModal(null);
   };
 
   const getPackagingStyles = (
@@ -566,7 +593,10 @@ export default function Table({
   });
 
   const [modal, setModal] = useState<
-    null | { type: "create" } | { type: "add"; id: number }
+    | null
+    | { type: "create" }
+    | { type: "add"; id: number }
+    | { type: "delete"; colIndex: number }
   >(null);
   const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(0);
 
@@ -1001,6 +1031,17 @@ export default function Table({
             setModal(null);
           }}
           order_id={modal.id}
+        />
+      )}
+      {modal?.type === "delete" && (
+        <DeleteColumn
+          modalClose={(isConfirm) => {
+            if (isConfirm) {
+              confirmDeleteColumn(modal.colIndex);
+            } else {
+              setModal(null);
+            }
+          }}
         />
       )}
     </div>

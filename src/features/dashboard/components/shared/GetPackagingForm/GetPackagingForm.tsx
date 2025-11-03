@@ -14,8 +14,8 @@ import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { useLocation } from "react-router-dom";
 
 export interface PackagingData {
-  packing_type: string;
-  container_type?: string;
+  package_type: string;
+  packing_type?: string;
   size?: number;
   total_quantity: number;
   net_weight: number;
@@ -807,8 +807,8 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
 
     if (selectedOption1 === "Container") {
       packagingData = {
-        packing_type: "Container",
-        container_type: selectedTypeLabel,
+        package_type: "Container",
+        packing_type: selectedTypeLabel,
         size: parseInt(selectedOption2) || 0,
         total_quantity: parseInt(containerInputs.totalQuantity) || 0,
         net_weight: parseFloat(containerInputs.netWeight) || 0,
@@ -816,8 +816,8 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       };
     } else if (selectedOption1 === "Break_Bulk") {
       packagingData = {
-        packing_type: "Break_Bulk",
-        container_type: selectedTypeLabel,
+        package_type: "Break_Bulk",
+        packing_type: selectedTypeLabel,
         total_quantity: parseInt(breakBulkInputs.totalQuantity) || 0,
         net_weight: parseFloat(breakBulkInputs.netWeight) || 0,
         gross_weight: parseFloat(breakBulkInputs.grossWeight) || 0,
@@ -831,15 +831,15 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       selectedOption3 === "Bulk Liquid"
     ) {
       packagingData = {
-        packing_type: "Bulk_Liquid",
-        container_type: selectedTypeLabel,
+        package_type: "Bulk_Liquid",
+        packing_type: selectedTypeLabel,
         net_weight: parseFloat(bulkLiquidInputs.netWeight) || 0,
         total_quantity: 0,
         gross_weight: 0,
       };
     } else if (selectedOption1 === "Oversize_Cargo") {
       packagingData = {
-        packing_type: "Oversize_Cargo",
+        package_type: "Oversize_Cargo",
         total_quantity: parseInt(generalInputs.totalQuantity) || 0,
         net_weight: parseFloat(generalInputs.netWeight) || 0,
         gross_weight: parseFloat(generalInputs.grossWeight) || 0,
@@ -849,8 +849,8 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       };
     } else {
       packagingData = {
-        packing_type: selectedOption1,
-        container_type: selectedTypeLabel,
+        package_type: selectedOption1,
+        packing_type: selectedTypeLabel,
         total_quantity: parseInt(generalInputs.totalQuantity) || 0,
         net_weight: parseFloat(generalInputs.netWeight) || 0,
         gross_weight: parseFloat(generalInputs.grossWeight) || 0,

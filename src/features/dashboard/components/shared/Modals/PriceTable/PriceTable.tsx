@@ -7,6 +7,7 @@ import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
 import { createPrice } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import { getAllServicesName } from "@/features/dashboard/services/Services&Vendor/all.service.ts"; // ƏLAVƏ EDİN
 
 interface Option {
   value: string;
@@ -99,10 +100,40 @@ const PriceTable = ({
 
   const [ports, setPorts] = useState<Option[]>([]);
   const [stations, setStations] = useState<Option[]>([]);
+  const [serviceNames, setServiceNames] = useState<Option[]>([]);
 
   const handleInputChange = (field: keyof Service, value: string) => {
     setService((prev) => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    const fetchServiceNames = async () => {
+      try {
+        const response = await getAllServicesName();
+        console.log("Service Names API Response:", response);
+
+        if (response.status === 200) {
+          const serviceData = response.data.data || response.data;
+          console.log("Service Data:", serviceData);
+
+          if (Array.isArray(serviceData)) {
+            const mapped = serviceData.map(
+              (serviceItem: { ID: number; name: string }) => ({
+                value: serviceItem.name,
+                label: serviceItem.name,
+              }),
+            );
+            setServiceNames(mapped);
+            console.log("Mapped Service Names:", mapped);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching service names:", error);
+      }
+    };
+
+    fetchServiceNames();
+  }, []);
 
   useEffect(() => {
     if (service.transport_mode === "sea") {
@@ -162,7 +193,6 @@ const PriceTable = ({
     const formData = new FormData();
 
     formData.append("order_id", order_id.toString());
-
     formData.append("service_name", service.service_name);
     formData.append("location", service.location);
     formData.append("transport_mode", service.transport_mode);
@@ -202,12 +232,12 @@ const PriceTable = ({
       >
         <tr>
           <td className={styles.cellInput}>
-            <input
-              value={service.service_name}
-              onChange={(e) =>
-                handleInputChange("service_name", e.target.value)
-              }
-            />
+            {renderSelect(
+              service.service_name,
+              (opt) => handleInputChange("service_name", opt?.value || ""),
+              serviceNames,
+              "Select Service",
+            )}
           </td>
           <td className={styles.cellInput}>
             <input

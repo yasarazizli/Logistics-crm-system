@@ -45,7 +45,7 @@ const PriceQuotation = () => {
   const [dangerous, setDangerous] = useState(false);
 
   const [packagingData, setPackagingData] = useState<PackagingData>({
-    packing_type: "Container",
+    package_type: "Container",
     total_quantity: 0,
     net_weight: 0,
     gross_weight: 0,

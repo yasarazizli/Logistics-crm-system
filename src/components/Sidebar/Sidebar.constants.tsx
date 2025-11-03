@@ -43,24 +43,6 @@ export const navigation = [
     roles: ["admin", "buyer_manager"],
   },
   {
-    name: "main.title__5",
-    path: "orders",
-    icon: OrdersIcon,
-    roles: ["admin", "directory"],
-  },
-  {
-    name: "main.title__6",
-    path: "balance",
-    icon: BalanceActivitiesIcon,
-    roles: ["admin", "directory"],
-  },
-  {
-    name: "main.title__7",
-    path: "tasks",
-    icon: TasksIcon,
-    roles: ["admin", "directory"],
-  },
-  {
     name: "main.title__8",
     path: "controls",
     icon: ControlsIcon,
@@ -91,10 +73,16 @@ export const navigation = [
     roles: ["accountant"],
   },
   {
+    name: "main.title__5",
+    path: "accountant/order",
+    icon: OrdersIcon,
+    roles: ["accountant"],
+  },
+  {
     name: "main.title__6",
     path: "accountant/balance",
     icon: BalanceActivitiesIcon,
-    roles: ["accountant"],
+    roles: ["accountant", "admin"],
   },
 
   // Commercial Directory
@@ -110,13 +98,19 @@ export const navigation = [
     icon: ServiceIcon,
     roles: ["commercial_directory"],
   },
+  {
+    name: "main.title__5",
+    path: "commercial/director/orders",
+    icon: OrdersIcon,
+    roles: ["commercial_directory"],
+  },
 
   // Commercial Manager
   {
     name: "main.title__5",
     path: "commercial/manager/order",
     icon: OrdersIcon,
-    roles: ["commercial_manager"],
+    roles: ["commercial_manager", "admin"],
   },
 
   // Commercial Specialist
@@ -141,7 +135,7 @@ export const navigation = [
     name: "main.title__7",
     path: "buyers/manager/tasks",
     icon: TasksIcon,
-    roles: ["buyer_manager"],
+    roles: ["buyer_manager", "admin"],
   },
 
   // Monitoring
@@ -149,6 +143,12 @@ export const navigation = [
     name: "main.title__5",
     path: "monitoring",
     icon: OrdersIcon,
+    roles: ["monitoring"],
+  },
+  {
+    name: "main.title__4",
+    path: "monitoring/services",
+    icon: ServiceIcon,
     roles: ["monitoring"],
   },
 ];

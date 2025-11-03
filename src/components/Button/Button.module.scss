@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   height: 52px;
   border-radius: 8px;
   background: vars.$primary-color;
@@ -27,9 +27,9 @@
   }
 
   &.red {
-    background: vars.$primary-red-color;
+    background: #F7415633;
     & span {
-      color: vars.$primary-white-color;
+      color: #F74156;
     }
   }
 

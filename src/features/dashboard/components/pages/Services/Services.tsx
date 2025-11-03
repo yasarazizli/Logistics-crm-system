@@ -163,7 +163,6 @@ const Services = () => {
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
             </>
           }
         >

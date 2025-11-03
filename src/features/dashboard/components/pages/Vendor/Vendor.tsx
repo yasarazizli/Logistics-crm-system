@@ -132,6 +132,7 @@ const Vendor = () => {
               <td></td>
               <td>
                 <input
+                  type="date"
                   placeholder="Start date"
                   value={filters.start_date}
                   onChange={(e) => handleFilterChange(e, "start_date")}
@@ -139,6 +140,7 @@ const Vendor = () => {
               </td>
               <td>
                 <input
+                  type="date"
                   placeholder="End date"
                   value={filters.end_date}
                   onChange={(e) => handleFilterChange(e, "end_date")}

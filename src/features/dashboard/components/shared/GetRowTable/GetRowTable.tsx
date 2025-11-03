@@ -6,6 +6,7 @@ import CreateServicesTable from "@/features/dashboard/components/shared/Modals/S
 import PriceTable from "@/features/dashboard/components/shared/Modals/PriceTable/PriceTable.tsx";
 import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import { useLocation } from "react-router-dom";
+import DeleteColumn from "@/features/dashboard/components/shared/Modals/DeleteColumn/DeleteColumn.tsx";
 
 interface OptionType {
   value: string;
@@ -692,7 +693,11 @@ export default function Table({
     );
   }, [columns.length]);
 
-  const deleteColumn = useCallback(
+  const deleteColumn = useCallback((colIndex: number) => {
+    setModal({ type: "delete", colIndex });
+  }, []);
+
+  const confirmDeleteColumn = useCallback(
     (colIndex: number) => {
       const deletedServiceId = initialRows[colIndex]?.id;
 
@@ -731,6 +736,8 @@ export default function Table({
       if (deletedServiceId && onDeleteService) {
         onDeleteService([deletedServiceId]);
       }
+
+      setModal(null);
     },
     [initialRows, onDeleteService],
   );
@@ -835,7 +842,10 @@ export default function Table({
   );
 
   const [modal, setModal] = useState<
-    null | { type: "create" } | { type: "add"; id: number }
+    | null
+    | { type: "create" }
+    | { type: "add"; id: number }
+    | { type: "delete"; colIndex: number }
   >(null);
   const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(0);
 
@@ -1301,6 +1311,17 @@ export default function Table({
             setModal(null);
           }}
           order_id={orderId}
+        />
+      )}
+      {modal?.type === "delete" && (
+        <DeleteColumn
+          modalClose={(isConfirm) => {
+            if (isConfirm) {
+              confirmDeleteColumn(modal.colIndex);
+            } else {
+              setModal(null);
+            }
+          }}
         />
       )}
     </div>

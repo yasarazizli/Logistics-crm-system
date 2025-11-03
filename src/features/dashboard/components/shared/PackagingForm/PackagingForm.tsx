@@ -11,8 +11,8 @@ import { FromToIcon } from "@/assets/icons/shared.vectors.tsx";
 import Select, { SingleValue, StylesConfig } from "react-select";
 
 export interface PackagingData {
-  packing_type: string;
-  container_type?: string;
+  package_type: string;
+  packing_type?: string;
   size?: number;
   total_quantity: number;
   net_weight: number;
@@ -380,7 +380,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
   const updateParentData = () => {
     let packagingData: PackagingData;
 
-    // Seçilen tipin label'ını bul
     const selectedTypeLabel = selectedOption3
       ? getTypeOptions(selectedOption1).find(
           (opt) => opt.value === selectedOption3,
@@ -389,8 +388,8 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
 
     if (selectedOption1 === "Container") {
       packagingData = {
-        packing_type: "Container",
-        container_type: selectedTypeLabel, // Label'ı kullan
+        package_type: "Container",
+        packing_type: selectedTypeLabel,
         size: parseInt(selectedOption2) || 0,
         total_quantity: parseInt(containerInputs.totalQuantity) || 0,
         net_weight: parseFloat(containerInputs.netWeight) || 0,
@@ -398,15 +397,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       };
     } else if (selectedOption1 === "Break_Bulk") {
       packagingData = {
-        packing_type: "Break_Bulk",
-        container_type: selectedTypeLabel, // Label'ı kullan
+        package_type: "Break_Bulk",
+        packing_type: selectedTypeLabel,
         total_quantity: parseInt(breakBulkInputs.totalQuantity) || 0,
         net_weight: parseFloat(breakBulkInputs.netWeight) || 0,
         gross_weight: parseFloat(breakBulkInputs.grossWeight) || 0,
         width: parseFloat(breakBulkInputs.width) || 0,
         height: parseFloat(breakBulkInputs.height) || 0,
         length: parseFloat(breakBulkInputs.length) || 0,
-        // Stackable için ayrı bir alan
         packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     } else if (
@@ -414,15 +412,15 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       selectedOption3 === "Bulk Liquid"
     ) {
       packagingData = {
-        packing_type: "Bulk_Liquid",
-        container_type: selectedTypeLabel, // Label'ı kullan
+        package_type: "Bulk_Liquid",
+        packing_type: selectedTypeLabel,
         net_weight: parseFloat(bulkLiquidInputs.netWeight) || 0,
         total_quantity: 0,
         gross_weight: 0,
       };
     } else if (selectedOption1 === "Oversize_Cargo") {
       packagingData = {
-        packing_type: "Oversize_Cargo",
+        package_type: "Oversize_Cargo",
         total_quantity: parseInt(generalInputs.totalQuantity) || 0,
         net_weight: parseFloat(generalInputs.netWeight) || 0,
         gross_weight: parseFloat(generalInputs.grossWeight) || 0,
@@ -431,17 +429,15 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         length: parseFloat(generalInputs.length) || 0,
       };
     } else {
-      // General
       packagingData = {
-        packing_type: selectedOption1,
-        container_type: selectedTypeLabel, // Label'ı kullan
+        package_type: selectedOption1,
+        packing_type: selectedTypeLabel,
         total_quantity: parseInt(generalInputs.totalQuantity) || 0,
         net_weight: parseFloat(generalInputs.netWeight) || 0,
         gross_weight: parseFloat(generalInputs.grossWeight) || 0,
         width: parseFloat(generalInputs.width) || 0,
         height: parseFloat(generalInputs.height) || 0,
         length: parseFloat(generalInputs.length) || 0,
-        // Stackable için ayrı bir alan
         packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     }
@@ -449,7 +445,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     onDataChange(packagingData);
   };
 
-  // Transportation handlers
   const swapFromTo = (index: number) => {
     setRoutes((prev) => {
       const newRoutes = [...prev];
@@ -1196,7 +1191,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
           )}
         </div>
 
-        {/* Wagon Provision Checkbox */}
         {transportationType === "Rail" && (
           <div style={{ margin: "20px 0" }}>
             <label className={styles.checkbox}>
@@ -1212,7 +1206,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
           </div>
         )}
 
-        {/* Routes Mapping */}
         {routes.map((route, index) => {
           if (
             transportationType === "Rail" &&

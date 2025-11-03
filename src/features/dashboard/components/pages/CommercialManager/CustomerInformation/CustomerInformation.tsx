@@ -173,8 +173,8 @@ const CustomerInformation = () => {
         service_id: Number(row.serviceName) || 0,
         vendor_id: row.vendor || "",
         packing: {
-          packing_type: row.packagingType || "",
-          container_type: row.packagingPackage || "",
+          package_type: row.packagingType || "",
+          packing_type: row.packagingPackage || "",
           size: Number(row.packagingSize) || 0,
           total_quantity: Number(row.totalQuantity) || 0,
           net_weight: Number(row.netWeight) || 0,
@@ -285,20 +285,14 @@ const CustomerInformation = () => {
 
           if (apiData) {
             setTotalWeight(apiData.total_weight?.toString() || "");
-            const convertToISO = (dateStr?: string) => {
-              if (!dateStr) return "";
-              const [day, month, year] = dateStr.split(".");
-              return `${year}-${month}-${day}`;
-            };
-            setStartDate(convertToISO(apiData.start_date));
-            setEndDate(convertToISO(apiData.end_date));
+            setStartDate(apiData.start_date ?? "");
+            setEndDate(apiData.end_date ?? "");
           }
         }
       } catch (error) {
         console.error("Error fetching quotation:", error);
       }
     };
-
     fetchRequest();
   }, [order]);
 

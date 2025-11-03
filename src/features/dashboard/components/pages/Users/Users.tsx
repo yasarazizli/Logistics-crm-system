@@ -5,9 +5,11 @@ import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   AgreeIcon,
-  FileIcon,
+  CycleIcon,
+  EyesIcon,
   GreenAddIcon,
   PenIcon,
+  PlusIcon,
   YellowPlusIcon,
 } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
@@ -19,6 +21,10 @@ import Pagination from "@/features/dashboard/components/shared/Pagination/Pagina
 import { useNavigate } from "react-router-dom";
 import i18n from "@/locales/i18n.ts";
 import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import InvoicePdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoicePdf.tsx";
+import InvoiceApprove from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceApprove/InvoiceApprove.tsx";
+import InstructionPdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InstructionDocument/InstructionPdf.tsx";
+import ReOrder from "@/features/dashboard/components/shared/Modals/ReOrder/ReOrder.tsx";
 
 const filterKeys = [
   "order_code",
@@ -33,6 +39,7 @@ const Users = () => {
   const dataRef = useRef<any>(null);
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
+
   const [filters, setFilters] = useState({
     order_code: "",
     country_loading: "",
@@ -43,13 +50,25 @@ const Users = () => {
   });
 
   const [modal, setModal] = useState<
-    null | { type: "add" } | { type: "contract"; id: number }
+    | null
+    | { type: "add" }
+    | { type: "contract"; id: number }
+    | { type: "invoice"; id: number }
+    | { type: "instruction"; id: number }
+    | { type: "invoice-approve"; id: number; actionType: "agree" | "reject" }
+    | {
+        type: "instruction-approve";
+        id: number;
+        actionType: "agree" | "reject";
+      }
+    | { type: "reorder"; id: number; actionType: "agree" | "reject" }
   >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
-
   const [page, setPage] = useState(1);
   const pageSize = 10;
+  const [data, setData] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
 
   const debouncedFilters = {
     order_code: useDebounce(filters.order_code, 700),
@@ -58,9 +77,6 @@ const Users = () => {
     start_date: useDebounce(filters.start_date, 700),
     end_date: useDebounce(filters.end_date, 700),
   };
-
-  const [data, setData] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     setLoader(true);
@@ -72,7 +88,6 @@ const Users = () => {
         pageSize,
       });
       if (response?.status === 200) {
-        console.log("data", response.data);
         setData(response.data?.data || []);
         setTotal(response.data?.count || 0);
       }
@@ -91,7 +106,6 @@ const Users = () => {
     const checkData = async () => {
       const response = await checkRequest();
       if (response?.status === 200) {
-        console.log("checkData", response.data);
         dataRef.current = response.data;
       }
     };
@@ -109,25 +123,6 @@ const Users = () => {
     }));
     setPage(1);
   };
-
-  const addModal = modal?.type === "add" && (
-    <AddBalance
-      modalClose={() => {
-        setModal(null);
-        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
-      }}
-    />
-  );
-
-  const addContract = modal?.type === "contract" && (
-    <AddContract
-      id={modal.id}
-      modalClose={() => {
-        setModal(null);
-        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
-      }}
-    />
-  );
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -150,9 +145,13 @@ const Users = () => {
   };
 
   const goToQuotation = () => {
-    navigate(`/${i18n.language}/users/ask/quotation`, {
+    navigate(`/${i18n.language}/users/ask/order`, {
       state: { showShipper: true },
     });
+  };
+
+  const goToAskQuotation = () => {
+    navigate(`/${i18n.language}/users/ask/quotation`, {});
   };
 
   const handleClickEdit = (orderId: number) => {
@@ -167,6 +166,33 @@ const Users = () => {
     navigate(`/${i18n.language}/users/ask/quotation/edit`, {
       state: { order: selectedOrder },
     });
+  };
+
+  const handleQuotationEdit = (orderId: number) => {
+    const selectedOrder = data.find((item) => item.order_id === orderId);
+    navigate(`/${i18n.language}/users/ask/quotation/update`, {
+      state: { order: selectedOrder },
+    });
+  };
+
+  const handleOpenInvoice = (orderId: number) => {
+    setModal({ type: "invoice", id: orderId });
+  };
+
+  const handleApproveInvoice = (orderId: number) => {
+    setModal({ type: "invoice-approve", id: orderId, actionType: "agree" });
+  };
+
+  const handleOpenInstruction = (orderId: number) => {
+    setModal({ type: "instruction", id: orderId });
+  };
+
+  const handleApproveInstruction = (orderId: number) => {
+    setModal({ type: "instruction-approve", id: orderId, actionType: "agree" });
+  };
+
+  const handleReOrder = (orderId: number) => {
+    setModal({ type: "reorder", id: orderId, actionType: "agree" });
   };
 
   return (
@@ -201,11 +227,12 @@ const Users = () => {
             </button>
           ))}
         </div>
+
         <div className={styles.btn}>
           <div
             className={styles.status}
             onClick={() =>
-              setModal({ type: "contract", id: dataRef.current.id })
+              setModal({ type: "contract", id: dataRef.current?.id })
             }
           >
             <p>
@@ -225,9 +252,15 @@ const Users = () => {
             </p>
           </div>
           <Button
-            text="Ask Quotation"
+            text="Create Order"
+            icon={PlusIcon}
             viewType="green__light"
             onClick={goToQuotation}
+          />
+          <Button
+            text="Ask Quotation"
+            viewType="green__light"
+            onClick={goToAskQuotation}
           />
         </div>
       </div>
@@ -244,6 +277,8 @@ const Users = () => {
             { name: "Invoice document" },
             { name: "Instruction document" },
             { name: "User confirmation" },
+            { name: "Clone Order" },
+            { name: "Edit Order" },
             { name: "Edit Quotation" },
           ]}
           filters={
@@ -263,6 +298,8 @@ const Users = () => {
               <td></td>
               <td></td>
               <td></td>
+              <td></td>
+              <td></td>
             </>
           }
         >
@@ -275,40 +312,59 @@ const Users = () => {
               <td>{item.end_date}</td>
               <td>{item.status}</td>
               <td>
-                {item.invoice ? (
-                  <a
-                    href={item.invoice}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <div
+                  className={styles.icon}
+                  style={{ display: "flex", gap: "8px" }}
+                >
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => handleOpenInvoice(item.order_id)}
+                    style={{ cursor: "pointer" }}
+                    title="View Invoice PDF"
                   >
-                    <div className={styles.file__icon}>
-                      <FileIcon />
-                    </div>
-                  </a>
-                ) : (
-                  " - "
-                )}
+                    <EyesIcon />
+                  </div>
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => handleApproveInvoice(item.order_id)}
+                    style={{ cursor: "pointer" }}
+                    title="Approve Invoice"
+                  >
+                    <AgreeIcon />
+                  </div>
+                </div>
               </td>
               <td>
-                {item.instructions ? (
-                  <a
-                    href={item.instructions}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div className={styles.file__icon}>
-                      <FileIcon />
+                <div
+                  className={styles.icon}
+                  style={{ display: "flex", gap: "8px" }}
+                >
+                  <>
+                    <div
+                      className={styles.icon__3}
+                      onClick={() => handleOpenInstruction(item.order_id)}
+                      style={{ cursor: "pointer" }}
+                      title="View Instruction PDF"
+                    >
+                      <EyesIcon />
                     </div>
-                  </a>
-                ) : (
-                  " - "
-                )}
+                    <div
+                      className={styles.icon__3}
+                      onClick={() => handleApproveInstruction(item.order_id)}
+                      style={{ cursor: "pointer" }}
+                      title="Approve Instruction"
+                    >
+                      <AgreeIcon />
+                    </div>
+                  </>
+                </div>
               </td>
               <td>
                 <div className={styles.icon}>
                   <div
                     className={styles.icon__3}
                     onClick={() => handleClickEdit(item.order_id)}
+                    title="User Confirmation"
                   >
                     <AgreeIcon />
                   </div>
@@ -317,8 +373,32 @@ const Users = () => {
               <td>
                 <div className={styles.icon}>
                   <div
+                    className={styles.icon__4}
+                    onClick={() => handleReOrder(item.order_id)}
+                    style={{ cursor: "pointer" }}
+                    title="ReOrder"
+                  >
+                    <CycleIcon />
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
                     className={styles.icon__2}
                     onClick={() => handleEditClick(item.order_id)}
+                    title="Edit Order"
+                  >
+                    <PenIcon />
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => handleQuotationEdit(item.order_id)}
+                    title="Edit Quotation"
                   >
                     <PenIcon />
                   </div>
@@ -335,8 +415,81 @@ const Users = () => {
         />
       </div>
 
-      {addContract}
-      {addModal}
+      {modal?.type === "add" && (
+        <AddBalance
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+        />
+      )}
+
+      {modal?.type === "contract" && (
+        <AddContract
+          id={modal.id}
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+        />
+      )}
+
+      {modal?.type === "invoice" && (
+        <InvoicePdf
+          id={modal.id}
+          modalClose={() => {
+            setModal(null);
+          }}
+        />
+      )}
+
+      {modal?.type === "instruction" && (
+        <InstructionPdf
+          id={modal.id}
+          modalClose={() => {
+            setModal(null);
+          }}
+        />
+      )}
+
+      {modal?.type === "invoice-approve" && (
+        <InvoiceApprove
+          id={modal.id}
+          actionType={modal.actionType}
+          modalClose={(isRender: boolean) => {
+            setModal(null);
+            if (isRender) {
+              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+            }
+          }}
+        />
+      )}
+
+      {modal?.type === "instruction-approve" && (
+        <InvoiceApprove
+          id={modal.id}
+          actionType={modal.actionType}
+          modalClose={(isRender: boolean) => {
+            setModal(null);
+            if (isRender) {
+              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+            }
+          }}
+        />
+      )}
+
+      {modal?.type === "reorder" && (
+        <ReOrder
+          id={modal.id}
+          actionType={modal.actionType}
+          modalClose={(isRender: boolean) => {
+            setModal(null);
+            if (isRender) {
+              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
