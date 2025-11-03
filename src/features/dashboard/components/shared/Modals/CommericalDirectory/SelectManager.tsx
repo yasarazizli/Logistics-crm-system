@@ -33,7 +33,7 @@ const getAllCm = async (role: string) => {
 
 const putManager = async (formData: FormData, userId: number) => {
   return await axios
-    .put(`${apiUrl}/accounts/set-supervisor/?id=${userId}`, formData, {
+    .put(`${apiUrl}/commercial/set-supervisor/?id=${userId}`, formData, {
       headers: { Authorization: getCookie("allianceToken") },
     })
     .catch((err) => err.response);
