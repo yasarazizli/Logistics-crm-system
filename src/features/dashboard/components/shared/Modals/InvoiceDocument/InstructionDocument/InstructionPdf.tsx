@@ -24,17 +24,12 @@ import { errorMessageHandler } from "@/libs/error.ts";
 import { InstructionModel } from "@/features/dashboard/models/order.model.ts";
 import { getOrderInstructionDetailRequest } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 
+// ✅ Font register (sadece Roboto)
 Font.register({
   family: "Roboto",
   fonts: [
-    {
-      src: Roboto,
-      fontWeight: "normal",
-    },
-    {
-      src: RobotoBold,
-      fontWeight: "bold",
-    },
+    { src: Roboto, fontWeight: "normal" },
+    { src: RobotoBold, fontWeight: "bold" },
   ],
 });
 
@@ -76,216 +71,97 @@ const InstructionPdf = ({
     }
   }, [id]);
 
-  const InstructionPdf = () => {
-    if (!orderModel) {
-      return null;
-    }
+  const PdfContent = () => {
+    if (!orderModel) return null;
 
     return (
       <Document>
         <Page size="A4" style={invoiceDocument.page}>
-          {/* PDF Header START */}
+          {/* Header */}
           <View style={invoiceHead.header}>
             <Image style={invoiceHead.header__logo} src={logo} />
           </View>
-          {/* PDF Header END */}
 
-          {/* Invoice Detail START */}
+          {/* Başlık */}
           <View style={invoiceValidateDetail.box}>
             <View style={invoiceValidateDetail.item}>
-              <Text>Инструкция по заполнению ж/д накладной</Text>
+              <Text
+                style={{
+                  fontFamily: "Roboto",
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}
+              >
+                Инструкция по заполнению ж/д накладной
+              </Text>
             </View>
             <View style={invoiceValidateDetail.item}>
-              <Text>
+              <Text style={{ fontFamily: "Roboto", fontSize: 12 }}>
                 Сообщаем инструкцию по заполнению ж.д. накладных на ноябрь 2021
                 года
               </Text>
             </View>
           </View>
-          {/* Invoice Detail END */}
 
-          {/* PDF Table START */}
           <View style={invoiceTable.footer}>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                Border Crossing Points
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text>{orderModel?.border_crossing_points}</Text>
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                From
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                {orderModel?.from}
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                to
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text> {orderModel?.to}</Text>
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                Harmonized System Code
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text> {orderModel?.harmonized_system_code}</Text>
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                Owner
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text> {orderModel?.owner}</Text>
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                Packing type
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text> {orderModel?.packing_type}</Text>
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                Padcode
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text> {orderModel?.padcode}</Text>
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                Shipper
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text> {orderModel?.shipper}</Text>
-              </Text>
-            </View>
-            <View style={invoiceTable.footerRow}>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.col3,
-                  invoiceTable.tableBorder,
-                ]}
-              >
-                Vaqon No
-              </Text>
-              <Text
-                style={[
-                  invoiceTable.footerCell,
-                  invoiceTable.tableBorder,
-                  { width: "50%" },
-                ]}
-              >
-                <Text> {orderModel?.vaqon_no}</Text>
-              </Text>
-            </View>
+            {[
+              {
+                label: "Border Crossing Points",
+                value: orderModel?.border_crossing_points,
+              },
+              { label: "From", value: orderModel?.from },
+              { label: "To", value: orderModel?.to },
+              {
+                label: "Harmonized System Code",
+                value: orderModel?.harmonized_system_code,
+              },
+              { label: "Owner", value: orderModel?.owner },
+              { label: "Packing type", value: orderModel?.packing_type },
+              { label: "Padcode", value: orderModel?.padcode },
+              { label: "Shipper", value: orderModel?.shipper },
+              { label: "Wagon No", value: orderModel?.vaqon_no },
+            ].map((item, index) => (
+              <View key={index} style={invoiceTable.footerRow}>
+                <Text
+                  style={[
+                    invoiceTable.footerCell,
+                    invoiceTable.col3,
+                    invoiceTable.tableBorder,
+                    {
+                      fontFamily: "Roboto",
+                      fontSize: 10,
+                      fontWeight: "bold",
+                      padding: "4px 8px",
+                    },
+                  ]}
+                >
+                  {item.label}
+                </Text>
+                <View
+                  style={[
+                    invoiceTable.footerCell,
+                    invoiceTable.tableBorder,
+                    {
+                      width: "70%",
+                      padding: "4px 8px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      minHeight: "24px",
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "Roboto",
+                      fontSize: 10,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {item.value || "-"}
+                  </Text>
+                </View>
+              </View>
+            ))}
           </View>
         </Page>
       </Document>
@@ -331,7 +207,7 @@ const InstructionPdf = ({
   return (
     <Modal modalClose={modalClose}>
       <PDFViewer style={{ width: "700px", height: "800px" }}>
-        <InstructionPdf />
+        <PdfContent />
       </PDFViewer>
     </Modal>
   );

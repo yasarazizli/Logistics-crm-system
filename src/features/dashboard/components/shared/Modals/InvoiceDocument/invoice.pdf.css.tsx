@@ -79,11 +79,11 @@ export const invoiceTable = StyleSheet.create({
     textAlign: "center",
   },
   col1: { flex: 1 }, // %10
-  col2: { flex: 4 }, // %40
+  col2: { flex: 3 }, // %40
   col3: { flex: 2 }, // %10
   col4: { flex: 2 }, // %20
-  col5: { flex: 1 }, // %10
-  col6: { flex: 1 }, // %10
+  col5: { flex: 2 }, // %10
+  col6: { flex: 2 }, // %10
   tableBorder: {
     border: "1px solid #DEDEDE",
   },
