@@ -1,8 +1,12 @@
 .table {
   width: 100%;
-  background-color: #fff;
   border-radius: 12px;
   overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    height: 5px;
+  }
+
 
   table {
     width: 100%;

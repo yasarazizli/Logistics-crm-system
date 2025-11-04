@@ -136,11 +136,15 @@ export const FullOrder = async (params: {
 
 export const EditOrder = async (formData: FormData, order_id: number) => {
   return await axios
-    .put(`${apiUrl}/accountant-approve/?order_id=${order_id}`, formData, {
-      headers: {
-        Authorization: getCookie("allianceToken"),
+    .put(
+      `${apiUrl}/commercial/accountant-approve/?order_id=${order_id}`,
+      formData,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
       },
-    })
+    )
     .catch((err) => {
       return err.response;
     });

@@ -2,14 +2,14 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding: 10px 64px;
+  padding: 10px 32px 10px 44px;
 
   .title__btn {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-top: 15px;
 
     h1 {
       color: #000;
@@ -254,6 +254,28 @@
     }
 
   }
+
+  .document {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    .file__icon {
+      display: flex;
+      width: 20px;
+      height: 20px;
+      justify-content: center;
+      align-items: center;
+      gap: 13.214px;
+      flex-shrink: 0;
+      border-radius: 26.429px;
+      background: var(--Green-200, rgba(29, 115, 107, 0.22));
+    }
+
+
+  }
+
 
   .manager {
     cursor: pointer;
