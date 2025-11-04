@@ -411,8 +411,8 @@ const CustomerInformationEdit = () => {
             service_id: serviceId,
             packing: {
               id: apiService?.packing?.id || 0,
-              package_type: row.packagingType || "",
-              packing_type: row.packagingPackage || "",
+              package_type: row.packagingPackage || "",
+              packing_type: row.packagingType || "",
               size: Number(row.packagingSize) || 0,
               total_quantity: Number(row.totalQuantity) || 0,
               net_weight: Number(row.netWeight) || 0,

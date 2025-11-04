@@ -246,9 +246,9 @@ export default function Table({
       const packagingRow = selectedPackaging[6];
       const packagingCol = packagingRow && packagingRow[colIndex];
 
-      const packagingType = packagingCol?.[0]?.label || "";
+      const packagingPackage = packagingCol?.[0]?.label || "";
       const packagingSize = packagingCol?.[1]?.label || "";
-      const packagingPackage = packagingCol?.[2]?.label || "";
+      const packagingType = packagingCol?.[2]?.label || "";
 
       return {
         id: initialRows[colIndex]?.id || 0,
@@ -258,9 +258,9 @@ export default function Table({
         from: selectedFrom[colIndex]?.label || "",
         to: selectedTo[colIndex]?.label || "",
         transportType: selectedTransportType[colIndex]?.label || "",
-        packagingType,
-        packagingSize,
-        packagingPackage,
+        packagingPackage: packagingPackage,
+        packagingSize: packagingSize,
+        packagingType: packagingType,
         netWeight: textValues[`Net weight ton-${colIndex}`] || "",
         grossWeight: textValues[`Gross weight ton-${colIndex}`] || "",
         width: textValues[`Width (Meter)-${colIndex}`] || "",
@@ -430,14 +430,14 @@ export default function Table({
           });
         }
 
-        if (row.packagingType) {
+        if (row.packagingPackage) {
           setSelectedPackaging((prev) => {
             const newPackaging = [...prev];
-            newPackaging[6] = [...newPackaging[6]];
-            newPackaging[6][colIndex] = [...newPackaging[6][colIndex]];
+            if (!newPackaging[6]) newPackaging[6] = [];
+            newPackaging[6][colIndex] = [...(newPackaging[6][colIndex] || [])];
             newPackaging[6][colIndex][0] = {
-              value: row.packagingType,
-              label: row.packagingType,
+              value: row.packagingPackage as string,
+              label: row.packagingPackage as string,
             };
             return newPackaging;
           });
@@ -446,24 +446,24 @@ export default function Table({
         if (row.packagingSize) {
           setSelectedPackaging((prev) => {
             const newPackaging = [...prev];
-            newPackaging[6] = [...newPackaging[6]];
-            newPackaging[6][colIndex] = [...newPackaging[6][colIndex]];
+            if (!newPackaging[6]) newPackaging[6] = [];
+            newPackaging[6][colIndex] = [...(newPackaging[6][colIndex] || [])];
             newPackaging[6][colIndex][1] = {
-              value: row.packagingSize,
-              label: row.packagingSize,
+              value: row.packagingSize as string,
+              label: row.packagingSize as string,
             };
             return newPackaging;
           });
         }
 
-        if (row.packagingPackage) {
+        if (row.packagingType) {
           setSelectedPackaging((prev) => {
             const newPackaging = [...prev];
-            newPackaging[6] = [...newPackaging[6]];
-            newPackaging[6][colIndex] = [...newPackaging[6][colIndex]];
+            if (!newPackaging[6]) newPackaging[6] = [];
+            newPackaging[6][colIndex] = [...(newPackaging[6][colIndex] || [])];
             newPackaging[6][colIndex][2] = {
-              value: row.packagingPackage,
-              label: row.packagingPackage,
+              value: row.packagingType as string,
+              label: row.packagingType as string,
             };
             return newPackaging;
           });
