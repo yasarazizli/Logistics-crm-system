@@ -2,7 +2,7 @@ import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotati
 import Header from "@/components/Header/Header.tsx";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useContext } from "react";
 import axios from "axios";
 import Button from "@/components/Button/Button.tsx";
 import { toast } from "react-toastify";
@@ -24,6 +24,7 @@ import Shipper, {
 import { errorMessageHandler } from "@/libs/error.ts";
 import i18n from "i18next";
 import Note from "@/features/dashboard/components/shared/Modals/Note/Note.tsx";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -89,6 +90,7 @@ interface Offer {
 const CustomerInformation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setLoader } = useContext(LoaderContext);
   const order = location.state?.order;
   const { t } = useTranslation();
 
@@ -123,14 +125,9 @@ const CustomerInformation = () => {
   const pageRef = useRef<HTMLDivElement | null>(null);
 
   const sendSelectedOffer = async () => {
+    setLoader(true);
     if (!selectedOfferId) {
-      toast.error("Lütfen önce bir teklif seçin! (Düzenle butonuna tıklayın)");
-      return;
-    }
-
-    const note = offerNotes[selectedOfferId] || "";
-    if (!note.trim()) {
-      toast.error("Lütfen not yazın!");
+      toast.error("Please select an offer first! (Click the Edit button)");
       return;
     }
 
@@ -186,19 +183,20 @@ const CustomerInformation = () => {
       }
     } catch (error) {
       console.error("Gönderme hatası:", error);
-      toast.error("Teklif gönderilirken hata oluştu");
+      toast.error("Error sending offer");
     }
+    setLoader(false);
   };
 
   const rejectOffer = async () => {
     if (!selectedOfferId) {
-      toast.error("Lütfen önce bir teklif seçin! (Düzenle butonuna tıklayın)");
+      toast.error("Please select an offer first! (Click the Edit button)");
       return;
     }
 
     const note = offerNotes[selectedOfferId] || "";
     if (!note.trim()) {
-      toast.error("Lütfen reddetme nedeni yazın!");
+      toast.error("Please enter the reason for rejection!");
       return;
     }
 
@@ -596,20 +594,6 @@ const CustomerInformation = () => {
             </Table>
           )}
         </div>
-
-        <div className={styles.selectedOfferInfo}>
-          {selectedOfferId && (
-            <div className={styles.selectionInfo}>
-              <strong>Seçili Teklif:</strong> #{selectedOfferId}
-              {offerNotes[selectedOfferId] && (
-                <div className={styles.selectedNote}>
-                  <strong>Not:</strong> {offerNotes[selectedOfferId]}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
         <div className={styles.note}>
           <label className={styles.label}>Note</label>
           <input
