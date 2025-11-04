@@ -493,29 +493,41 @@ const CustomerInformationEdit = () => {
         });
       }
 
-      const response = await axios.put(
-        `${apiUrl}/commercial/update-order/?order_id=${order.order_id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: getCookie("allianceToken"),
+      try {
+        const response = await axios.put(
+          `${apiUrl}/commercial/update-order/?order_id=${order.order_id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: getCookie("allianceToken"),
+            },
           },
-        },
-      );
+        );
 
-      if (response?.status === 200 || response?.status === 201) {
-        toast.success(errorMessageHandler(response.data));
-        const role = auth.user?.role as string;
-        if (role === "commercial_manager") {
-          navigate(`/${i18n.language}/commercial/manager/order`);
-        } else if (role === "commercial_specialist") {
-          navigate(`/${i18n.language}/commercial/specialist`);
+        if (response?.status === 200 || response?.status === 201) {
+          toast.success(errorMessageHandler(response.data));
+          const role = auth.user?.role as string;
+          if (role === "commercial_manager") {
+            navigate(`/${i18n.language}/commercial/manager/order`);
+          } else if (role === "commercial_specialist") {
+            navigate(`/${i18n.language}/commercial/specialist`);
+          }
+        } else {
+          toast.error(errorMessageHandler(response.data));
         }
-      } else {
-        toast.error(errorMessageHandler(response.data));
+      } catch (error: any) {
+        console.error("Error submitting form:", error);
+        if (error.response) {
+          toast.error(errorMessageHandler(error.response.data));
+        } else if (error.request) {
+          toast.error("Network error - please check your connection");
+        } else {
+          toast.error("An unexpected error occurred");
+        }
+      } finally {
+        setLoader(false);
       }
-      setLoader(false);
     },
     [
       selectedCode,
