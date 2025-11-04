@@ -107,7 +107,6 @@ const CustomerInformation = () => {
   const [generalNote, setGeneralNote] = useState("");
 
   const [offers, setOffers] = useState<Offer[]>([]);
-  const [loading, setLoading] = useState(true);
   const shipperRefs = useRef<{ [key: number]: DynamicFormRef }>({});
   const dataLoadedRef = useRef<{ [key: number]: boolean }>({});
   const [selectedOfferId, setSelectedOfferId] = useState<number | null>(null);
@@ -254,7 +253,6 @@ const CustomerInformation = () => {
 
   const fetchOffers = async () => {
     try {
-      setLoading(true);
       const response = await GetOffer(order.order_id);
       console.log("Full API response:", response);
 
@@ -306,8 +304,6 @@ const CustomerInformation = () => {
       console.error("Error fetching offers:", error);
       toast.error("Təkliflər yüklənərkən xəta baş verdi");
       setOffers([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -353,6 +349,12 @@ const CustomerInformation = () => {
     };
 
     fetchRequest();
+  }, [order]);
+
+  useEffect(() => {
+    if (order?.order_id) {
+      fetchOffers();
+    }
   }, [order]);
 
   const toggleShipper = (offerId: number) => {
@@ -479,9 +481,7 @@ const CustomerInformation = () => {
         </div>
 
         <div className={styles.agree_table}>
-          {loading ? (
-            <div className={styles.loading}>Təkliflər yüklənir...</div>
-          ) : offers.length > 0 ? (
+          {offers.length > 0 ? (
             offers.map((offer) => (
               <div key={offer.id} className={styles.offerContainer}>
                 <div className={styles.offerHeader}>
