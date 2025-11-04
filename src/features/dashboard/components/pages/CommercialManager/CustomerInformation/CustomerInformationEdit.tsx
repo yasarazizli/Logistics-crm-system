@@ -493,35 +493,29 @@ const CustomerInformationEdit = () => {
         });
       }
 
-      try {
-        const response = await axios.put(
-          `${apiUrl}/commercial/update-order/?order_id=${order.order_id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: getCookie("allianceToken"),
-            },
+      const response = await axios.put(
+        `${apiUrl}/commercial/update-order/?order_id=${order.order_id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
           },
-        );
+        },
+      );
 
-        if (response?.status === 200 || response?.status === 201) {
-          toast.success(errorMessageHandler(response.data));
-          const role = auth.user?.role as string;
-          if (role === "commercial_manager") {
-            navigate(`/${i18n.language}/commercial/manager/order`);
-          } else if (role === "commercial_specialist") {
-            navigate(`/${i18n.language}/commercial/specialist`);
-          }
-        } else {
-          toast.error(errorMessageHandler(response.data));
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success(errorMessageHandler(response.data));
+        const role = auth.user?.role as string;
+        if (role === "commercial_manager") {
+          navigate(`/${i18n.language}/commercial/manager/order`);
+        } else if (role === "commercial_specialist") {
+          navigate(`/${i18n.language}/commercial/specialist`);
         }
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        toast.error("An error occurred while submitting the form");
-      } finally {
-        setLoader(false);
+      } else {
+        toast.error(errorMessageHandler(response.data));
       }
+      setLoader(false);
     },
     [
       selectedCode,
