@@ -57,7 +57,7 @@ const Users = () => {
     country_destination: "",
     start_date: "",
     end_date: "",
-    status: "",
+    status: "pending",
   });
 
   const [modal, setModal] = useState<

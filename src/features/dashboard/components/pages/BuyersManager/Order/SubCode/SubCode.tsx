@@ -122,15 +122,6 @@ interface ApiOfferData {
   };
 }
 
-interface OrderServiceData {
-  service_id: number;
-  sub_code: string;
-}
-
-interface OrderOfferData {
-  order_service_serializer: OrderServiceData[];
-}
-
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const SubCode = () => {
@@ -404,34 +395,28 @@ const SubCode = () => {
 
     setLoader(true);
 
-    const order_offers: OrderOfferData[] = offers.map((offer, offerIndex) => {
-      const orderServiceData: OrderServiceData[] = offer.tableData.map(
-        (row, rowIndex) => {
-          const subCodeKey = `Sub Code-${rowIndex}-${offerIndex}`;
-          const subCodeValue = textValues[subCodeKey] || "";
+    const orderServiceData = offers.flatMap((offer, offerIndex) =>
+      offer.tableData.map((row, rowIndex) => {
+        const subCodeKey = `Sub Code-${rowIndex}-${offerIndex}`;
+        const subCodeValue = textValues[subCodeKey] || "";
 
-          const serviceId = row.id || 0;
+        const serviceId = row.id || 0;
 
-          console.log(
-            `Row ${rowIndex}: id=${serviceId}, subCode=${subCodeValue}`,
-          );
+        console.log(
+          `Row ${rowIndex}: id=${serviceId}, subCode=${subCodeValue}`,
+        );
 
-          return {
-            service_id: serviceId,
-            sub_code: subCodeValue,
-          };
-        },
-      );
+        return {
+          service_id: serviceId,
+          sub_code: subCodeValue,
+        };
+      }),
+    );
 
-      return {
-        order_service_serializer: orderServiceData,
-      };
-    });
-
-    console.log("Sending data:", order_offers);
+    console.log("Sending data:", orderServiceData);
 
     const formData = new FormData();
-    formData.append("offers", JSON.stringify(order_offers));
+    formData.append("order_services", JSON.stringify(orderServiceData));
     formData.append("btn_status", status);
 
     try {
