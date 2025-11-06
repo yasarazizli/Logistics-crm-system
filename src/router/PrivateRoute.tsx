@@ -12,13 +12,14 @@ export default function PrivateRoute() {
   const normalizedPath = `/${location.pathname.replace(/^\/[^/]+\//, "")}`;
 
   // Əgər login olmayıbsa, login səhifəsinə yönləndir
-  // if (!auth.isAuth) {
-  //   return <Navigate to={`/${i18n.language}/auth/login`} />;
-  // }
+  if (!auth.isAuth) {
+    return <Navigate to={`/${i18n.language}/auth/login`} />;
+  }
 
   // User
   if (auth.role === Roles.user) {
     const accessiblePages = [
+      "/admin/users",
       "/users",
       "/user/offer/confirmation",
       "/users/ask/quotation",

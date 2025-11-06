@@ -58,6 +58,7 @@ import CommercialDirectoryOrderPage from "@/features/dashboard/pages/CommercialD
 import OrdersPage from "@/features/dashboard/pages/CommercialDirectory/CommercialDirectoryOrder/OrdersPage.tsx";
 import AskOrderPage from "@/features/dashboard/pages/Others/AksOrderPage.tsx";
 import AskOrderEditPage from "@/features/dashboard/pages/Others/AskOrderEditPage.tsx";
+import AdminUsersPage from "@/features/dashboard/pages/Admin/Users/AdminUsersPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -119,6 +120,7 @@ const AppRoutes = () => {
         <Route path="accountant/users" element={<AccountantUserPage />} />
         <Route path="accountant/order" element={<AccountantOrderPage />} />
         <Route path="accountant/balance" element={<BalancePage />} />
+        <Route path="admin/users" element={<AdminUsersPage />} />
         <Route
           path="commercial/directory/users"
           element={<CommercialDirectoryUserPage />}

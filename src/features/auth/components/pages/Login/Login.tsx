@@ -51,7 +51,7 @@ const Login = () => {
           navigate(`/${i18n.language}/lawyer/users`);
           break;
         case "admin":
-          navigate(`/${i18n.language}/users`);
+          navigate(`/${i18n.language}/admin/users`);
           break;
         case "user":
           navigate(`/${i18n.language}/users`);

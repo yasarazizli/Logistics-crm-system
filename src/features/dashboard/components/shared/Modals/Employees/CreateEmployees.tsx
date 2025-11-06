@@ -4,6 +4,7 @@ import Button from "@/components/Button/Button.tsx";
 import Modal from "@/components/Modal/Modal.tsx";
 import { FormEvent, useContext, useRef } from "react";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { formCreator } from "@/libs/form.ts";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,7 @@ const CreateEmployees = ({
   modalClose: (isRender: boolean) => void;
 }) => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
   const { t } = useTranslation();
 
   const inputsRef = {
@@ -28,12 +30,43 @@ const CreateEmployees = ({
     fin_code: useRef<HTMLInputElement>(null),
   };
 
+  const allRoles = [
+    "admin",
+    "user",
+    "buyer_manager",
+    "buyer_directory",
+    "commercial_directory",
+    "commercial_manager",
+    "commercial_specialist",
+    "lawyer",
+    "accountant",
+    "monitoring",
+  ];
+
+  const getAllowedRoles = () => {
+    if (auth.role === "admin") {
+      return allRoles.filter((role) => role !== "admin" && role !== "user");
+    }
+
+    return allRoles;
+  };
+
+  const allowedRoles = getAllowedRoles();
+
   const create = async (event: FormEvent) => {
     event.preventDefault();
     setLoader(true);
 
+    const selectedRole = inputsRef.role.current?.value;
+
+    if (selectedRole && !allowedRoles.includes(selectedRole)) {
+      toast.error(t("workers.errors.unauthorized_role"));
+      setLoader(false);
+      return;
+    }
+
     const formData = formCreator([
-      { name: "role", data: inputsRef.role.current?.value },
+      { name: "role", data: selectedRole },
       { name: "full_name", data: inputsRef.full_name.current?.value },
       { name: "email", data: inputsRef.email.current?.value },
       { name: "phone", data: inputsRef.phone.current?.value },
@@ -52,19 +85,6 @@ const CreateEmployees = ({
     setLoader(false);
     modalClose(true);
   };
-
-  const roles = [
-    "admin",
-    "user",
-    "buyer_manager",
-    "buyer_directory",
-    "commercial_directory",
-    "commercial_manager",
-    "commercial_specialist",
-    "lawyer",
-    "accountant",
-    "monitoring",
-  ];
 
   return (
     <Modal
@@ -138,7 +158,7 @@ const CreateEmployees = ({
               <option value="">
                 {t("workers.modals.create.inputs.description.label__5")}
               </option>
-              {roles.map((role) => (
+              {allowedRoles.map((role) => (
                 <option key={role} value={role}>
                   {t(`workers.roles.${role}`)}
                 </option>

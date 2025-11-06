@@ -13,9 +13,9 @@ import {
 export const navigation = [
   {
     name: "main.title",
-    path: "users",
+    path: "admin/users",
     icon: HomeIcon,
-    roles: ["admin", "directory"],
+    roles: ["admin"],
   },
 
   {
@@ -34,7 +34,7 @@ export const navigation = [
     name: "main.title__3",
     path: "employees",
     icon: VendorIcon,
-    roles: ["admin", "directory"],
+    roles: ["admin"],
   },
   {
     name: "main.title__4",
@@ -46,7 +46,7 @@ export const navigation = [
     name: "main.title__8",
     path: "controls",
     icon: ControlsIcon,
-    roles: ["admin", "directory"],
+    roles: ["admin"],
   },
 
   // lawyer

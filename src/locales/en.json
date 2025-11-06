@@ -320,7 +320,7 @@
             "label__4": "Full name",
             "label__port": "Port Name",
             "label__balance": "Write amount",
-            "label__invoice": "Upload invoice",
+            "label__invoice": "Upload contract",
             "label__contract": "Upload your file",
             "contract__number": "Contract Number",
             "contract__placeholder": "+994 55 123 45 67"
@@ -455,7 +455,7 @@
         "vendor_placeholder": "Name",
         "started": "Contract Start date",
         "ended": "Contract End date",
-        "vendor_select": "Select vendor",
+        "vendor_select": "Select Language",
         "service_name": "Service Name",
         "hs_code": "QNQ/ HS Code",
         "hs_code_placeholder": "Search",

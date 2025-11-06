@@ -304,6 +304,23 @@
     border-radius: 100px;
     border: 1px solid #1D736B33;
     background: #9F9F9F38;
+
+    &.sent {
+      background: #1D736B;
+      color: white;
+      border-color: #1D736B;
+    }
+
+    &.disabled {
+      background: #1D736B;
+      color: white;
+      border-color: #1D736B;
+    }
+
+    &:hover:not(.sent):not(.disabled) {
+      background: #e0e0e0;
+    }
+
   }
 
   .label {
