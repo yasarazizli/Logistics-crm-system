@@ -188,8 +188,8 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
     const handleContainerWagonChange = (
       type: "containers" | "wagons",
       index: number,
-      field: "number" | "dropOff",
-      value: string,
+      field: "number" | "dropOff" | "requiredNumber" | "requiredDropOff",
+      value: string | boolean,
     ) => {
       setForm((prev) => {
         const updated = [...prev[type]];
@@ -411,11 +411,29 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           {form.containers.map((c, index) => (
             <div key={`container-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
-                <label>Container {index > 0 && `${index + 1}`}</label>
+                <label>
+                  {index === 0 && (
+                    <input
+                      type="checkbox"
+                      checked={c.requiredNumber || false}
+                      onChange={() =>
+                        handleContainerWagonChange(
+                          "containers",
+                          index,
+                          "requiredNumber",
+                          !(c.requiredNumber || false),
+                        )
+                      }
+                      className={styles.custom_checkbox}
+                    />
+                  )}
+                  Container {index > 0 && `${index + 1}`}
+                </label>
                 <Input
                   className={styles.input}
                   value={c.number}
                   placeholder="Container №"
+                  disabled={index > 0 ? false : !c.requiredNumber}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -429,11 +447,29 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
               </div>
 
               <div className={styles.wagon}>
-                <label>Drop-off {index > 0 && `${index + 1}`}</label>
+                <label>
+                  {index === 0 && (
+                    <input
+                      type="checkbox"
+                      checked={c.requiredDropOff || false}
+                      onChange={() =>
+                        handleContainerWagonChange(
+                          "containers",
+                          index,
+                          "requiredDropOff",
+                          !(c.requiredDropOff || false),
+                        )
+                      }
+                      className={styles.custom_checkbox}
+                    />
+                  )}
+                  Drop-off {index > 0 && `${index + 1}`}
+                </label>
                 <Input
                   className={styles.input}
                   value={c.dropOff}
                   placeholder="Drop-off"
+                  disabled={index > 0 ? false : !c.requiredDropOff}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -462,11 +498,29 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           {form.wagons.map((w, index) => (
             <div key={`wagon-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
-                <label>Wagon {index > 0 && `${index + 1}`}</label>
+                <label>
+                  {index === 0 && (
+                    <input
+                      type="checkbox"
+                      checked={w.requiredNumber || false}
+                      onChange={() =>
+                        handleContainerWagonChange(
+                          "wagons",
+                          index,
+                          "requiredNumber",
+                          !(w.requiredNumber || false),
+                        )
+                      }
+                      className={styles.custom_checkbox}
+                    />
+                  )}
+                  Wagon {index > 0 && `${index + 1}`}
+                </label>
                 <Input
                   className={styles.input}
                   value={w.number}
                   placeholder="Wagon №"
+                  disabled={index > 0 ? false : !w.requiredNumber}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",
@@ -480,11 +534,29 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
               </div>
 
               <div className={styles.wagon}>
-                <label>Drop-off {index > 0 && `${index + 1}`}</label>
+                <label>
+                  {index === 0 && (
+                    <input
+                      type="checkbox"
+                      checked={w.requiredDropOff || false}
+                      onChange={() =>
+                        handleContainerWagonChange(
+                          "wagons",
+                          index,
+                          "requiredDropOff",
+                          !(w.requiredDropOff || false),
+                        )
+                      }
+                      className={styles.custom_checkbox}
+                    />
+                  )}
+                  Drop-off {index > 0 && `${index + 1}`}
+                </label>
                 <Input
                   className={styles.input}
                   value={w.dropOff}
                   placeholder="Drop-off"
+                  disabled={index > 0 ? false : !w.requiredDropOff}
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",
