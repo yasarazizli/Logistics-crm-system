@@ -1,7 +1,7 @@
 import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.module.scss";
 import Header from "@/components/Header/Header.tsx";
 import Input from "@/components/Input/Input.tsx";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import GetPackagingForm, {
   PackagingData,
@@ -20,10 +20,12 @@ import i18n from "i18next";
 import GetExpandableSection from "@/features/dashboard/components/shared/GetExpandableSection/GetExpandableSection.tsx";
 import GetSelectList from "@/features/dashboard/components/shared/GetSelectList/GetSelectList.tsx";
 import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const AskQuotation = () => {
+  const { setLoader } = useContext(LoaderContext);
   const navigate = useNavigate();
   const location = useLocation();
   const order = location.state?.order;
@@ -89,6 +91,8 @@ const AskQuotation = () => {
       alert("Lütfen tüm gerekli alanları doldurun");
       return;
     }
+
+    setLoader(true);
 
     const shipperData = shipperRef.current?.getFormData();
 
@@ -158,12 +162,10 @@ const AskQuotation = () => {
     formData.append("order", JSON.stringify(quotation));
     formData.append("btn_status", status);
 
-    if (msDs) formData.append("msds_file", msDs);
+    if (msDs) formData.append("msds", msDs);
 
     if (msDsPictures && Array.isArray(msDsPictures)) {
-      msDsPictures.forEach((file, index) => {
-        formData.append(`cargo_image_${index}`, file);
-      });
+      msDsPictures.forEach((file) => formData.append(`cargo_image`, file));
     }
 
     try {
@@ -187,6 +189,7 @@ const AskQuotation = () => {
       console.error("Error:", error);
       toast.error("An error occurred while submitting the form");
     }
+    setLoader(false);
   };
 
   useEffect(() => {

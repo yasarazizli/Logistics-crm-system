@@ -54,7 +54,7 @@ const Success = () => {
 
       <div className={styles.success__redirect}>
         <ArrowBackIcon />
-        <Link to={"/en/auth/login"}>Back to home</Link>
+        <Link to={"/en/auth/login"}>Back to Login</Link>
       </div>
     </div>
   );

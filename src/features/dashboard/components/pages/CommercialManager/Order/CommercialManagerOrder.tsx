@@ -22,9 +22,9 @@ import { AddIconTable, CrossIcon } from "@/assets/icons/order.vectors.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
 import InvoicePdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoicePdf.tsx";
-import InvoiceApprove from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceApprove/InvoiceApprove.tsx";
 import InstructionPdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InstructionDocument/InstructionPdf.tsx";
 import SelectBank from "@/features/dashboard/components/shared/Modals/SelectBank/SelectBank.tsx";
+import InvoiceCmApprove from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceCmApprove/InvoiceCmApprove.tsx";
 
 const filterKeys = [
   "order_code",
@@ -55,6 +55,7 @@ interface Order {
   select_bank?: string;
   bank?: string;
   price?: string | number;
+  member_status: number;
 }
 
 const CommercialManager = () => {
@@ -193,6 +194,10 @@ const CommercialManager = () => {
     );
   };
 
+  const shouldShowSendButton = (memberStatus: number) => {
+    return memberStatus === 0;
+  };
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -324,15 +329,23 @@ const CommercialManager = () => {
                   {item.chose_member || "Select Manager"} <SharedIcon />
                 </div>
               </td>
-
               <td>
-                <div
-                  className={styles.shared}
-                  onClick={() => handleSendToSpecialist(item.order_id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  Send
-                </div>
+                {shouldShowSendButton(item.member_status) ? (
+                  <div
+                    className={styles.shared}
+                    onClick={() => handleSendToSpecialist(item.order_id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Send
+                  </div>
+                ) : (
+                  <div
+                    className={styles.shared_sent}
+                    style={{ color: "#000", cursor: "default" }}
+                  >
+                    Sent
+                  </div>
+                )}
               </td>
 
               <td>
@@ -455,9 +468,10 @@ const CommercialManager = () => {
       {modal &&
         typeof modal === "object" &&
         modal.type === "invoice-approve" && (
-          <InvoiceApprove
+          <InvoiceCmApprove
             id={modal.id}
             actionType={modal.actionType}
+            documentType="invoice"
             modalClose={(isRender: boolean) => {
               setModal(null);
               if (isRender) {
@@ -470,9 +484,10 @@ const CommercialManager = () => {
       {modal &&
         typeof modal === "object" &&
         modal.type === "instruction-approve" && (
-          <InvoiceApprove
+          <InvoiceCmApprove
             id={modal.id}
             actionType={modal.actionType}
+            documentType="instruction"
             modalClose={(isRender: boolean) => {
               setModal(null);
               if (isRender) {

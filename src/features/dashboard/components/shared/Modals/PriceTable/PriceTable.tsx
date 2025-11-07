@@ -7,7 +7,7 @@ import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
 import { createPrice } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
-import { getAllServicesName } from "@/features/dashboard/services/Services&Vendor/all.service.ts"; // ƏLAVƏ EDİN
+import { getAllServicesName } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 
 interface Option {
   value: string;
@@ -76,6 +76,12 @@ const customStyles: StylesConfig<Option, false> = {
     ":active": { backgroundColor: "#1D736B", color: "white" },
   }),
 };
+
+const transportTypeOptions: Option[] = [
+  { value: "Container", label: "Container" },
+  { value: "Bulk", label: "Bulk" },
+  { value: "Break_Bulk", label: "Break Bulk" },
+];
 
 const PriceTable = ({
   modalClose,
@@ -302,12 +308,12 @@ const PriceTable = ({
             )}
           </td>
           <td className={styles.cellInput}>
-            <input
-              value={service.transport_type}
-              onChange={(e) =>
-                handleInputChange("transport_type", e.target.value)
-              }
-            />
+            {renderSelect(
+              service.transport_type,
+              (opt) => handleInputChange("transport_type", opt?.value || ""),
+              transportTypeOptions,
+              "Select Transport Type",
+            )}
           </td>
           <td className={styles.cellInput}>
             <input

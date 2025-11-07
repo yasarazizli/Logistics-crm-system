@@ -128,12 +128,10 @@ const AskOrderEdit = () => {
     formData.append("order", JSON.stringify(quotation));
     formData.append("btn_status", status);
 
-    if (msDs) formData.append("msds_file", msDs);
+    if (msDs) formData.append("msds", msDs);
 
     if (msDsPictures && Array.isArray(msDsPictures)) {
-      msDsPictures.forEach((file, index) => {
-        formData.append(`cargo_image_${index}`, file);
-      });
+      msDsPictures.forEach((file) => formData.append(`cargo_image`, file));
     }
 
     try {

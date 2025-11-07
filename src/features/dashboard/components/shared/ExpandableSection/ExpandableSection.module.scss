@@ -78,6 +78,7 @@
     display: flex;
     gap: 16px;
     width: 100%;
+    align-items: center;
 
     .drop__input {
       width: 50%;
@@ -111,159 +112,182 @@
   }
 }
 
-.dropzone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 20px;
-  height: 88px;
-  color: #666;
-  background-color: #fafafa;
-  cursor: pointer;
-  transition: border-color 0.6s;
-  border-radius: 12px;
-  border: 2px dashed var(--stroke, #DEDEDE);
-  background: var(--background-light, #F5F5F5);
-
-
-  .dropzone__title {
+.uploadSection__1 {
+  height: 100%;
+  .dropzone {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    flex: 1;
+    padding: 20px;
+    height: 88px;
+    color: #666;
+    background-color: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.6s;
+    border-radius: 12px;
+    border: 2px dashed var(--stroke, #DEDEDE);
+    background: var(--background-light, #F5F5F5);
 
-    .info {
+    .document {
       display: flex;
-      align-items: self-start;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
 
-      .title {
+    .dropzone__title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+
+      .info {
         display: flex;
-        align-items: center;
-        gap: 6px;
+        align-items: self-start;
+        flex-direction: column;
 
-        p {
-          color: #000;
-          font-size: 16px;
-          font-style: normal;
-          font-weight: 500;
-          font-family: Manrope;
-          line-height: 24px;
+        .title {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          p {
+            color: #000;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            font-family: Manrope;
+            line-height: 24px;
+          }
+
+          span {
+            color: var(--Blue-500, #3B82F6);
+            text-align: center;
+            font-size: 16px;
+            font-family: Manrope;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 24px;
+          }
         }
 
         span {
-          color: var(--Blue-500, #3B82F6);
+          color: var(--icon-for, #808080);
           text-align: center;
-          font-size: 16px;
-          font-family: Manrope;
+          font-size: 14px;
           font-style: normal;
           font-weight: 500;
-          line-height: 24px;
+          line-height: 20px;
         }
-      }
 
-      span {
-        color: var(--icon-for, #808080);
-        text-align: center;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 20px;
       }
+    }
 
+    &:hover {
+      border-color: #1D736B;
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+      border-radius: 8px;
     }
   }
 
-  &:hover {
-    border-color: #1D736B;
-  }
-
-  img {
-    max-width: 100%;
-    max-height: 150px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
 }
 
-.dropzone__2 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
+.uploadSection {
   width: 50%;
-  padding: 20px;
-  height: 54px;
-  color: #666;
-  background-color: #fafafa;
-  cursor: pointer;
-  transition: border-color 0.6s;
-  border-radius: 6px;
-  border: 2px dashed var(--stroke, #DEDEDE);
-  background: var(--background-light, #F5F5F5);
+  height: 83%;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
 
-
-  .dropzone__title {
+  .dropzone__2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    flex: 1;
+    padding: 20px;
+    height: 54px;
+    color: #666;
+    background-color: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.6s;
+    border-radius: 6px;
+    border: 2px dashed var(--stroke, #DEDEDE);
+    background: var(--background-light, #F5F5F5);
 
-    .info {
+    .document {
       display: flex;
-      align-items: self-start;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
 
-      .title {
+
+    .dropzone__title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+
+      .info {
         display: flex;
-        align-items: center;
-        gap: 6px;
+        align-items: self-start;
+        flex-direction: column;
 
-        p {
-          color: #000;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 500;
-          font-family: Manrope;
-          line-height: 24px;
+        .title {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          p {
+            color: #000;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 500;
+            font-family: Manrope;
+            line-height: 24px;
+          }
+
+          span {
+            color: var(--Blue-500, #3B82F6);
+            text-align: center;
+            font-size: 14px;
+            font-family: Manrope;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 24px;
+          }
         }
 
         span {
-          color: var(--Blue-500, #3B82F6);
+          color: var(--icon-for, #808080);
           text-align: center;
           font-size: 14px;
-          font-family: Manrope;
           font-style: normal;
           font-weight: 500;
-          line-height: 24px;
+          line-height: 20px;
         }
-      }
 
-      span {
-        color: var(--icon-for, #808080);
-        text-align: center;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 20px;
       }
+    }
 
+    &:hover {
+      border-color: #1D736B;
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+      border-radius: 8px;
     }
   }
 
-  &:hover {
-    border-color: #1D736B;
-  }
-
-  img {
-    max-width: 100%;
-    max-height: 150px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
 }
 
 @media (max-width: 480px) {

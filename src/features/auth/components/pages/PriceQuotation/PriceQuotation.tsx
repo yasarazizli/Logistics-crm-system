@@ -129,10 +129,8 @@ const PriceQuotation = () => {
     formData.append("order", JSON.stringify(order));
     formData.append("btn_status", status);
 
-    if (msDs) formData.append("msds_file", msDs);
-    msDsPictures.forEach((file, index) =>
-      formData.append(`cargo_image_${index}`, file),
-    );
+    if (msDs) formData.append("msds", msDs);
+    msDsPictures.forEach((file) => formData.append(`cargo_image`, file));
 
     const response = await axios.post(
       `${apiUrl}/commercial/price-quotation/`,

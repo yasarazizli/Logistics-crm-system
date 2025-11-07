@@ -143,3 +143,15 @@ export const CloneOrder = async (id: number) => {
       return err.response;
     });
 };
+
+export const ApproveDocumentCm = async (formData: FormData, id: number) => {
+  return await axios
+    .post(`${apiUrl}/commercial/manager-approved/?order_id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

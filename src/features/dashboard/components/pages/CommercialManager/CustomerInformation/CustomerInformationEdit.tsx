@@ -188,7 +188,8 @@ const CustomerInformationEdit = () => {
   const [offers, setOffers] = useState<OfferData[]>([]);
   const [deletedServiceIds, setDeletedServiceIds] = useState<number[]>([]);
 
-  const isRegister = order?.order_type === "RegisterPriceQuotation";
+  const isRegister =
+    order?.order_type === "Reorder" || order?.order_type === "Order";
 
   const handleWagonTypeChange = useCallback((type: string) => {
     setWagonType(type);
@@ -485,7 +486,7 @@ const CustomerInformationEdit = () => {
       formData.append("btn_status", status);
       formData.append("deleted_service_id", JSON.stringify(deletedServiceIds));
 
-      if (msDs) formData.append("msds_file", msDs);
+      if (msDs) formData.append("msds", msDs);
 
       if (msDsPictures && Array.isArray(msDsPictures)) {
         msDsPictures.forEach((file) => {

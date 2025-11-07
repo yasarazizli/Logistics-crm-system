@@ -2,7 +2,7 @@ import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotati
 import Header from "@/components/Header/Header.tsx";
 import SelectList from "@/features/dashboard/components/shared/SelectList/SelectList.tsx";
 import Input from "@/components/Input/Input.tsx";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import axios from "axios";
 import ExpandableSection from "@/features/dashboard/components/shared/ExpandableSection/ExpandableSetion.tsx";
 import PackagingForm, {
@@ -19,10 +19,12 @@ import Shipper, {
 import { useLocation, useNavigate } from "react-router-dom";
 import { getCookie } from "@/libs/cookie.ts";
 import i18n from "i18next";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const AskQuotation = () => {
+  const { setLoader } = useContext(LoaderContext);
   const navigate = useNavigate();
   const location = useLocation();
   const showShipper = location.state?.showShipper ?? true;
@@ -80,6 +82,8 @@ const AskQuotation = () => {
       alert("Lütfen tüm gerekli alanları doldurun");
       return;
     }
+
+    setLoader(true);
 
     const shipperData = shipperRef.current?.getFormData();
 
@@ -151,10 +155,8 @@ const AskQuotation = () => {
     formData.append("shipment", JSON.stringify(shipment));
     formData.append("btn_status", status);
 
-    if (msDs) formData.append("msds_file", msDs);
-    msDsPictures.forEach((file, index) =>
-      formData.append(`cargo_image_${index}`, file),
-    );
+    if (msDs) formData.append("msds", msDs);
+    msDsPictures.forEach((file) => formData.append(`cargo_image`, file));
 
     try {
       const response = await axios.post(
@@ -177,6 +179,7 @@ const AskQuotation = () => {
       console.error("Error:", error);
       toast.error("An error occurred while submitting the form");
     }
+    setLoader(false);
   };
 
   return (

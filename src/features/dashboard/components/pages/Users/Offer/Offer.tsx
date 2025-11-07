@@ -128,6 +128,7 @@ const CustomerInformation = () => {
     setLoader(true);
     if (!selectedOfferId) {
       toast.error("Please select an offer first! (Click the Edit button)");
+      setLoader(false);
       return;
     }
 
@@ -185,7 +186,6 @@ const CustomerInformation = () => {
       console.error("Gönderme hatası:", error);
       toast.error("Error sending offer");
     }
-    setLoader(false);
   };
 
   const rejectOffer = async () => {

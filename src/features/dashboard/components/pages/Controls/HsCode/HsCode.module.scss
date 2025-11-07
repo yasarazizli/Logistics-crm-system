@@ -301,26 +301,23 @@
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
-    border-radius: 100px;
-    border: 1px solid #1D736B33;
-    background: #9F9F9F38;
+    border-radius: 10px;
+    background: var(--Green-200, rgba(29, 115, 107, 0.22));
+  }
 
-    &.sent {
-      background: #1D736B;
-      color: white;
-      border-color: #1D736B;
-    }
 
-    &.disabled {
-      background: #1D736B;
-      color: white;
-      border-color: #1D736B;
-    }
-
-    &:hover:not(.sent):not(.disabled) {
-      background: #e0e0e0;
-    }
-
+  .shared_sent {
+    cursor: pointer;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    padding: 7px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #b9b7b7;
   }
 
   .label {

@@ -23,7 +23,6 @@ import i18n from "@/locales/i18n.ts";
 import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import InvoicePdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoicePdf.tsx";
 import InvoiceApprove from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceApprove/InvoiceApprove.tsx";
-import InstructionPdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InstructionDocument/InstructionPdf.tsx";
 import ReOrder from "@/features/dashboard/components/shared/Modals/ReOrder/ReOrder.tsx";
 import { CrossIcon } from "@/assets/icons/order.vectors.tsx";
 
@@ -65,13 +64,7 @@ const Users = () => {
     | { type: "add" }
     | { type: "contract"; id: number }
     | { type: "invoice"; id: number }
-    | { type: "instruction"; id: number }
     | { type: "invoice-approve"; id: number; actionType: "agree" | "reject" }
-    | {
-        type: "instruction-approve";
-        id: number;
-        actionType: "agree" | "reject";
-      }
     | { type: "reorder"; id: number; actionType: "agree" | "reject" }
   >(null);
 
@@ -203,16 +196,74 @@ const Users = () => {
     setModal({ type: "invoice-approve", id: orderId, actionType: "agree" });
   };
 
-  const handleOpenInstruction = (orderId: number) => {
-    setModal({ type: "instruction", id: orderId });
-  };
-
-  const handleApproveInstruction = (orderId: number) => {
-    setModal({ type: "instruction-approve", id: orderId, actionType: "agree" });
-  };
-
   const handleReOrder = (orderId: number) => {
     setModal({ type: "reorder", id: orderId, actionType: "agree" });
+  };
+
+  const getHeaders = () => {
+    const baseHeaders = [
+      { name: "Order code", key: "order_code" },
+      { name: "Country of loading", key: "country_loading" },
+      { name: "Country of destination", key: "country_destination" },
+      { name: "Start Date", key: "start_date" },
+      { name: "End Date", key: "end_date" },
+      { name: "Status", key: "status" },
+    ];
+
+    if (filters.status === "ordered") {
+      baseHeaders.push({ name: "Invoice document", key: "invoice_document" });
+    }
+
+    if (filters.status === "offered") {
+      baseHeaders.push({ name: "User confirmation", key: "user_confirmation" });
+    }
+
+    if (filters.status === "completed") {
+      baseHeaders.push({ name: "Clone Order", key: "clone_order" });
+    }
+
+    if (filters.status === "draft") {
+      baseHeaders.push({ name: "Edit Order", key: "edit_order" });
+      baseHeaders.push({ name: "Edit Quotation", key: "edit_quotation" });
+    }
+
+    return baseHeaders;
+  };
+
+  const headers = getHeaders();
+
+  const getFilterCells = () => {
+    const baseFilterCells = filterKeys.map((key) => (
+      <td key={key}>
+        <input
+          type={key.includes("date") ? "date" : "text"}
+          placeholder={`Filter by ${key.replace(/_/g, " ")}`}
+          value={filters[key]}
+          onChange={(e) => handleFilterChange(e, key)}
+        />
+      </td>
+    ));
+
+    baseFilterCells.push(<td key="status"></td>);
+
+    if (filters.status === "ordered") {
+      baseFilterCells.push(<td key="invoice_document"></td>);
+    }
+
+    if (filters.status === "offered") {
+      baseFilterCells.push(<td key="user_confirmation"></td>);
+    }
+
+    if (filters.status === "completed") {
+      baseFilterCells.push(<td key="clone_order"></td>);
+    }
+
+    if (filters.status === "draft") {
+      baseFilterCells.push(<td key="edit_order"></td>);
+      baseFilterCells.push(<td key="edit_quotation"></td>);
+    }
+
+    return baseFilterCells;
   };
 
   return (
@@ -286,43 +337,7 @@ const Users = () => {
       </div>
 
       <div className={styles.table}>
-        <Table
-          headers={[
-            { name: "Order code" },
-            { name: "Country of loading" },
-            { name: "Country of destination" },
-            { name: "Start Date" },
-            { name: "End Date" },
-            { name: "Status" },
-            { name: "Invoice document" },
-            { name: "Instruction document" },
-            { name: "User confirmation" },
-            { name: "Clone Order" },
-            { name: "Edit Order" },
-            { name: "Edit Quotation" },
-          ]}
-          filters={
-            <>
-              {filterKeys.map((key) => (
-                <td key={key}>
-                  <input
-                    type={key.includes("date") ? "date" : "text"}
-                    placeholder={`Filter by ${key.replace(/_/g, " ")}`}
-                    value={filters[key]}
-                    onChange={(e) => handleFilterChange(e, key)}
-                  />
-                </td>
-              ))}
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </>
-          }
-        >
+        <Table headers={headers} filters={<>{getFilterCells()}</>}>
           {data.map((item) => (
             <tr key={item.order_id}>
               <td>{item.order_id}</td>
@@ -331,119 +346,109 @@ const Users = () => {
               <td>{item.start_date}</td>
               <td>{item.end_date}</td>
               <td>{item.status}</td>
-              <td>
-                <div
-                  className={styles.icon}
-                  style={{ display: "flex", gap: "8px" }}
-                >
+
+              {filters.status === "ordered" && (
+                <td>
                   <div
-                    className={styles.icon__3}
-                    onClick={() => handleOpenInvoice(item.order_id)}
-                    style={{ cursor: "pointer" }}
-                    title="View Invoice PDF"
+                    className={styles.icon}
+                    style={{ display: "flex", gap: "8px" }}
                   >
-                    <EyesIcon />
-                  </div>
-                  <div
-                    className={styles.icon__3}
-                    onClick={() => handleApproveInvoice(item.order_id)}
-                    style={{ cursor: "pointer" }}
-                    title="Approve Invoice"
-                  >
-                    <AgreeIcon />
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div
-                  className={styles.icon}
-                  style={{ display: "flex", gap: "8px" }}
-                >
-                  <>
                     <div
                       className={styles.icon__3}
-                      onClick={() => handleOpenInstruction(item.order_id)}
+                      onClick={() => handleOpenInvoice(item.order_id)}
                       style={{ cursor: "pointer" }}
-                      title="View Instruction PDF"
+                      title="View Invoice PDF"
                     >
                       <EyesIcon />
                     </div>
                     <div
                       className={styles.icon__3}
-                      onClick={() => handleApproveInstruction(item.order_id)}
+                      onClick={() => handleApproveInvoice(item.order_id)}
                       style={{ cursor: "pointer" }}
-                      title="Approve Instruction"
+                      title="Approve Invoice"
                     >
                       <AgreeIcon />
                     </div>
-                  </>
-                </div>
-              </td>
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={styles.icon__3}
-                    onClick={() => handleClickEdit(item.order_id)}
-                    title="User Confirmation"
-                  >
-                    <AgreeIcon />
                   </div>
-                </div>
-              </td>
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={styles.icon__4}
-                    onClick={() => handleReOrder(item.order_id)}
-                    style={{ cursor: "pointer" }}
-                    title="ReOrder"
-                  >
-                    <CycleIcon />
+                </td>
+              )}
+
+              {filters.status === "offered" && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__3}
+                      onClick={() => handleClickEdit(item.order_id)}
+                      title="User Confirmation"
+                    >
+                      <AgreeIcon />
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={`${styles.icon__2} ${
-                      !canEditOrder(item.order_type) ? styles.disabled : ""
-                    }`}
-                    onClick={() => {
-                      if (canEditOrder(item.order_type)) {
-                        handleEditClick(item.order_id);
+                </td>
+              )}
+
+              {filters.status === "completed" && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__4}
+                      onClick={() => handleReOrder(item.order_id)}
+                      style={{ cursor: "pointer" }}
+                      title="ReOrder"
+                    >
+                      <CycleIcon />
+                    </div>
+                  </div>
+                </td>
+              )}
+
+              {filters.status === "draft" && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={`${styles.icon__2} ${
+                        !canEditOrder(item.order_type) ? styles.disabled : ""
+                      }`}
+                      onClick={() => {
+                        if (canEditOrder(item.order_type)) {
+                          handleEditClick(item.order_id);
+                        }
+                      }}
+                      style={{
+                        cursor: canEditOrder(item.order_type)
+                          ? "pointer"
+                          : "not-allowed",
+                        opacity: canEditOrder(item.order_type) ? 1 : 1,
+                      }}
+                      title={
+                        canEditOrder(item.order_type)
+                          ? "Edit Order"
+                          : "Edit Order not available for this order type"
                       }
-                    }}
-                    style={{
-                      cursor: canEditOrder(item.order_type)
-                        ? "pointer"
-                        : "not-allowed",
-                      opacity: canEditOrder(item.order_type) ? 1 : 1,
-                    }}
-                    title={
-                      canEditOrder(item.order_type)
-                        ? "Edit Order"
-                        : "Edit Order not available for this order type"
-                    }
-                  >
-                    {canEditOrder(item.order_type) ? (
+                    >
+                      {canEditOrder(item.order_type) ? (
+                        <PenIcon />
+                      ) : (
+                        <CrossIcon />
+                      )}
+                    </div>
+                  </div>
+                </td>
+              )}
+
+              {filters.status === "draft" && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__2}
+                      onClick={() => handleQuotationEdit(item.order_id)}
+                      title="Edit Quotation"
+                    >
                       <PenIcon />
-                    ) : (
-                      <CrossIcon />
-                    )}
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={styles.icon__2}
-                    onClick={() => handleQuotationEdit(item.order_id)}
-                    title="Edit Quotation"
-                  >
-                    <PenIcon />
-                  </div>
-                </div>
-              </td>
+                </td>
+              )}
             </tr>
           ))}
         </Table>
@@ -483,29 +488,7 @@ const Users = () => {
         />
       )}
 
-      {modal?.type === "instruction" && (
-        <InstructionPdf
-          id={modal.id}
-          modalClose={() => {
-            setModal(null);
-          }}
-        />
-      )}
-
       {modal?.type === "invoice-approve" && (
-        <InvoiceApprove
-          id={modal.id}
-          actionType={modal.actionType}
-          modalClose={(isRender: boolean) => {
-            setModal(null);
-            if (isRender) {
-              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
-            }
-          }}
-        />
-      )}
-
-      {modal?.type === "instruction-approve" && (
         <InvoiceApprove
           id={modal.id}
           actionType={modal.actionType}

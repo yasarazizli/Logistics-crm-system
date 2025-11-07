@@ -23,7 +23,7 @@ const NotFound = () => {
       </div>
       <div className={styles.back}>
         <ArrowBackIcon />
-        <Link to={`/${i18n.language}/home`}>Back to home</Link>
+        <Link to={`/${i18n.language}/home`}>Back to Login</Link>
       </div>
     </AuthLayout>
   );
