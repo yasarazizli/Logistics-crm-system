@@ -5,6 +5,7 @@ import { DeleteIcon, SharedIcon } from "@/assets/icons/shared.vectors.tsx";
 import CreateServicesTable from "@/features/dashboard/components/shared/Modals/ServicesTable/CreateServicesTable.tsx";
 import PriceTable from "@/features/dashboard/components/shared/Modals/PriceTable/PriceTable.tsx";
 import DeleteColumn from "@/features/dashboard/components/shared/Modals/DeleteColumn/DeleteColumn.tsx";
+import { useLocation } from "react-router-dom";
 
 interface OptionType {
   value: string;
@@ -676,6 +677,9 @@ export default function Table({
     { label: "Transportation Time", value: summaryData.transportationTime },
   ];
 
+  const location = useLocation();
+  const order = location.state?.order;
+
   return (
     <div className={styles.table_container}>
       <div className={styles.vat}>
@@ -1030,7 +1034,7 @@ export default function Table({
           modalClose={() => {
             setModal(null);
           }}
-          order_id={modal.id}
+          order_id={order.order_id}
         />
       )}
       {modal?.type === "delete" && (

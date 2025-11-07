@@ -74,6 +74,11 @@ const CustomerInformation = () => {
   } | null>(null);
   const [totalWeight, setTotalWeight] = useState<string>("");
 
+  const [unCode, setUnCode] = useState("");
+  const [msDs, setMsDs] = useState<File | null>(null);
+  const [msDsPictures, setMsDsPictures] = useState<File[]>([]);
+  const [dangerous, setDangerous] = useState(false);
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [generalNote, setGeneralNote] = useState("");
@@ -287,6 +292,7 @@ const CustomerInformation = () => {
             setTotalWeight(apiData.total_weight?.toString() || "");
             setStartDate(apiData.start_date ?? "");
             setEndDate(apiData.end_date ?? "");
+            setUnCode(apiData.un_code?.toString() || "");
           }
         }
       } catch (error) {
@@ -385,14 +391,14 @@ const CustomerInformation = () => {
         </div>
 
         <GetExpandableSection
-          unCode=""
-          setUnCode={() => {}}
-          msDs={null}
-          setMsDs={() => {}}
-          msDsPictures={[]}
-          setMsDsPictures={() => {}}
-          dangerous={false}
-          setDangerous={() => {}}
+          unCode={unCode}
+          setUnCode={setUnCode}
+          msDs={msDs}
+          setMsDs={setMsDs}
+          msDsPictures={msDsPictures}
+          setMsDsPictures={setMsDsPictures}
+          dangerous={dangerous}
+          setDangerous={setDangerous}
         />
 
         <GetPackagingForm

@@ -28,31 +28,18 @@ const ExpandableSection = ({
 }: ExpandableSectionProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [msdsPreview, setMsdsPreview] = useState<string | null>(null);
   const [msdsFileName, setMsdsFileName] = useState<string>("");
-  const [cargoImagePreview, setCargoImagePreview] = useState<string | null>(
-    null,
-  );
   const [cargoImageFileName, setCargoImageFileName] = useState<string>("");
-  const [, setImagePreviews] = useState<string[]>([]);
   const location = useLocation();
   const order = location.state?.order;
-
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleMsdsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setMsDs(file);
 
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setMsdsPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
       setMsdsFileName(file.name);
     } else {
-      setMsdsPreview(null);
       setMsdsFileName("");
     }
   };
@@ -60,36 +47,21 @@ const ExpandableSection = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setMsDsPictures([...msDsPictures, ...files]);
-
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreviews((prev) => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
   };
 
   const handleRemoveMsds = () => {
     setMsDs(null);
-    setMsdsPreview(null);
     setMsdsFileName("");
   };
 
   const handleRemoveCargoImage = () => {
-    setCargoImagePreview(null);
+    setMsDsPictures([]);
     setCargoImageFileName("");
   };
 
   const getFileNameFromPath = (filePath: string): string => {
     if (!filePath) return "";
     return filePath.split("/").pop() || filePath;
-  };
-
-  const getFullFileUrl = (filePath: string) => {
-    if (!filePath) return null;
-    if (filePath.startsWith("http")) return filePath;
-    return `${apiUrl}/${filePath.replace("static/files/", "")}`;
   };
 
   useEffect(() => {
@@ -113,33 +85,13 @@ const ExpandableSection = ({
             setOpen(dangerousValue);
 
             if (apiData.msds) {
-              const fullMsdsUrl = getFullFileUrl(apiData.msds);
               const fileName = getFileNameFromPath(apiData.msds);
-
               setMsdsFileName(fileName);
-              if (fullMsdsUrl) {
-                setMsdsPreview(fullMsdsUrl);
-              }
             }
 
             if (apiData.cargo_image) {
-              const fullCargoImageUrl = getFullFileUrl(apiData.cargo_image);
               const fileName = getFileNameFromPath(apiData.cargo_image);
-
               setCargoImageFileName(fileName);
-              if (fullCargoImageUrl) {
-                setCargoImagePreview(fullCargoImageUrl);
-              }
-            }
-
-            if (
-              apiData.cargo_image_urls &&
-              Array.isArray(apiData.cargo_image_urls)
-            ) {
-              const fullImageUrls = apiData.cargo_image_urls
-                .map((path: any) => getFullFileUrl(path))
-                .filter((url: any): url is string => url !== null);
-              setImagePreviews(fullImageUrls);
             }
           }
         }
@@ -189,23 +141,9 @@ const ExpandableSection = ({
               className={styles.dropzone__2}
               onClick={() => document.getElementById("msds-upload")?.click()}
             >
-              {msDs || msdsPreview ? (
+              {msDs || msdsFileName ? (
                 <div className={styles.document}>
                   <span>{msDs?.name || msdsFileName || "MSDS Document"}</span>
-                  {msdsPreview && (
-                    <div className={styles.preview}>
-                      {msdsPreview.includes(".pdf") ? (
-                        <embed
-                          src={msdsPreview}
-                          type="application/pdf"
-                          width="100%"
-                          height="200px"
-                        />
-                      ) : (
-                        <img src={msdsPreview} />
-                      )}
-                    </div>
-                  )}
                   <button
                     type="button"
                     className={styles.removeBtn}
@@ -246,25 +184,40 @@ const ExpandableSection = ({
               document.getElementById("cargo-image-upload")?.click()
             }
           >
-            {cargoImagePreview ? (
+            {msDsPictures.length > 0 || cargoImageFileName ? (
               <div className={styles.document}>
-                <span>{cargoImageFileName || "Cargo Image"}</span>
-                <div className={styles.preview}>
-                  <img
-                    src={cargoImagePreview}
-                    style={{ maxWidth: "100%", maxHeight: "200px" }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className={styles.removeBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveCargoImage();
-                  }}
-                >
-                  ×
-                </button>
+                {msDsPictures.map((file, index) => (
+                  <div key={index} className={styles.fileItem}>
+                    <span>{file.name}</span>
+                    <button
+                      type="button"
+                      className={styles.removeBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newPictures = [...msDsPictures];
+                        newPictures.splice(index, 1);
+                        setMsDsPictures(newPictures);
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {cargoImageFileName && msDsPictures.length === 0 && (
+                  <div className={styles.fileItem}>
+                    <span>{cargoImageFileName}</span>
+                    <button
+                      type="button"
+                      className={styles.removeBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveCargoImage();
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className={styles.dropzone__title}>
@@ -273,7 +226,7 @@ const ExpandableSection = ({
                 </div>
                 <div className={styles.info}>
                   <div className={styles.title}>
-                    <p>Drop your cargo image here or</p>
+                    <p>Drop your cargo images here or</p>
                     <span>click to upload from computer</span>
                   </div>
                 </div>
@@ -283,6 +236,7 @@ const ExpandableSection = ({
               id="cargo-image-upload"
               type="file"
               accept="image/*"
+              multiple
               onChange={handleImageChange}
               style={{ display: "none" }}
             />

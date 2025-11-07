@@ -116,11 +116,10 @@ const PriceTable = ({
     const fetchServiceNames = async () => {
       try {
         const response = await getAllServicesName();
-        console.log("Service Names API Response:", response);
 
         if (response.status === 200) {
           const serviceData = response.data.data || response.data;
-          console.log("Service Data:", serviceData);
+          console.log("order", order_id);
 
           if (Array.isArray(serviceData)) {
             const mapped = serviceData.map(
@@ -130,7 +129,6 @@ const PriceTable = ({
               }),
             );
             setServiceNames(mapped);
-            console.log("Mapped Service Names:", mapped);
           }
         }
       } catch (error) {
@@ -198,7 +196,6 @@ const PriceTable = ({
 
     const formData = new FormData();
 
-    formData.append("order_id", order_id.toString());
     formData.append("service_name", service.service_name);
     formData.append("location", service.location);
     formData.append("transport_mode", service.transport_mode);
