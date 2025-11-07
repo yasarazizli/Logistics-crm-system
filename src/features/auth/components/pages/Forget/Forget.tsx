@@ -133,7 +133,7 @@ const Forget = () => {
             icon={MailIcon}
             inputRef={inputRefs.confirm_password}
           />
-          <Button text={"Change password"} />
+          <Button text={"Change password"} type="submit" />
         </form>
       )}
     </div>

@@ -377,14 +377,8 @@ const DirectoryOrder = () => {
           const apiData = response?.data;
 
           if (apiData) {
-            setTotalWeight(apiData.total_weight?.toString() || "");
-            const convertToISO = (dateStr?: string) => {
-              if (!dateStr) return "";
-              const [day, month, year] = dateStr.split(".");
-              return `${year}-${month}-${day}`;
-            };
-            setStartDate(convertToISO(apiData.start_date));
-            setEndDate(convertToISO(apiData.end_date));
+            setStartDate(apiData.start_date ?? "");
+            setEndDate(apiData.end_date ?? "");
             setNote(apiData.not);
           }
         }

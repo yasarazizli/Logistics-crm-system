@@ -59,6 +59,8 @@ import OrdersPage from "@/features/dashboard/pages/CommercialDirectory/Commercia
 import AskOrderPage from "@/features/dashboard/pages/Others/AksOrderPage.tsx";
 import AskOrderEditPage from "@/features/dashboard/pages/Others/AskOrderEditPage.tsx";
 import AdminUsersPage from "@/features/dashboard/pages/Admin/Users/AdminUsersPage.tsx";
+import VerifyRedirectPage from "@/features/auth/pages/VerifyRedirectPage.tsx";
+import RegisterExpiredPage from "@/features/auth/pages/RegisterExpiredPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -111,6 +113,8 @@ const AppRoutes = () => {
         <Route path="emailsuccess" element={<EmailSuccessPage />} />
         <Route path="registersuccess" element={<RegisterSuccessPage />} />
         <Route path="price/quotation" element={<PriceQuotation />} />
+        <Route path="registerverify" element={<VerifyRedirectPage />} />
+        <Route path="registerexpired" element={<RegisterExpiredPage />} />
       </Route>
 
       {/* Privet Route */}

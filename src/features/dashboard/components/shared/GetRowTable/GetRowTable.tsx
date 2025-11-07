@@ -1236,7 +1236,13 @@ export default function Table({
                             <input
                               type="text"
                               value={textValues[`Profit-${colIndex}`] || ""}
-                              readOnly
+                              onChange={(e) =>
+                                handleTextChange(
+                                  "Profit",
+                                  colIndex,
+                                  e.target.value,
+                                )
+                              }
                               className={styles.clickable_text}
                             />
                           </td>

@@ -353,3 +353,20 @@ export const ArrowBackIcon = () => {
     </svg>
   );
 };
+
+export const WarningIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 64 64"
+      fill="none"
+      stroke="#000000"
+    >
+      <circle cx="32" cy="32" r="24" />
+      <line x1="32" y1="16" x2="32" y2="36" />
+      <line x1="32" y1="44" x2="32" y2="48" />
+    </svg>
+  );
+};

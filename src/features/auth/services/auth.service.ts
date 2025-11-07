@@ -50,6 +50,16 @@ export const registerVerifyResponse = async (token: string) => {
       return err.response;
     });
 };
+
+// Register Verify
+export const resendVerificationEmail = async (token: string) => {
+  return await axios
+    .post(`${apiUrl}/accounts/repeat-token/?token=${token}`)
+    .catch((err) => {
+      return err.response;
+    });
+};
+
 // Change Password
 export const postChangePasswordRequest = async (formData: FormData) => {
   return await axios

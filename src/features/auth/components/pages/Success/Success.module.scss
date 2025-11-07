@@ -47,6 +47,21 @@
           text-underline-position: from-font;
         }
       }
+
+    .resend__link {
+      margin-top: 16px;
+
+      &__text {
+        color: #1D736B;
+        font-size: 14px;
+        text-decoration: underline;
+        font-weight: 500;
+
+        &:hover {
+          color: #14524e;
+        }
+      }
+    }
   }
 
   &__redirect {
