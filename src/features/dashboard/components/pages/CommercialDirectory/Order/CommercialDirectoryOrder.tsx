@@ -303,11 +303,6 @@ const DirectoryOrder = () => {
 
   const handleSubmit = useCallback(
     async (status: "reject" | "send") => {
-      if (!selectedCode || !totalWeight) {
-        alert("Lütfen tüm gerekli alanları doldurun");
-        return;
-      }
-
       setLoader(true);
 
       const formData = new FormData();
@@ -380,6 +375,7 @@ const DirectoryOrder = () => {
             setStartDate(apiData.start_date ?? "");
             setEndDate(apiData.end_date ?? "");
             setNote(apiData.not);
+            setTotalWeight(apiData.total_weight?.toString() || "");
           }
         }
       } catch (error) {
