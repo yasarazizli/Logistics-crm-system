@@ -43,6 +43,8 @@ const VerifyLawyer = ({
     max_credit_limit: useRef<HTMLSelectElement>(null),
   };
 
+  const [contractNumber, setContractNumber] = useState(lawyer?.phone || "");
+
   const create = async (event: FormEvent) => {
     event.preventDefault();
     setLoader(true);
@@ -64,8 +66,8 @@ const VerifyLawyer = ({
       },
       {
         name: "contract_end_time",
-        data: inputsRef.contract_start_time.current?.value
-          ? new Date(inputsRef.contract_start_time.current.value).toISOString()
+        data: inputsRef.contract_end_time.current?.value
+          ? new Date(inputsRef.contract_end_time.current.value).toISOString()
           : null,
       },
       { name: "payment_type", data: inputsRef.payment_type.current?.value },
@@ -112,7 +114,8 @@ const VerifyLawyer = ({
             inputRef={inputsRef.contract_number}
             autoComplete="off"
             required
-            value={lawyer?.phone}
+            value={contractNumber}
+            onChange={(e) => setContractNumber(e.target.value)}
           />
           <div className={styles.selectWrapper}>
             <label className={styles.label}>

@@ -20,7 +20,6 @@ export interface PackagingData {
   width?: number;
   height?: number;
   length?: number;
-  packaging_type?: string;
 }
 
 interface OptionType {
@@ -186,17 +185,22 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     "Empty Return Wagon",
   ];
 
+  // Wagon type dəyişdikdə parent komponentə bildir
   useEffect(() => {
-    if (onWagonTypeChange) {
-      onWagonTypeChange(wagonType);
-    }
+    if (onWagonTypeChange) onWagonTypeChange(wagonType);
   }, [wagonType, onWagonTypeChange]);
 
+  // Transportation type dəyişdikdə parent komponentə bildir
   useEffect(() => {
     if (onTransportationTypeChange) {
       onTransportationTypeChange(transportationType);
     }
   }, [transportationType, onTransportationTypeChange]);
+
+  // Transportation type dəyişdikdə wagon type-i sıfırla
+  useEffect(() => {
+    setWagonType("");
+  }, [transportationType]);
 
   useEffect(() => {
     if (!onRoutesChange) return;
@@ -405,7 +409,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         width: parseFloat(breakBulkInputs.width) || 0,
         height: parseFloat(breakBulkInputs.height) || 0,
         length: parseFloat(breakBulkInputs.length) || 0,
-        packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     } else if (
       selectedOption1 === "Bulk" &&
@@ -438,7 +441,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         width: parseFloat(generalInputs.width) || 0,
         height: parseFloat(generalInputs.height) || 0,
         length: parseFloat(generalInputs.length) || 0,
-        packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     }
 
@@ -574,35 +576,11 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     });
   };
 
-  type TransportationType = "Rail" | "Road" | "Sea" | "Multimodal";
-
-  const wagonOptions: Record<
-    Exclude<TransportationType, "Multimodal">,
-    string[]
-  > = {
-    Rail: [
-      "Covered Wagons",
-      "Open Wagons",
-      "Flat Wagons",
-      "Tank Wagons",
-      "Hopper Wagons",
-      "Fitting Platform",
-    ],
-    Road: [
-      "Container Ship",
-      "Tent",
-      "Flatbed",
-      "Reefer",
-      "Lowbed",
-      "CarCarrier",
-    ],
-    Sea: [
-      "Container/Feeder Vessel",
-      "General Cargo",
-      "Tanker",
-      "Roll on / Roll off (RORO)",
-      "Other",
-    ],
+  const findOptionIgnoreCase = (options: OptionType[], value: string) => {
+    if (!value) return null;
+    return options.find(
+      (option) => option.value.toLowerCase() === value.toLowerCase(),
+    );
   };
 
   const customStyles: StylesConfig<Option, false> = {
@@ -690,10 +668,35 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     { value: "Multimodal", label: "Multimodal" },
   ];
 
+  const wagonOptions = {
+    Rail: [
+      { value: "Covered Wagons", label: "Covered Wagons" },
+      { value: "Open Wagons", label: "Open Wagons" },
+      { value: "Flat Wagons", label: "Flat Wagons" },
+      { value: "Tank Wagons", label: "Tank Wagons" },
+      { value: "Hopper Wagons", label: "Hopper Wagons" },
+      { value: "Fitting Platform", label: "Fitting Platform" },
+    ],
+    Road: [
+      { value: "Container Truck", label: "Container Truck" },
+      { value: "Tent Truck", label: "Tent Truck" },
+      { value: "Flatbed Truck", label: "Flatbed Truck" },
+      { value: "Refrigerated Truck", label: "Refrigerated Truck" },
+      { value: "Lowbed Truck", label: "Lowbed Truck" },
+      { value: "Car Carrier Truck", label: "Car Carrier Truck" },
+    ],
+    Sea: [
+      { value: "Container Ship", label: "Container Ship" },
+      { value: "General Cargo Ship", label: "General Cargo Ship" },
+      { value: "Tanker Ship", label: "Tanker Ship" },
+      { value: "Roll on/Roll off Ship", label: "Roll on/Roll off Ship" },
+      { value: "Bulk Carrier", label: "Bulk Carrier" },
+    ],
+    Multimodal: [],
+  };
+
   const wagonOptionsForSelect: OptionType[] =
-    wagonOptions[transportationType as "Rail" | "Road" | "Sea"]?.map(
-      (w: string) => ({ value: w, label: w }),
-    ) || [];
+    wagonOptions[transportationType as keyof typeof wagonOptions] || [];
 
   const getTypeOptions = (type: string): OptionType[] => {
     if (type === "Break_Bulk") {
@@ -1159,7 +1162,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                 onChange={(option: SingleValue<OptionType>) => {
                   const newType = option ? option.value : "";
                   setTransportationType(newType);
-                  setWagonType("");
                 }}
                 options={transportationOptions}
                 styles={customStyles}
@@ -1174,9 +1176,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               <label className={styles.label}>Wagon type</label>
               <div className={styles.selectWrapper}>
                 <Select<OptionType, false>
-                  value={wagonOptionsForSelect.find(
-                    (option) => option.value === wagonType,
-                  )}
+                  value={
+                    findOptionIgnoreCase(wagonOptionsForSelect, wagonType) ||
+                    null
+                  }
                   onChange={(option: SingleValue<OptionType>) => {
                     const newWagonType = option ? option.value : "";
                     setWagonType(newWagonType);

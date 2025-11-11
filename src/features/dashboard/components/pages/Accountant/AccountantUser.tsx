@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import styles from "../Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { FileIcon, PenIcon } from "@/assets/icons/shared.vectors.tsx";
+import { PenIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAccountantUser } from "@/features/dashboard/services/Accountant/accountant.service.ts";
 import AddBalance from "@/features/dashboard/components/shared/Modals/Accountant/AddBalance.tsx";
@@ -105,7 +105,6 @@ const AccountantUser = () => {
             { name: "E-mail address" },
             { name: "Phone number" },
             { name: "Company name" },
-            { name: "Invoice document" },
             { name: "Validitity date" },
             { name: "Balance" },
             { name: "" },
@@ -124,7 +123,6 @@ const AccountantUser = () => {
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
             </>
           }
         >
@@ -134,24 +132,6 @@ const AccountantUser = () => {
               <td>{item.email}</td>
               <td>{item.phone}</td>
               <td>{item.company_name}</td>
-              <td>
-                <div className={styles.document}>
-                  File
-                  {item.contract ? (
-                    <a
-                      href={item.contract}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className={styles.file__icon}>
-                        <FileIcon />
-                      </div>
-                    </a>
-                  ) : (
-                    "-"
-                  )}
-                </div>
-              </td>
 
               <td>
                 {formatDate(item.contract_start_date)} -{" "}

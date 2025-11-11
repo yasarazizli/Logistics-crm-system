@@ -23,7 +23,6 @@ export interface PackagingData {
   width?: number;
   height?: number;
   length?: number;
-  packaging_type?: string;
 }
 
 interface QuotationType {
@@ -141,6 +140,8 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
   const order = location.state?.order;
   const { setLoader } = useContext(LoaderContext);
   const isInitialLoad = useRef(true);
+  const prevRoutesRef = useRef<RouteData[]>([]);
+
   const [selectedOption1, setSelectedOption1] = useState("");
   const [selectedOption2, setSelectedOption2] = useState("20");
   const [selectedOption3, setSelectedOption3] = useState("");
@@ -228,283 +229,90 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
   const parseAndSetRoutes = async (apiData: QuotationType) => {
     const newRoutes = [...routes];
 
-    if (apiData.full_route) {
-      try {
-        const fromParts = apiData.full_route.from
-          ? apiData.full_route.from.split(" / ")
-          : ["", "", ""];
-        const toParts = apiData.full_route.to
-          ? apiData.full_route.to.split(" / ")
-          : ["", "", ""];
+    const parseLocation = (locationStr: string) => {
+      if (!locationStr)
+        return { country: "", city: "", hs: "", address: "", port: "" };
 
-        const fromCountry = fromParts[0] || "";
-        const fromCity = fromParts[1] || "";
-        const fromHs = fromParts[2] || "";
+      const parts = locationStr.split(" / ");
 
-        const toCountry = toParts[0] || "";
-        const toCity = toParts[1] || "";
-        const toHs = toParts[2] || "";
+      const location = {
+        country: "",
+        city: "",
+        hs: "",
+        address: "",
+        port: "",
+      };
 
-        let fromCitiesRes = { data: [] };
-        let fromStationCodesRes = { data: [] };
-        let fromPortsRes = { data: { data: [] } };
-
-        if (fromCountry) {
-          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
-            await Promise.all([
-              GetAllCity(fromCountry),
-              GetAllStationCode(fromCountry),
-              GetAllPort(fromCountry),
-            ]);
+      if (parts.length >= 1) location.country = parts[0];
+      if (parts.length >= 2) location.city = parts[1];
+      if (parts.length >= 3) {
+        if (transportationType === "Rail") {
+          location.hs = parts[2];
+        } else if (transportationType === "Sea") {
+          location.port = parts[2];
+        } else if (
+          transportationType === "Road" ||
+          transportationType === "Multimodal"
+        ) {
+          location.address = parts[2];
         }
-
-        let toCitiesRes = { data: [] };
-        let toStationCodesRes = { data: [] };
-        let toPortsRes = { data: { data: [] } };
-
-        if (toCountry) {
-          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
-            GetAllCity(toCountry),
-            GetAllStationCode(toCountry),
-            GetAllPort(toCountry),
-          ]);
-        }
-
-        newRoutes[0] = {
-          ...newRoutes[0],
-          from: {
-            country: fromCountry,
-            city: fromCity,
-            hs: fromHs,
-            address: "",
-            port: "",
-          },
-          to: {
-            country: toCountry,
-            city: toCity,
-            hs: toHs,
-            address: "",
-            port: "",
-          },
-          fromCities: fromCitiesRes?.data || [],
-          fromStationCodes: fromStationCodesRes?.data || [],
-          fromPorts: fromPortsRes?.data?.data || [],
-          toCities: toCitiesRes?.data || [],
-          toStationCodes: toStationCodesRes?.data || [],
-          toPorts: toPortsRes?.data?.data || [],
-        };
-      } catch (error) {
-        console.error("Full route parse error:", error);
       }
-    }
 
-    if (apiData.requested_route) {
-      try {
-        const fromParts = apiData.requested_route.from
-          ? apiData.requested_route.from.split(" / ")
-          : ["", "", ""];
-        const toParts = apiData.requested_route.to
-          ? apiData.requested_route.to.split(" / ")
-          : ["", "", ""];
+      return location;
+    };
 
-        const fromCountry = fromParts[0] || "";
-        const fromCity = fromParts[1] || "";
-        const fromHs = fromParts[2] || "";
+    const routeConfigs = [
+      { apiRoute: apiData.full_route, routeIndex: 0 },
+      { apiRoute: apiData.requested_route, routeIndex: 1 },
+      { apiRoute: apiData.container_route, routeIndex: 2 },
+      { apiRoute: apiData.wagon_route, routeIndex: 3 },
+    ];
 
-        const toCountry = toParts[0] || "";
-        const toCity = toParts[1] || "";
-        const toHs = toParts[2] || "";
+    for (const { apiRoute, routeIndex } of routeConfigs) {
+      if (apiRoute && (apiRoute.from || apiRoute.to)) {
+        try {
+          const fromLocation = parseLocation(apiRoute.from || "");
+          const toLocation = parseLocation(apiRoute.to || "");
 
-        let fromCitiesRes = { data: [] };
-        let fromStationCodesRes = { data: [] };
-        let fromPortsRes = { data: { data: [] } };
+          let fromCitiesRes = { data: [] as City[] };
+          let fromStationCodesRes = { data: [] as StationCode[] };
+          let fromPortsRes = { data: { data: [] as Port[] } };
 
-        if (fromCountry) {
-          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
-            await Promise.all([
-              GetAllCity(fromCountry),
-              GetAllStationCode(fromCountry),
-              GetAllPort(fromCountry),
+          if (fromLocation.country) {
+            [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
+              await Promise.all([
+                GetAllCity(fromLocation.country),
+                GetAllStationCode(fromLocation.country),
+                GetAllPort(fromLocation.country),
+              ]);
+          }
+
+          let toCitiesRes = { data: [] as City[] };
+          let toStationCodesRes = { data: [] as StationCode[] };
+          let toPortsRes = { data: { data: [] as Port[] } };
+
+          if (toLocation.country) {
+            [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
+              GetAllCity(toLocation.country),
+              GetAllStationCode(toLocation.country),
+              GetAllPort(toLocation.country),
             ]);
+          }
+
+          newRoutes[routeIndex] = {
+            ...newRoutes[routeIndex],
+            from: fromLocation,
+            to: toLocation,
+            fromCities: fromCitiesRes?.data || [],
+            fromStationCodes: fromStationCodesRes?.data || [],
+            fromPorts: fromPortsRes?.data?.data || [],
+            toCities: toCitiesRes?.data || [],
+            toStationCodes: toStationCodesRes?.data || [],
+            toPorts: toPortsRes?.data?.data || [],
+          };
+        } catch (error) {
+          console.error(`Route ${routeIndex} parse error:`, error);
         }
-
-        let toCitiesRes = { data: [] };
-        let toStationCodesRes = { data: [] };
-        let toPortsRes = { data: { data: [] } };
-
-        if (toCountry) {
-          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
-            GetAllCity(toCountry),
-            GetAllStationCode(toCountry),
-            GetAllPort(toCountry),
-          ]);
-        }
-
-        newRoutes[1] = {
-          ...newRoutes[1],
-          from: {
-            country: fromCountry,
-            city: fromCity,
-            hs: fromHs,
-            address: "",
-            port: "",
-          },
-          to: {
-            country: toCountry,
-            city: toCity,
-            hs: toHs,
-            address: "",
-            port: "",
-          },
-          fromCities: fromCitiesRes?.data || [],
-          fromStationCodes: fromStationCodesRes?.data || [],
-          fromPorts: fromPortsRes?.data?.data || [],
-          toCities: toCitiesRes?.data || [],
-          toStationCodes: toStationCodesRes?.data || [],
-          toPorts: toPortsRes?.data?.data || [],
-        };
-      } catch (error) {
-        console.error("Requested route parse error:", error);
-      }
-    }
-
-    if (apiData.container_route) {
-      try {
-        const fromParts = apiData.container_route.from
-          ? apiData.container_route.from.split(" / ")
-          : ["", "", ""];
-        const toParts = apiData.container_route.to
-          ? apiData.container_route.to.split(" / ")
-          : ["", "", ""];
-
-        const fromCountry = fromParts[0] || "";
-        const fromCity = fromParts[1] || "";
-        const fromHs = fromParts[2] || "";
-
-        const toCountry = toParts[0] || "";
-        const toCity = toParts[1] || "";
-        const toHs = toParts[2] || "";
-
-        let fromCitiesRes = { data: [] };
-        let fromStationCodesRes = { data: [] };
-        let fromPortsRes = { data: { data: [] } };
-
-        if (fromCountry) {
-          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
-            await Promise.all([
-              GetAllCity(fromCountry),
-              GetAllStationCode(fromCountry),
-              GetAllPort(fromCountry),
-            ]);
-        }
-
-        let toCitiesRes = { data: [] };
-        let toStationCodesRes = { data: [] };
-        let toPortsRes = { data: { data: [] } };
-
-        if (toCountry) {
-          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
-            GetAllCity(toCountry),
-            GetAllStationCode(toCountry),
-            GetAllPort(toCountry),
-          ]);
-        }
-
-        newRoutes[2] = {
-          ...newRoutes[2],
-          from: {
-            country: fromCountry,
-            city: fromCity,
-            hs: fromHs,
-            address: "",
-            port: "",
-          },
-          to: {
-            country: toCountry,
-            city: toCity,
-            hs: toHs,
-            address: "",
-            port: "",
-          },
-          fromCities: fromCitiesRes?.data || [],
-          fromStationCodes: fromStationCodesRes?.data || [],
-          fromPorts: fromPortsRes?.data?.data || [],
-          toCities: toCitiesRes?.data || [],
-          toStationCodes: toStationCodesRes?.data || [],
-          toPorts: toPortsRes?.data?.data || [],
-        };
-      } catch (error) {
-        console.error("Container route parse error:", error);
-      }
-    }
-
-    if (apiData.wagon_route) {
-      try {
-        const fromParts = apiData.wagon_route.from
-          ? apiData.wagon_route.from.split(" / ")
-          : ["", "", ""];
-        const toParts = apiData.wagon_route.to
-          ? apiData.wagon_route.to.split(" / ")
-          : ["", "", ""];
-
-        const fromCountry = fromParts[0] || "";
-        const fromCity = fromParts[1] || "";
-        const fromHs = fromParts[2] || "";
-
-        const toCountry = toParts[0] || "";
-        const toCity = toParts[1] || "";
-        const toHs = toParts[2] || "";
-
-        let fromCitiesRes = { data: [] };
-        let fromStationCodesRes = { data: [] };
-        let fromPortsRes = { data: { data: [] } };
-
-        if (fromCountry) {
-          [fromCitiesRes, fromStationCodesRes, fromPortsRes] =
-            await Promise.all([
-              GetAllCity(fromCountry),
-              GetAllStationCode(fromCountry),
-              GetAllPort(fromCountry),
-            ]);
-        }
-
-        let toCitiesRes = { data: [] };
-        let toStationCodesRes = { data: [] };
-        let toPortsRes = { data: { data: [] } };
-
-        if (toCountry) {
-          [toCitiesRes, toStationCodesRes, toPortsRes] = await Promise.all([
-            GetAllCity(toCountry),
-            GetAllStationCode(toCountry),
-            GetAllPort(toCountry),
-          ]);
-        }
-
-        newRoutes[3] = {
-          ...newRoutes[3],
-          from: {
-            country: fromCountry,
-            city: fromCity,
-            hs: fromHs,
-            address: "",
-            port: "",
-          },
-          to: {
-            country: toCountry,
-            city: toCity,
-            hs: toHs,
-            address: "",
-            port: "",
-          },
-          fromCities: fromCitiesRes?.data || [],
-          fromStationCodes: fromStationCodesRes?.data || [],
-          fromPorts: fromPortsRes?.data?.data || [],
-          toCities: toCitiesRes?.data || [],
-          toStationCodes: toStationCodesRes?.data || [],
-          toPorts: toPortsRes?.data?.data || [],
-        };
-      } catch (error) {
-        console.error("Wagon route parse error:", error);
       }
     }
 
@@ -559,7 +367,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
 
           if (apiData.packing) {
             setSelectedOption1(apiData.packing.package_type || "");
-            setSelectedOption2(apiData.packing.size?.toString() || "");
+            setSelectedOption2(apiData.packing.size?.toString() || "20");
 
             const apiPackingType = apiData.packing.packing_type || "";
             setSelectedOption3(apiPackingType);
@@ -615,36 +423,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         console.error("Məlumatlar yüklənərkən xəta:", error);
       } finally {
         setLoader(false);
+        isInitialLoad.current = false;
       }
     };
 
-    fetchRequest();
+    if (order?.order_id) {
+      fetchRequest();
+    }
   }, [order, setLoader]);
-
-  useEffect(() => {
-    if (onWagonTypeChange) onWagonTypeChange(wagonType);
-  }, [wagonType, onWagonTypeChange]);
-
-  useEffect(() => {
-    if (onTransportationTypeChange)
-      onTransportationTypeChange(transportationType);
-  }, [transportationType, onTransportationTypeChange]);
-
-  useEffect(() => {
-    if (onStackableChange) onStackableChange(showPackingTypeInput);
-  }, [showPackingTypeInput, onStackableChange]);
-
-  useEffect(() => {
-    if (onInRowChange) onInRowChange(parseInt(packingType) || 0);
-  }, [packingType, onInRowChange]);
-
-  useEffect(() => {
-    if (onContainerProvisionChange) onContainerProvisionChange(wagonProvision2);
-  }, [wagonProvision2, onContainerProvisionChange]);
-
-  useEffect(() => {
-    if (onWagonProvisionChange) onWagonProvisionChange(wagonProvision);
-  }, [wagonProvision, onWagonProvisionChange]);
 
   useEffect(() => {
     if (!onRoutesChange) return;
@@ -658,6 +444,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
 
       const routeType =
         ["full", "requested", "container", "wagon"][index] || "full";
+
       const transportType = transportationType;
 
       const startCountryId = parseNumber(
@@ -691,19 +478,27 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
           : null;
 
       const startStationId =
-        transportType === "Rail"
+        transportType === "Rail" ? parseNumber(route.from.hs) : null;
+
+      const endStationId =
+        transportType === "Rail" ? parseNumber(route.to.hs) : null;
+
+      const finalStartStationId =
+        startStationId ||
+        (transportType === "Rail"
           ? parseNumber(
               route.fromStationCodes.find((s) => s.name === route.from.hs)
                 ?.value,
             )
-          : null;
+          : null);
 
-      const endStationId =
-        transportType === "Rail"
+      const finalEndStationId =
+        endStationId ||
+        (transportType === "Rail"
           ? parseNumber(
               route.toStationCodes.find((s) => s.name === route.to.hs)?.value,
             )
-          : null;
+          : null);
 
       const startAddress =
         transportType === "Road" || transportType === "Multimodal"
@@ -718,20 +513,54 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         start_country_id: startCountryId,
         start_city_id: startCityId,
         start_address: startAddress,
-        start_station_id: startStationId,
+        start_station_id: finalStartStationId,
         start_port_id: startPortId,
         end_country_id: endCountryId,
         end_city_id: endCityId,
         end_address: endAddress,
-        end_station_id: endStationId,
+        end_station_id: finalEndStationId,
         end_port_id: endPortId,
         is_main: index === 0,
         route_type: routeType,
       };
     });
 
-    onRoutesChange(formattedRoutes);
+    if (
+      JSON.stringify(formattedRoutes) !== JSON.stringify(prevRoutesRef.current)
+    ) {
+      onRoutesChange(formattedRoutes);
+      prevRoutesRef.current = formattedRoutes;
+    }
   }, [routes, onRoutesChange, countries, transportationType]);
+
+  useEffect(() => {
+    if (onWagonTypeChange) onWagonTypeChange(wagonType);
+  }, [wagonType, onWagonTypeChange]);
+
+  useEffect(() => {
+    if (onTransportationTypeChange)
+      onTransportationTypeChange(transportationType);
+  }, [transportationType, onTransportationTypeChange]);
+
+  useEffect(() => {
+    setWagonType("");
+  }, [transportationType]);
+
+  useEffect(() => {
+    if (onStackableChange) onStackableChange(showPackingTypeInput);
+  }, [showPackingTypeInput, onStackableChange]);
+
+  useEffect(() => {
+    if (onInRowChange) onInRowChange(parseInt(packingType) || 0);
+  }, [packingType, onInRowChange]);
+
+  useEffect(() => {
+    if (onContainerProvisionChange) onContainerProvisionChange(wagonProvision2);
+  }, [wagonProvision2, onContainerProvisionChange]);
+
+  useEffect(() => {
+    if (onWagonProvisionChange) onWagonProvisionChange(wagonProvision);
+  }, [wagonProvision, onWagonProvisionChange]);
 
   const handleContainerInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -824,7 +653,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         width: parseFloat(breakBulkInputs.width) || 0,
         height: parseFloat(breakBulkInputs.height) || 0,
         length: parseFloat(breakBulkInputs.length) || 0,
-        packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     } else if (
       selectedOption1 === "Bulk" &&
@@ -857,7 +685,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
         width: parseFloat(generalInputs.width) || 0,
         height: parseFloat(generalInputs.height) || 0,
         length: parseFloat(generalInputs.length) || 0,
-        packaging_type: showPackingTypeInput ? packingType : undefined,
       };
     }
 
@@ -870,6 +697,19 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       const temp = { ...newRoutes[index].from };
       newRoutes[index].from = { ...newRoutes[index].to };
       newRoutes[index].to = temp;
+
+      const tempCities = newRoutes[index].fromCities;
+      newRoutes[index].fromCities = newRoutes[index].toCities;
+      newRoutes[index].toCities = tempCities;
+
+      const tempStations = newRoutes[index].fromStationCodes;
+      newRoutes[index].fromStationCodes = newRoutes[index].toStationCodes;
+      newRoutes[index].toStationCodes = tempStations;
+
+      const tempPorts = newRoutes[index].fromPorts;
+      newRoutes[index].fromPorts = newRoutes[index].toPorts;
+      newRoutes[index].toPorts = tempPorts;
+
       return newRoutes;
     });
   };
@@ -1153,6 +993,30 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     "Empty Return Container",
     "Empty Return Wagon",
   ];
+
+  const formatDisplayValue = (
+    route: (typeof routes)[0],
+    type: "from" | "to",
+  ) => {
+    const location = route[type];
+    const parts = [];
+
+    if (location.country) parts.push(location.country);
+    if (location.city) parts.push(location.city);
+
+    if (transportationType === "Rail" && location.hs) {
+      parts.push(location.hs);
+    } else if (transportationType === "Sea" && location.port) {
+      parts.push(location.port);
+    } else if (
+      (transportationType === "Road" || transportationType === "Multimodal") &&
+      location.address
+    ) {
+      parts.push(location.address);
+    }
+
+    return parts.length > 0 ? parts.join(" / ") : "";
+  };
 
   return (
     <div className={styles.packing}>
@@ -1661,24 +1525,8 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                           ? "Country / City / Port"
                           : "Country / City / Address"
                     }
-                    readOnly={false}
-                    value={`${route.from.country || "Country"} / ${route.from.city || "City"} / ${
-                      transportationType === "Rail"
-                        ? route.from.hs || "Station Code"
-                        : transportationType === "Sea"
-                          ? route.from.port || "Port"
-                          : route.from.address || "Address"
-                    }`}
-                    onChange={(e) =>
-                      (transportationType === "Road" ||
-                        transportationType === "Multimodal") &&
-                      handleFieldChange(
-                        index,
-                        "from",
-                        "address",
-                        e.target.value,
-                      )
-                    }
+                    readOnly={true}
+                    value={formatDisplayValue(route, "from")}
                     onClick={() => handleDropdownOpen("from", index)}
                   />
 
@@ -1826,26 +1674,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                     className={styles.input}
                     label="To"
                     placeholder={
-                      transportationType === "Sea"
-                        ? "Country / City / Port"
-                        : transportationType === "Road" ||
-                            transportationType === "Multimodal"
-                          ? "Country / City / Address"
-                          : "Country / City / Station Code"
-                    }
-                    readOnly={false}
-                    value={`${route.to.country || "Country"} / ${route.to.city || "City"} / ${
                       transportationType === "Rail"
-                        ? route.to.hs || "Station Code"
+                        ? "Country / City / Station Code"
                         : transportationType === "Sea"
-                          ? route.to.port || "Port"
-                          : route.to.address || "Address"
-                    }`}
-                    onChange={(e) =>
-                      (transportationType === "Road" ||
-                        transportationType === "Multimodal") &&
-                      handleFieldChange(index, "to", "address", e.target.value)
+                          ? "Country / City / Port"
+                          : "Country / City / Address"
                     }
+                    readOnly={true}
+                    value={formatDisplayValue(route, "to")}
                     onClick={() => handleDropdownOpen("to", index)}
                   />
 

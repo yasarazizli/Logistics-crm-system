@@ -120,6 +120,13 @@ const CommercialSpecialist = () => {
     });
   };
 
+  const canAddOffer = (orderType: string) => {
+    return (
+      orderType === "NoRegisterPriceQuotation" ||
+      orderType === "RegisterPriceQuotation"
+    );
+  };
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -203,28 +210,39 @@ const CommercialSpecialist = () => {
                   " - "
                 )}
               </td>
+
               <td>
                 <div className={styles.icon}>
                   <div
                     className={`${styles.icon__2} ${
-                      item.order_type === "RegisterPriceQuotation"
-                        ? styles.disabled
-                        : ""
+                      !canAddOffer(item.order_type) ? styles.disabled : ""
                     }`}
                     onClick={() => {
-                      if (item.order_type !== "RegisterPriceQuotation") {
+                      if (canAddOffer(item.order_type)) {
                         handleClickEdit(item.order_id);
                       }
                     }}
+                    style={{
+                      cursor: canAddOffer(item.order_type)
+                        ? "pointer"
+                        : "not-allowed",
+                      opacity: canAddOffer(item.order_type) ? 1 : 0.6,
+                    }}
+                    title={
+                      canAddOffer(item.order_type)
+                        ? "Add Offer"
+                        : "Add Offer not available for this order type"
+                    }
                   >
-                    {item.order_type === "RegisterPriceQuotation" ? (
-                      <CrossIcon />
-                    ) : (
+                    {canAddOffer(item.order_type) ? (
                       <AddIconTable />
+                    ) : (
+                      <CrossIcon />
                     )}
                   </div>
                 </div>
               </td>
+
               <td>
                 <div className={styles.icon}>
                   <div

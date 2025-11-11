@@ -173,8 +173,6 @@ const Users = () => {
   };
 
   const handleEditClick = (orderId: number) => {
-    if (!canEditOrder) return;
-
     const selectedOrder = data.find((item) => item.order_id === orderId);
     navigate(`/${i18n.language}/users/ask/quotation/edit`, {
       state: { order: selectedOrder },
@@ -182,6 +180,8 @@ const Users = () => {
   };
 
   const handleQuotationEdit = (orderId: number) => {
+    if (!canEditOrder) return;
+
     const selectedOrder = data.find((item) => item.order_id === orderId);
     navigate(`/${i18n.language}/users/ask/quotation/update`, {
       state: { order: selectedOrder },
@@ -406,12 +406,26 @@ const Users = () => {
                 <td>
                   <div className={styles.icon}>
                     <div
+                      className={styles.icon__2}
+                      onClick={() => handleEditClick(item.order_id)}
+                      title="Edit Quotadtion"
+                    >
+                      <PenIcon />
+                    </div>
+                  </div>
+                </td>
+              )}
+
+              {filters.status === "draft" && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
                       className={`${styles.icon__2} ${
                         !canEditOrder(item.order_type) ? styles.disabled : ""
                       }`}
                       onClick={() => {
                         if (canEditOrder(item.order_type)) {
-                          handleEditClick(item.order_id);
+                          handleQuotationEdit(item.order_id);
                         }
                       }}
                       style={{
@@ -431,20 +445,6 @@ const Users = () => {
                       ) : (
                         <CrossIcon />
                       )}
-                    </div>
-                  </div>
-                </td>
-              )}
-
-              {filters.status === "draft" && (
-                <td>
-                  <div className={styles.icon}>
-                    <div
-                      className={styles.icon__2}
-                      onClick={() => handleQuotationEdit(item.order_id)}
-                      title="Edit Quotation"
-                    >
-                      <PenIcon />
                     </div>
                   </div>
                 </td>
