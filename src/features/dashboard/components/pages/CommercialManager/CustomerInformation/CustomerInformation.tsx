@@ -48,6 +48,8 @@ interface OfferData {
   tableData: TableRowData[];
   summary: TableSummaryData;
   note: string;
+  rows: TableRowData[];
+  initialRows: TableRowData[];
 }
 
 interface DynamicFormRef {
@@ -94,6 +96,8 @@ const CustomerInformation = () => {
         transportationTime: "0",
       },
       note: "",
+      rows: [],
+      initialRows: [],
     },
   ]);
 
@@ -117,22 +121,55 @@ const CustomerInformation = () => {
     [],
   );
 
-  const handleAddOffer = () => {
-    setOffers((prev) => [
-      ...prev,
-      {
-        tableData: [],
-        summary: {
-          amount: "0",
-          vat: "0",
-          totalAmount: "0",
-          perTonPrice: "0",
-          transportationTime: "0",
-        },
-        note: "",
+  const handleAddOffer = useCallback(() => {
+    const createEmptyRow = (): TableRowData => ({
+      id: Date.now(),
+      serviceName: "",
+      location: "",
+      transportMode: "",
+      from: "",
+      to: "",
+      transportType: "",
+      packagingType: "",
+      packagingSize: "",
+      packagingPackage: "",
+      netWeight: "",
+      grossWeight: "",
+      width: "",
+      length: "",
+      height: "",
+      payload: "",
+      totalQuantity: "",
+      estimatedTime: "",
+      purchasePricePerTon: "",
+      purchasePricePerUnit: "",
+      unit: "",
+      totalPurchasePrice: "",
+      sellingPrice: "",
+      totalPrice: "",
+      vatAmount: "",
+      vat18: false,
+      profit: "",
+      vendor: "",
+      note: "",
+    });
+
+    const newOffer: OfferData = {
+      tableData: [createEmptyRow()],
+      summary: {
+        amount: "0",
+        vat: "0",
+        totalAmount: "0",
+        perTonPrice: "0",
+        transportationTime: "0",
       },
-    ]);
-  };
+      note: "",
+      rows: [createEmptyRow()],
+      initialRows: [createEmptyRow()],
+    };
+
+    setOffers((prev) => [...prev, newOffer]);
+  }, []);
 
   const pageRef = useRef<HTMLDivElement | null>(null);
 
@@ -278,7 +315,7 @@ const CustomerInformation = () => {
     setLoader(false);
   };
 
-  const [quotation, setQuotation] = useState<QuotationType | null>(null);
+  const [, setQuotation] = useState<QuotationType | null>(null);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -293,6 +330,23 @@ const CustomerInformation = () => {
             setStartDate(apiData.start_date ?? "");
             setEndDate(apiData.end_date ?? "");
             setUnCode(apiData.un_code?.toString() || "");
+
+            // İlk offer-i quotation məlumatları ilə yenilə
+            setOffers([
+              {
+                tableData: apiData.rows || [],
+                summary: apiData.summary || {
+                  amount: "0",
+                  vat: "0",
+                  totalAmount: "0",
+                  perTonPrice: "0",
+                  transportationTime: "0",
+                },
+                note: "",
+                rows: apiData.rows || [],
+                initialRows: apiData.rows || [],
+              },
+            ]);
           }
         }
       } catch (error) {
@@ -307,7 +361,12 @@ const CustomerInformation = () => {
       setOffers((prev) =>
         prev.map((offer, i) =>
           i === index
-            ? { ...offer, tableData: data.rows, summary: data.summary }
+            ? {
+                ...offer,
+                tableData: data.rows,
+                summary: data.summary,
+                rows: data.rows,
+              }
             : offer,
         ),
       );
@@ -436,16 +495,8 @@ const CustomerInformation = () => {
             <div className={styles.commercial}>
               <Table
                 index={index}
-                rows={quotation?.rows || []}
-                summary={
-                  quotation?.summary || {
-                    amount: "0",
-                    vat: "0",
-                    totalAmount: "0",
-                    perTonPrice: "0",
-                    transportationTime: "0",
-                  }
-                }
+                rows={offer.rows}
+                summary={offer.summary}
                 onTableDataChange={handleTableDataChange}
               />
 

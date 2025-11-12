@@ -42,7 +42,7 @@ interface ServiceItem {
   service_id: number;
   location: string;
   transport_mode: string;
-  form: string;
+  from: string;
   to: string;
   transport_type: string;
   payload: number;
@@ -186,6 +186,7 @@ const CustomerInformation = () => {
       console.error("Gönderme hatası:", error);
       toast.error("Error sending offer");
     }
+    setLoader(false);
   };
 
   const rejectOffer = async () => {
@@ -516,7 +517,7 @@ const CustomerInformation = () => {
                         <td>{item.name_of_service}</td>
                         <td>{item.location}</td>
                         <td>{item.transport_mode}</td>
-                        <td>{item.form}</td>
+                        <td>{item.from}</td>
                         <td>{item.to}</td>
                         <td>{item.transport_type}</td>
                         <td>{item.payload}</td>

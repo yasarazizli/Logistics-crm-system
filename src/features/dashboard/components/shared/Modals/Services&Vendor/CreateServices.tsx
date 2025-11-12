@@ -373,9 +373,7 @@ const CreateServices = ({
             <div className={styles.left}>
               <div className={styles.flex__mode}>
                 <div className={styles.selectWrapper}>
-                  <label className={styles.label}>
-                    {t("services.modals.create.vendor_select")}
-                  </label>
+                  <label className={styles.label}>Select Vendor</label>
                   <Select
                     options={vendors}
                     value={selectedVendor}

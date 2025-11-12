@@ -103,8 +103,12 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
             containersArray.push({
               number: containerNumbers[i] || "",
               dropOff: containerDropOffs[i] || "",
-              requiredNumber: apiData.container_no_required || false,
-              requiredDropOff: apiData.container_drop_off_required || false,
+              requiredNumber: isRegister
+                ? false
+                : apiData.container_no_required || false,
+              requiredDropOff: isRegister
+                ? false
+                : apiData.container_drop_off_required || false,
             });
           }
         } else {
@@ -135,8 +139,12 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
             wagonsArray.push({
               number: wagonNumbers[i] || "",
               dropOff: wagonDropOffs[i] || "",
-              requiredNumber: apiData.wagon_no_required || false,
-              requiredDropOff: apiData.wagon_drop_off_required || false,
+              requiredNumber: isRegister
+                ? false
+                : apiData.wagon_no_required || false,
+              requiredDropOff: isRegister
+                ? false
+                : apiData.wagon_drop_off_required || false,
             });
           }
         } else {
@@ -151,10 +159,16 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
         const formData: DynamicFormData = {
           shipper: apiData.shipper || "",
           consignee: apiData.consignee || "",
-          notifyParty: apiData.notify_party_required || false,
-          terminal: apiData.terminal_required || false,
-          containerOwner: apiData.container_owner_required || false,
-          wagonOwner: apiData.wagon_owner_required || false,
+          notifyParty: isRegister
+            ? false
+            : apiData.notify_party_required || false,
+          terminal: isRegister ? false : apiData.terminal_required || false,
+          containerOwner: isRegister
+            ? false
+            : apiData.container_owner_required || false,
+          wagonOwner: isRegister
+            ? false
+            : apiData.wagon_owner_required || false,
           notifyPartyValue:
             apiData.notify_party !== null && apiData.notify_party !== undefined
               ? apiData.notify_party
@@ -412,7 +426,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
             <div key={`container-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
                 <label>
-                  {index === 0 && (
+                  {index === 0 && !isRegister && (
                     <input
                       type="checkbox"
                       checked={c.requiredNumber || false}
@@ -433,7 +447,9 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={c.number}
                   placeholder="Container №"
-                  disabled={index > 0 ? false : !c.requiredNumber}
+                  disabled={
+                    isRegister ? false : index > 0 ? false : !c.requiredNumber
+                  }
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -448,7 +464,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
 
               <div className={styles.wagon}>
                 <label>
-                  {index === 0 && (
+                  {index === 0 && !isRegister && (
                     <input
                       type="checkbox"
                       checked={c.requiredDropOff || false}
@@ -469,7 +485,9 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={c.dropOff}
                   placeholder="Drop-off"
-                  disabled={index > 0 ? false : !c.requiredDropOff}
+                  disabled={
+                    isRegister ? false : index > 0 ? false : !c.requiredDropOff
+                  }
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "containers",
@@ -499,7 +517,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
             <div key={`wagon-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
                 <label>
-                  {index === 0 && (
+                  {index === 0 && !isRegister && (
                     <input
                       type="checkbox"
                       checked={w.requiredNumber || false}
@@ -520,7 +538,9 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={w.number}
                   placeholder="Wagon №"
-                  disabled={index > 0 ? false : !w.requiredNumber}
+                  disabled={
+                    isRegister ? false : index > 0 ? false : !w.requiredNumber
+                  }
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",
@@ -535,7 +555,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
 
               <div className={styles.wagon}>
                 <label>
-                  {index === 0 && (
+                  {index === 0 && !isRegister && (
                     <input
                       type="checkbox"
                       checked={w.requiredDropOff || false}
@@ -556,7 +576,9 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={w.dropOff}
                   placeholder="Drop-off"
-                  disabled={index > 0 ? false : !w.requiredDropOff}
+                  disabled={
+                    isRegister ? false : index > 0 ? false : !w.requiredDropOff
+                  }
                   onChange={(e) =>
                     handleContainerWagonChange(
                       "wagons",

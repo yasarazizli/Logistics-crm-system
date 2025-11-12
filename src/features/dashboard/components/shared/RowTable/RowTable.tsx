@@ -188,90 +188,125 @@ export default function Table({
   onTransportModeClick,
   onFromClick,
   onToClick,
+  rows: initialRows,
+  summary: initialSummary,
   onTransportTypeClick,
   onVendorClick,
   onTableDataChange,
 }: TableProps) {
-  const [columns, setColumns] = useState<number[]>([0]);
+  // State-ləri birbaşa initial dəyərlərlə başlat
+  const [columns, setColumns] = useState<number[]>(
+    initialRows && initialRows.length > 0
+      ? initialRows.map((_, idx) => idx)
+      : [0],
+  );
+
+  const columnsLength = columns.length;
+
+  // Digər state-ləri boş array kimi başlat
   const [selectedTransportType, setSelectedTransportType] = useState<
     (OptionType | null)[]
-  >(Array(columns.length).fill(null));
-
+  >(Array(columnsLength).fill(null));
   const [selectedTransportMode, setSelectedTransportMode] = useState<
     (OptionType | null)[]
-  >(Array(columns.length).fill(null));
-
+  >(Array(columnsLength).fill(null));
   const [selectedService, setSelectedService] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
+    Array(columnsLength).fill(null),
   );
-
   const [selectedVendor, setSelectedVendor] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
+    Array(columnsLength).fill(null),
   );
-
   const [selectedFrom, setSelectedFrom] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
+    Array(columnsLength).fill(null),
   );
-
   const [selectedTo, setSelectedTo] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
+    Array(columnsLength).fill(null),
   );
-
   const [selectedUnit, setSelectedUnit] = useState<(OptionType | null)[]>(
-    Array(columns.length).fill(null),
+    Array(columnsLength).fill(null),
   );
 
+  // selectedPackaging state-i üçün default dəyər
   const [selectedPackaging, setSelectedPackaging] = useState<
     (OptionType | null)[][][]
-  >(
-    Array(staticRows.length).fill(
-      Array(columns.length).fill(Array(3).fill(null)),
-    ),
+  >(() => {
+    return Array(staticRows.length)
+      .fill(null)
+      .map(() => Array(columnsLength).fill(Array(3).fill(null)));
+  });
+
+  // textValues state-i üçün initial dəyərlər
+  const [textValues, setTextValues] = useState<{ [key: string]: string }>(
+    () => {
+      const values: { [key: string]: string } = {};
+      if (initialRows && initialRows.length > 0) {
+        initialRows.forEach((row, colIndex) => {
+          if (row.location) values[`Location-${colIndex}`] = row.location;
+          if (row.netWeight)
+            values[`Net weight ton-${colIndex}`] = row.netWeight;
+          if (row.grossWeight)
+            values[`Gross weight ton-${colIndex}`] = row.grossWeight;
+          if (row.width) values[`Width (Meter)-${colIndex}`] = row.width;
+          if (row.length) values[`Length (Meter)-${colIndex}`] = row.length;
+          if (row.height) values[`Height (Meter)-${colIndex}`] = row.height;
+          if (row.payload) values[`PayLoad-${colIndex}`] = row.payload;
+          if (row.totalQuantity)
+            values[`Total quantity-${colIndex}`] = row.totalQuantity;
+          if (row.estimatedTime)
+            values[`Estimated Transportation Time-${colIndex}`] =
+              row.estimatedTime;
+          if (row.purchasePricePerTon)
+            values[`Purchase price per ton-${colIndex}`] =
+              row.purchasePricePerTon;
+          if (row.purchasePricePerUnit)
+            values[`Purchase price per unit-${colIndex}`] =
+              row.purchasePricePerUnit;
+          if (row.totalPurchasePrice)
+            values[`Total purchase price-${colIndex}`] = row.totalPurchasePrice;
+          if (row.sellingPrice)
+            values[`Selling price-${colIndex}`] = row.sellingPrice;
+          if (row.totalPrice)
+            values[`Total price-${colIndex}`] = row.totalPrice;
+          if (row.vatAmount) values[`VAT amount-${colIndex}`] = row.vatAmount;
+          if (row.vat18 !== undefined)
+            values[`VAT 18%-${colIndex}`] = row.vat18 ? "true" : "false";
+          if (row.profit) values[`Profit-${colIndex}`] = row.profit;
+          if (row.note) values[`Note-${colIndex}`] = row.note;
+        });
+      }
+      return values;
+    },
   );
 
-  const [textValues, setTextValues] = useState<{ [key: string]: string }>({});
   const [calculatedValues, setCalculatedValues] = useState<{
     [key: string]: number;
   }>({});
 
-  const [summaryData, setSummaryData] = useState<TableSummaryData>({
-    amount: "0$",
-    vat: "0$",
-    totalAmount: "0$",
-    perTonPrice: "0$",
-    transportationTime: "0 days",
-  });
+  // summaryData state-i üçün initial dəyər
+  const [summaryData, setSummaryData] = useState<TableSummaryData>(
+    initialSummary || {
+      amount: "0$",
+      vat: "0$",
+      totalAmount: "0$",
+      perTonPrice: "0$",
+      transportationTime: "0 days",
+    },
+  );
 
-  useEffect(() => {
-    const savedCols = localStorage.getItem("table_columns");
-    if (savedCols) {
-      try {
-        const parsed = JSON.parse(savedCols);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setColumns(parsed);
-          setSelectedTransportType(Array(parsed.length).fill(null));
-          setSelectedTransportMode(Array(parsed.length).fill(null));
-          setSelectedService(Array(parsed.length).fill(null));
-          setSelectedVendor(Array(parsed.length).fill(null));
-          setSelectedFrom(Array(parsed.length).fill(null));
-          setSelectedTo(Array(parsed.length).fill(null));
-          setSelectedUnit(Array(parsed.length).fill(null));
-          setSelectedPackaging(
-            Array(staticRows.length)
-              .fill(0)
-              .map(() => Array(parsed.length).fill(Array(3).fill(null))),
-          );
-        }
-      } catch {
-        setColumns([0]);
-      }
-    }
-  }, []);
+  const [modal, setModal] = useState<
+    | { type: "create" }
+    | { type: "add"; id: number }
+    | { type: "delete"; colIndex: number }
+    | null
+  >(null);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(0);
 
+  // Sadəcə LocalStorage üçün useEffect
   useEffect(() => {
     localStorage.setItem("table_columns", JSON.stringify(columns));
   }, [columns]);
 
+  // Hesaplamalar üçün useEffect - asılılıqları minimuma endir
   useEffect(() => {
     const newCalculatedValues: { [key: string]: number } = {};
     let totalAmount = 0;
@@ -281,22 +316,18 @@ export default function Table({
 
     columns.forEach((colIndex) => {
       const payload = parseFloat(textValues[`PayLoad-${colIndex}`] || "0");
-
       const sellingPrice = parseFloat(
         textValues[`Selling price-${colIndex}`] || "0",
       );
-
       const purchasePricePerTon = parseFloat(
         textValues[`Purchase price per ton-${colIndex}`] || "0",
       );
       const purchasePricePerUnit = parseFloat(
         textValues[`Purchase price per unit-${colIndex}`] || "0",
       );
-
       const estimatedTime = parseFloat(
         textValues[`Estimated Transportation Time-${colIndex}`] || "0",
       );
-
       const unitType = selectedUnit[colIndex]?.value;
 
       const totalPrice = payload * sellingPrice;
@@ -321,7 +352,6 @@ export default function Table({
     });
 
     setCalculatedValues(newCalculatedValues);
-
     setSummaryData({
       amount: `${totalAmount.toFixed(2)}$`,
       vat: `${totalVAT.toFixed(2)}$`,
@@ -331,9 +361,14 @@ export default function Table({
     });
   }, [textValues, selectedUnit, columns]);
 
+  // convertTableToJSON funksiyası
   const convertTableToJSON = useCallback((): CompleteTableData => {
     const rows: TableRowData[] = columns.map((colIndex) => {
       const unitType = selectedUnit[colIndex]?.value || "";
+
+      // selectedPackaging üçün təhlükəsiz əməliyyat
+      const packagingRow = selectedPackaging[6] || [];
+      const packagingCell = packagingRow[colIndex] || [null, null, null];
 
       return {
         serviceName: selectedService[colIndex]?.value || "",
@@ -342,9 +377,9 @@ export default function Table({
         from: selectedFrom[colIndex]?.label || "",
         to: selectedTo[colIndex]?.label || "",
         transportType: selectedTransportType[colIndex]?.label || "",
-        packagingPackage: selectedPackaging[6]?.[colIndex]?.[0]?.label || "",
-        packagingSize: selectedPackaging[6]?.[colIndex]?.[1]?.label || "",
-        packagingType: selectedPackaging[6]?.[colIndex]?.[2]?.label || "",
+        packagingPackage: packagingCell[0]?.label || "",
+        packagingSize: packagingCell[1]?.label || "",
+        packagingType: packagingCell[2]?.label || "",
         netWeight: textValues[`Net weight ton-${colIndex}`] || "",
         grossWeight: textValues[`Gross weight ton-${colIndex}`] || "",
         width: textValues[`Width (Meter)-${colIndex}`] || "",
@@ -374,10 +409,7 @@ export default function Table({
       };
     });
 
-    return {
-      rows,
-      summary: summaryData,
-    };
+    return { rows, summary: summaryData };
   }, [
     columns,
     selectedUnit,
@@ -395,6 +427,7 @@ export default function Table({
 
   const tableData = useMemo(() => convertTableToJSON(), [convertTableToJSON]);
 
+  // onTableDataChange üçün useEffect - tableData dəyişdikdə çağır
   useEffect(() => {
     if (onTableDataChange) {
       onTableDataChange(index, tableData);
@@ -420,6 +453,12 @@ export default function Table({
   ) => {
     setSelectedPackaging((prev) => {
       const newPackaging = [...prev];
+
+      // Əgər row mövcud deyilsə, yarat
+      if (!newPackaging[rowIndex]) {
+        newPackaging[rowIndex] = Array(columnsLength).fill(Array(3).fill(null));
+      }
+
       newPackaging[rowIndex] = [...newPackaging[rowIndex]];
       newPackaging[rowIndex][colIndex] = [...newPackaging[rowIndex][colIndex]];
       newPackaging[rowIndex][colIndex][selectIndex] = option;
@@ -441,7 +480,8 @@ export default function Table({
   };
 
   const addColumn = () => {
-    setColumns((prev) => [...prev, prev.length]);
+    const newColumnIndex = columns.length;
+    setColumns((prev) => [...prev, newColumnIndex]);
     setSelectedTransportType((prev) => [...prev, null]);
     setSelectedTransportMode((prev) => [...prev, null]);
     setSelectedService((prev) => [...prev, null]);
@@ -460,7 +500,6 @@ export default function Table({
 
   const confirmDeleteColumn = (colIndex: number) => {
     setColumns((prev) => prev.filter((_, i) => i !== colIndex));
-
     setSelectedTransportType((prev) => prev.filter((_, i) => i !== colIndex));
     setSelectedTransportMode((prev) => prev.filter((_, i) => i !== colIndex));
     setSelectedService((prev) => prev.filter((_, i) => i !== colIndex));
@@ -516,7 +555,6 @@ export default function Table({
       boxShadow: "none",
       color: "#000",
       padding: "0px 20px",
-
       "&:hover": {
         borderBottom:
           placeholder === "Package" || placeholder === "Select Unit"
@@ -592,14 +630,6 @@ export default function Table({
       zIndex: 9999,
     }),
   });
-
-  const [modal, setModal] = useState<
-    | null
-    | { type: "create" }
-    | { type: "add"; id: number }
-    | { type: "delete"; colIndex: number }
-  >(null);
-  const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(0);
 
   const handleServiceSelect = (service: Service, colIndex: number) => {
     setSelectedService((prev) => {
@@ -701,10 +731,8 @@ export default function Table({
                     const isDisabled =
                       role !== "admin" &&
                       disabledCells.includes(`${rowIndex}-${colIndex}`);
-
                     const calculatedValue =
                       calculatedValues[`${rowName}-${colIndex}`];
-
                     const displayValue =
                       textValues[`${rowName}-${colIndex}`] !== undefined
                         ? textValues[`${rowName}-${colIndex}`]
@@ -756,7 +784,6 @@ export default function Table({
                               }
                             >
                               <p>
-                                {" "}
                                 {selectedTransportMode[colIndex]?.label || ""}
                               </p>
                             </div>
@@ -770,7 +797,7 @@ export default function Table({
                               className={styles.clickable_text}
                               onClick={() => onFromClick?.("From clicked")}
                             >
-                              <p> {selectedFrom[colIndex]?.label || ""}</p>
+                              <p>{selectedFrom[colIndex]?.label || ""}</p>
                             </div>
                           </td>
                         );
@@ -782,7 +809,7 @@ export default function Table({
                               className={styles.clickable_text}
                               onClick={() => onToClick?.("To clicked")}
                             >
-                              <p> {selectedTo[colIndex]?.label || ""}</p>
+                              <p>{selectedTo[colIndex]?.label || ""}</p>
                             </div>
                           </td>
                         );
@@ -810,7 +837,7 @@ export default function Table({
                               className={styles.clickable_text}
                               onClick={() => onVendorClick?.("Vendor clicked")}
                             >
-                              <p> {selectedVendor[colIndex]?.label || ""}</p>
+                              <p>{selectedVendor[colIndex]?.label || ""}</p>
                             </div>
                           </td>
                         );
@@ -838,7 +865,11 @@ export default function Table({
                           <td key={colIndex} className={styles.nested_cell}>
                             <div className={styles.vertical_inputs}>
                               <Select
-                                value={selectedPackaging[rowIndex][colIndex][0]}
+                                value={
+                                  selectedPackaging[rowIndex]?.[
+                                    colIndex
+                                  ]?.[0] || null
+                                }
                                 onChange={(option) =>
                                   handlePackagingChange(
                                     rowIndex,
@@ -855,7 +886,11 @@ export default function Table({
                                 isClearable
                               />
                               <Select
-                                value={selectedPackaging[rowIndex][colIndex][1]}
+                                value={
+                                  selectedPackaging[rowIndex]?.[
+                                    colIndex
+                                  ]?.[1] || null
+                                }
                                 onChange={(option) =>
                                   handlePackagingChange(
                                     rowIndex,
@@ -868,7 +903,7 @@ export default function Table({
                                 styles={getPackagingStyles("Size")}
                                 isDisabled={
                                   isDisabled ||
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  selectedPackaging[rowIndex]?.[colIndex]?.[0]
                                     ?.value !== "Container"
                                 }
                                 placeholder="Size"
@@ -876,7 +911,11 @@ export default function Table({
                                 isClearable
                               />
                               <Select
-                                value={selectedPackaging[rowIndex][colIndex][2]}
+                                value={
+                                  selectedPackaging[rowIndex]?.[
+                                    colIndex
+                                  ]?.[2] || null
+                                }
                                 onChange={(option) =>
                                   handlePackagingChange(
                                     rowIndex,
@@ -886,18 +925,20 @@ export default function Table({
                                   )
                                 }
                                 options={getTypeOptions(
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  selectedPackaging[rowIndex]?.[colIndex]?.[0]
                                     ?.value || "",
                                 )}
                                 styles={getPackagingStyles("Package")}
                                 isDisabled={
                                   isDisabled ||
-                                  !selectedPackaging[rowIndex][colIndex][0] ||
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  !selectedPackaging[rowIndex]?.[
+                                    colIndex
+                                  ]?.[0] ||
+                                  selectedPackaging[rowIndex]?.[colIndex]?.[0]
                                     ?.value === "Oversize_Cargo"
                                 }
                                 placeholder={
-                                  selectedPackaging[rowIndex][colIndex][0]
+                                  selectedPackaging[rowIndex]?.[colIndex]?.[0]
                                     ?.value === "Oversize_Cargo"
                                     ? "Not applicable"
                                     : "Package"
@@ -1021,9 +1062,7 @@ export default function Table({
       </div>
       {modal?.type === "create" && (
         <CreateServicesTable
-          modalClose={() => {
-            setModal(null);
-          }}
+          modalClose={() => setModal(null)}
           onServiceSelect={(service) =>
             handleServiceSelect(service, selectedColumnIndex)
           }
@@ -1031,9 +1070,7 @@ export default function Table({
       )}
       {modal?.type === "add" && (
         <PriceTable
-          modalClose={() => {
-            setModal(null);
-          }}
+          modalClose={() => setModal(null)}
           order_id={order.order_id}
         />
       )}
