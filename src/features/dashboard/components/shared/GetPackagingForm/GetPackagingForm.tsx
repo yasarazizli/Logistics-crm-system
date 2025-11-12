@@ -224,12 +224,57 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     },
   ]);
 
+  useEffect(() => {
+    setRoutes([
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+    ]);
+  }, [transportationType]);
+
   const [, setQuotation] = useState<QuotationType | null>(null);
 
   const parseAndSetRoutes = async (apiData: QuotationType) => {
     const newRoutes = [...routes];
 
-    const parseLocation = (locationStr: string) => {
+    const parseLocation = async (locationStr: string) => {
       if (!locationStr)
         return { country: "", city: "", hs: "", address: "", port: "" };
 
@@ -246,16 +291,11 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       if (parts.length >= 1) location.country = parts[0];
       if (parts.length >= 2) location.city = parts[1];
       if (parts.length >= 3) {
-        if (transportationType === "Rail") {
-          location.hs = parts[2];
-        } else if (transportationType === "Sea") {
-          location.port = parts[2];
-        } else if (
-          transportationType === "Road" ||
-          transportationType === "Multimodal"
-        ) {
-          location.address = parts[2];
-        }
+        const thirdPart = parts[2];
+
+        location.hs = thirdPart;
+        location.port = thirdPart;
+        location.address = thirdPart;
       }
 
       return location;
@@ -271,8 +311,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     for (const { apiRoute, routeIndex } of routeConfigs) {
       if (apiRoute && (apiRoute.from || apiRoute.to)) {
         try {
-          const fromLocation = parseLocation(apiRoute.from || "");
-          const toLocation = parseLocation(apiRoute.to || "");
+          const [fromLocation, toLocation] = await Promise.all([
+            parseLocation(apiRoute.from || ""),
+            parseLocation(apiRoute.to || ""),
+          ]);
 
           let fromCitiesRes = { data: [] as City[] };
           let fromStationCodesRes = { data: [] as StationCode[] };
@@ -318,7 +360,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
 
     setRoutes(newRoutes);
   };
-
   const handleDropdownOpen = async (type: "from" | "to", index: number) => {
     const route = routes[index];
     const location = type === "from" ? route.from : route.to;
@@ -1005,7 +1046,12 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     if (location.city) parts.push(location.city);
 
     if (transportationType === "Rail" && location.hs) {
-      parts.push(location.hs);
+      const stationCodes =
+        type === "from" ? route.fromStationCodes : route.toStationCodes;
+      const station = stationCodes.find(
+        (s) => s.value.toString() === location.hs,
+      );
+      parts.push(station ? station.name : location.hs);
     } else if (transportationType === "Sea" && location.port) {
       parts.push(location.port);
     } else if (
@@ -1016,6 +1062,20 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     }
 
     return parts.length > 0 ? parts.join(" / ") : "";
+  };
+
+  const handleStationCodeChange = (
+    index: number,
+    type: "from" | "to",
+    selected: SingleValue<OptionType>,
+  ) => {
+    const value = selected?.value || "";
+
+    setRoutes((prev) => {
+      const updated = [...prev];
+      updated[index][type].hs = value;
+      return updated;
+    });
   };
 
   return (
@@ -1585,22 +1645,24 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                         <Select<OptionType, false>
                           placeholder="Select Station Code"
                           options={route.fromStationCodes.map((hs) => ({
-                            value: hs.value,
+                            value: hs.value.toString(),
                             label: hs.name,
                           }))}
                           value={
                             route.from.hs
-                              ? { value: route.from.hs, label: route.from.hs }
+                              ? {
+                                  value: route.from.hs,
+                                  label:
+                                    route.fromStationCodes.find(
+                                      (s) =>
+                                        s.value.toString() === route.from.hs,
+                                    )?.name || route.from.hs,
+                                }
                               : null
                           }
-                          onChange={(selected) =>
-                            handleFieldChange(
-                              index,
-                              "from",
-                              "hs",
-                              selected?.value || "",
-                            )
-                          }
+                          onChange={(selected) => {
+                            handleStationCodeChange(index, "from", selected);
+                          }}
                           styles={customStyles}
                           isClearable
                         />
@@ -1740,22 +1802,23 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                         <Select<OptionType, false>
                           placeholder="Select Station Code"
                           options={route.toStationCodes.map((hs) => ({
-                            value: hs.value,
+                            value: hs.value.toString(),
                             label: hs.name,
                           }))}
                           value={
                             route.to.hs
-                              ? { value: route.to.hs, label: route.to.hs }
+                              ? {
+                                  value: route.to.hs,
+                                  label:
+                                    route.toStationCodes.find(
+                                      (s) => s.value.toString() === route.to.hs,
+                                    )?.name || route.to.hs,
+                                }
                               : null
                           }
-                          onChange={(selected) =>
-                            handleFieldChange(
-                              index,
-                              "to",
-                              "hs",
-                              selected?.value || "",
-                            )
-                          }
+                          onChange={(selected) => {
+                            handleStationCodeChange(index, "to", selected);
+                          }}
                           styles={customStyles}
                           isClearable
                         />
