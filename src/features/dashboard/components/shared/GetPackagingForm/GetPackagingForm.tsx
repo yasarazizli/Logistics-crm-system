@@ -126,7 +126,7 @@ interface Port {
   name: string;
 }
 
-const PackagingForm: React.FC<PackagingFormProps> = ({
+const GetPackagingForm: React.FC<PackagingFormProps> = ({
   onDataChange,
   onRoutesChange,
   onStackableChange,
@@ -1878,4 +1878,4 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
   );
 };
 
-export default PackagingForm;
+export default GetPackagingForm;

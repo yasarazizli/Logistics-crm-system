@@ -185,6 +185,52 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     "Empty Return Wagon",
   ];
 
+  // Transportation type dəyişdikdə routes-ları sıfırla
+  useEffect(() => {
+    setRoutes([
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+      {
+        from: { country: "", city: "", hs: "", address: "", port: "" },
+        to: { country: "", city: "", hs: "", address: "", port: "" },
+        fromCities: [],
+        toCities: [],
+        fromStationCodes: [],
+        toStationCodes: [],
+        fromPorts: [],
+        toPorts: [],
+      },
+    ]);
+  }, [transportationType]);
+
   // Wagon type dəyişdikdə parent komponentə bildir
   useEffect(() => {
     if (onWagonTypeChange) onWagonTypeChange(wagonType);
@@ -450,9 +496,18 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
   const swapFromTo = (index: number) => {
     setRoutes((prev) => {
       const newRoutes = [...prev];
-      const temp = { ...newRoutes[index].from };
-      newRoutes[index].from = { ...newRoutes[index].to };
-      newRoutes[index].to = temp;
+      const route = newRoutes[index];
+      newRoutes[index] = {
+        ...route,
+        from: { ...route.to },
+        to: { ...route.from },
+        fromCities: [...route.toCities],
+        toCities: [...route.fromCities],
+        fromStationCodes: [...route.toStationCodes],
+        toStationCodes: [...route.fromStationCodes],
+        fromPorts: [...route.toPorts],
+        toPorts: [...route.fromPorts],
+      };
       return newRoutes;
     });
   };
@@ -523,8 +578,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     setRoutes((prev) => {
       const updated = [...prev];
 
-      updated[index][type][field] = value;
-
+      // YALNIZ ölkə dəyişəndə sıfırlama et
       if (field === "country" && value !== updated[index][type].country) {
         updated[index][type] = {
           country: value,
@@ -570,6 +624,9 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
           }
           setRoutes([...updated]);
         });
+      } else {
+        // Digər field-lər üçün sadəcə dəyəri yenilə
+        updated[index][type][field] = value;
       }
 
       return [...updated];
@@ -735,6 +792,86 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
   useEffect(() => {
     setSelectedOption3("");
   }, [selectedOption1]);
+
+  const formatDisplayValue = (
+    route: (typeof routes)[0],
+    type: "from" | "to",
+  ) => {
+    const location = route[type];
+    const parts = [];
+
+    if (location.country) parts.push(location.country);
+    if (location.city) parts.push(location.city);
+
+    if (transportationType === "Rail" && location.hs) {
+      const stationCodes =
+        type === "from" ? route.fromStationCodes : route.toStationCodes;
+      const station = stationCodes.find(
+        (s) => s.value.toString() === location.hs,
+      );
+      parts.push(station ? station.name : location.hs);
+    } else if (transportationType === "Sea" && location.port) {
+      parts.push(location.port);
+    } else if (
+      (transportationType === "Road" || transportationType === "Multimodal") &&
+      location.address
+    ) {
+      parts.push(location.address);
+    }
+
+    return parts.length > 0 ? parts.join(" / ") : "";
+  };
+
+  const handleDropdownOpen = async (type: "from" | "to", index: number) => {
+    const route = routes[index];
+    const location = type === "from" ? route.from : route.to;
+
+    if (location.country) {
+      const hasData =
+        (type === "from" && route.fromCities.length === 0) ||
+        (type === "to" && route.toCities.length === 0);
+
+      if (hasData) {
+        const [citiesRes, stationCodesRes, portsRes] = await Promise.all([
+          GetAllCity(location.country),
+          GetAllStationCode(location.country),
+          GetAllPort(location.country),
+        ]);
+
+        setRoutes((prev) => {
+          const updated = [...prev];
+          if (type === "from") {
+            updated[index].fromCities = citiesRes?.data || [];
+            updated[index].fromStationCodes = stationCodesRes?.data || [];
+            updated[index].fromPorts = portsRes?.data?.data || [];
+          } else {
+            updated[index].toCities = citiesRes?.data || [];
+            updated[index].toStationCodes = stationCodesRes?.data || [];
+            updated[index].toPorts = portsRes?.data?.data || [];
+          }
+          return updated;
+        });
+      }
+    }
+
+    setOpenDropdown(
+      openDropdown === `${type}-${index}` ? null : `${type}-${index}`,
+    );
+  };
+
+  const handleStationCodeChange = (
+    index: number,
+    type: "from" | "to",
+    selected: SingleValue<OptionType>,
+  ) => {
+    const value = selected?.value || "";
+
+    setRoutes((prev) => {
+      const updated = [...prev];
+      updated[index][type].hs = value;
+      return updated;
+    });
+  };
 
   return (
     <div className={styles.packing}>
@@ -1244,31 +1381,9 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                           ? "Country / City / Port"
                           : "Country / City / Address"
                     }
-                    readOnly={false}
-                    value={`${route.from.country || "Country"} / ${route.from.city || "City"} / ${
-                      transportationType === "Rail"
-                        ? route.from.hs || "Station Code"
-                        : transportationType === "Sea"
-                          ? route.from.port || "Port"
-                          : route.from.address || "Address"
-                    }`}
-                    onChange={(e) =>
-                      (transportationType === "Road" ||
-                        transportationType === "Multimodal") &&
-                      handleFieldChange(
-                        index,
-                        "from",
-                        "address",
-                        e.target.value,
-                      )
-                    }
-                    onClick={() =>
-                      setOpenDropdown(
-                        openDropdown === `from-${index}`
-                          ? null
-                          : `from-${index}`,
-                      )
-                    }
+                    readOnly={true}
+                    value={formatDisplayValue(route, "from")}
+                    onClick={() => handleDropdownOpen("from", index)}
                   />
 
                   {openDropdown === `from-${index}` && (
@@ -1329,22 +1444,24 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                         <Select<OptionType, false>
                           placeholder="Select Station Code"
                           options={route.fromStationCodes.map((hs) => ({
-                            value: hs.value,
+                            value: hs.value.toString(),
                             label: hs.name,
                           }))}
                           value={
                             route.from.hs
-                              ? { value: route.from.hs, label: route.from.hs }
+                              ? {
+                                  value: route.from.hs,
+                                  label:
+                                    route.fromStationCodes.find(
+                                      (s) =>
+                                        s.value.toString() === route.from.hs,
+                                    )?.name || route.from.hs,
+                                }
                               : null
                           }
-                          onChange={(selected) =>
-                            handleFieldChange(
-                              index,
-                              "from",
-                              "hs",
-                              selected?.value || "",
-                            )
-                          }
+                          onChange={(selected) => {
+                            handleStationCodeChange(index, "from", selected);
+                          }}
                           styles={customStyles}
                           isClearable
                         />
@@ -1418,31 +1535,15 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                     className={styles.input}
                     label="To"
                     placeholder={
-                      transportationType === "Sea"
-                        ? "Country / City / Port"
-                        : transportationType === "Road" ||
-                            transportationType === "Multimodal"
-                          ? "Country / City / Address"
-                          : "Country / City / Station Code"
-                    }
-                    readOnly={false}
-                    value={`${route.to.country || "Country"} / ${route.to.city || "City"} / ${
                       transportationType === "Rail"
-                        ? route.to.hs || "Station Code"
+                        ? "Country / City / Station Code"
                         : transportationType === "Sea"
-                          ? route.to.port || "Port"
-                          : route.to.address || "Address"
-                    }`}
-                    onChange={(e) =>
-                      (transportationType === "Road" ||
-                        transportationType === "Multimodal") &&
-                      handleFieldChange(index, "to", "address", e.target.value)
+                          ? "Country / City / Port"
+                          : "Country / City / Address"
                     }
-                    onClick={() =>
-                      setOpenDropdown(
-                        openDropdown === `to-${index}` ? null : `to-${index}`,
-                      )
-                    }
+                    readOnly={true}
+                    value={formatDisplayValue(route, "to")}
+                    onClick={() => handleDropdownOpen("to", index)}
                   />
 
                   {openDropdown === `to-${index}` && (
@@ -1503,22 +1604,23 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                         <Select<OptionType, false>
                           placeholder="Select Station Code"
                           options={route.toStationCodes.map((hs) => ({
-                            value: hs.value,
+                            value: hs.value.toString(),
                             label: hs.name,
                           }))}
                           value={
                             route.to.hs
-                              ? { value: route.to.hs, label: route.to.hs }
+                              ? {
+                                  value: route.to.hs,
+                                  label:
+                                    route.toStationCodes.find(
+                                      (s) => s.value.toString() === route.to.hs,
+                                    )?.name || route.to.hs,
+                                }
                               : null
                           }
-                          onChange={(selected) =>
-                            handleFieldChange(
-                              index,
-                              "to",
-                              "hs",
-                              selected?.value || "",
-                            )
-                          }
+                          onChange={(selected) => {
+                            handleStationCodeChange(index, "to", selected);
+                          }}
                           styles={customStyles}
                           isClearable
                         />
