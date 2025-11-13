@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Select, { StylesConfig, SingleValue } from "react-select";
 import styles from "@/components/Modal/Modal.module.scss";
 import Modal from "@/components/Modal/Modal.tsx";
@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
 import { createPrice } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import { getAllServicesName } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
+import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 
 interface Option {
   value: string;
@@ -90,6 +91,7 @@ const PriceTable = ({
   modalClose: (isRender: boolean) => void;
   order_id: number | null;
 }) => {
+  const { setLoader } = useContext(LoaderContext);
   const [service, setService] = useState<Service>({
     id: Date.now(),
     service_name: "",
@@ -113,6 +115,7 @@ const PriceTable = ({
   };
 
   useEffect(() => {
+    setLoader(true);
     const fetchServiceNames = async () => {
       try {
         const response = await getAllServicesName();
@@ -134,6 +137,7 @@ const PriceTable = ({
       } catch (error) {
         console.error("Error fetching service names:", error);
       }
+      setLoader(false);
     };
 
     fetchServiceNames();
@@ -194,6 +198,8 @@ const PriceTable = ({
       return;
     }
 
+    setLoader(true);
+
     const formData = new FormData();
 
     formData.append("service_name", service.service_name);
@@ -215,6 +221,7 @@ const PriceTable = ({
     } else {
       toast.error(errorMessageHandler(data));
     }
+    setLoader(false);
   };
 
   return (
