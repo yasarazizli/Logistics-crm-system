@@ -4,7 +4,6 @@ import SelectList from "@/features/dashboard/components/shared/SelectList/Select
 import Input from "@/components/Input/Input.tsx";
 import { useCallback, useContext, useRef, useState } from "react";
 import axios from "axios";
-import ExpandableSection from "@/features/dashboard/components/shared/ExpandableSection/ExpandableSetion.tsx";
 import PackagingForm, {
   PackagingData,
   RouteData,
@@ -20,6 +19,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getCookie } from "@/libs/cookie.ts";
 import i18n from "i18next";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import GetExpandableSection from "@/features/dashboard/components/shared/GetExpandableSection/GetExpandableSection.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -208,7 +208,7 @@ const AskQuotation = () => {
         </div>
 
         <div className={styles.expendable}>
-          <ExpandableSection
+          <GetExpandableSection
             unCode={unCode}
             setUnCode={setUnCode}
             msDs={msDs}

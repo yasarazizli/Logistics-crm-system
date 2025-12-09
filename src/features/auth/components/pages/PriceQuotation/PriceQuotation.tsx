@@ -5,7 +5,6 @@ import SelectList from "@/features/dashboard/components/shared/SelectList/Select
 import Input from "@/components/Input/Input.tsx";
 import { useCallback, useContext, useState } from "react";
 import axios from "axios";
-import ExpandableSection from "@/features/dashboard/components/shared/ExpandableSection/ExpandableSetion.tsx";
 import PackagingForm, {
   PackagingData,
   RouteData,
@@ -16,6 +15,7 @@ import { errorMessageHandler } from "@/libs/error.ts";
 import { useNavigate } from "react-router-dom";
 import i18n from "@/locales/i18n.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import GetExpandableSection from "@/features/dashboard/components/shared/GetExpandableSection/GetExpandableSection.tsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -143,10 +143,11 @@ const PriceQuotation = () => {
       console.log("Sunucu yanıtı:", response.data);
       navigate(`/${i18n.language}/auth/login`);
       toast.success(errorMessageHandler(response.data));
+      setLoader(false);
     } else {
       toast.error(errorMessageHandler(response.data));
+      setLoader(false);
     }
-    setLoader(false);
   };
 
   return (
@@ -175,7 +176,7 @@ const PriceQuotation = () => {
         </div>
 
         <div className={styles.expendable}>
-          <ExpandableSection
+          <GetExpandableSection
             unCode={unCode}
             setUnCode={setUnCode}
             msDs={msDs}

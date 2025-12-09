@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "../ExpandableSection/ExpandableSection.module.scss";
-import { ImageIcon } from "@/assets/icons/shared.vectors.tsx";
+import { DownloadIcon, ImageIcon } from "@/assets/icons/shared.vectors.tsx";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
 import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
@@ -28,8 +28,13 @@ const ExpandableSection = ({
 }: ExpandableSectionProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+
   const [msdsFileName, setMsdsFileName] = useState<string>("");
   const [cargoImageFileName, setCargoImageFileName] = useState<string>("");
+
+  const [msdsUrl, setMsdsUrl] = useState<string>("");
+  const [cargoImageUrl, setCargoImageUrl] = useState<string>("");
+
   const location = useLocation();
   const order = location.state?.order;
 
@@ -39,24 +44,26 @@ const ExpandableSection = ({
 
     if (file) {
       setMsdsFileName(file.name);
-    } else {
-      setMsdsFileName("");
+      setMsdsUrl("");
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setMsDsPictures([...msDsPictures, ...files]);
+    setCargoImageUrl("");
   };
 
   const handleRemoveMsds = () => {
     setMsDs(null);
     setMsdsFileName("");
+    setMsdsUrl("");
   };
 
   const handleRemoveCargoImage = () => {
     setMsDsPictures([]);
     setCargoImageFileName("");
+    setCargoImageUrl("");
   };
 
   const getFileNameFromPath = (filePath: string): string => {
@@ -70,6 +77,7 @@ const ExpandableSection = ({
 
       try {
         const response = await QuotationData(order.order_id);
+
         if (response?.status === 200) {
           const apiData = response.data;
 
@@ -85,13 +93,13 @@ const ExpandableSection = ({
             setOpen(dangerousValue);
 
             if (apiData.msds) {
-              const fileName = getFileNameFromPath(apiData.msds);
-              setMsdsFileName(fileName);
+              setMsdsUrl(apiData.msds);
+              setMsdsFileName(getFileNameFromPath(apiData.msds));
             }
 
             if (apiData.cargo_image) {
-              const fileName = getFileNameFromPath(apiData.cargo_image);
-              setCargoImageFileName(fileName);
+              setCargoImageUrl(apiData.cargo_image);
+              setCargoImageFileName(getFileNameFromPath(apiData.cargo_image));
             }
           }
         }
@@ -104,9 +112,9 @@ const ExpandableSection = ({
   }, [order, setUnCode, setDangerous]);
 
   const handleToggleSection = () => {
-    const newOpenState = !open;
-    setOpen(newOpenState);
-    setDangerous(newOpenState);
+    const newOpen = !open;
+    setOpen(newOpen);
+    setDangerous(newOpen);
   };
 
   return (
@@ -134,7 +142,6 @@ const ExpandableSection = ({
             />
           </div>
 
-          {/* MSDS Upload */}
           <div className={styles.uploadSection}>
             <label className={styles.uploadLabel}>Upload MSDS</label>
             <div
@@ -143,7 +150,21 @@ const ExpandableSection = ({
             >
               {msDs || msdsFileName ? (
                 <div className={styles.document}>
-                  <span>{msDs?.name || msdsFileName || "MSDS Document"}</span>
+                  <span>{msDs?.name || msdsFileName}</span>
+
+                  {(msDs || msdsUrl) && (
+                    <a
+                      href={msDs ? URL.createObjectURL(msDs) : msdsUrl}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.downloadBtn}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DownloadIcon />
+                    </a>
+                  )}
+
                   <button
                     type="button"
                     className={styles.removeBtn}
@@ -165,6 +186,7 @@ const ExpandableSection = ({
                   </div>
                 </div>
               )}
+
               <input
                 id="msds-upload"
                 type="file"
@@ -176,7 +198,6 @@ const ExpandableSection = ({
           </div>
         </div>
 
-        {/* Cargo Image Upload */}
         <div className={styles.uploadSection__1}>
           <div
             className={styles.dropzone}
@@ -189,23 +210,47 @@ const ExpandableSection = ({
                 {msDsPictures.map((file, index) => (
                   <div key={index} className={styles.fileItem}>
                     <span>{file.name}</span>
+
+                    <a
+                      href={URL.createObjectURL(file)}
+                      download={file.name}
+                      target="_blank"
+                      className={styles.downloadBtn}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DownloadIcon />
+                    </a>
+
                     <button
                       type="button"
                       className={styles.removeBtn}
                       onClick={(e) => {
                         e.stopPropagation();
-                        const newPictures = [...msDsPictures];
-                        newPictures.splice(index, 1);
-                        setMsDsPictures(newPictures);
+                        const newFiles = [...msDsPictures];
+                        newFiles.splice(index, 1);
+                        setMsDsPictures(newFiles);
                       }}
                     >
                       ×
                     </button>
                   </div>
                 ))}
-                {cargoImageFileName && msDsPictures.length === 0 && (
+
+                {cargoImageUrl && msDsPictures.length === 0 && (
                   <div className={styles.fileItem}>
                     <span>{cargoImageFileName}</span>
+
+                    <a
+                      href={cargoImageUrl}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.downloadBtn}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DownloadIcon />
+                    </a>
+
                     <button
                       type="button"
                       className={styles.removeBtn}
@@ -232,6 +277,7 @@ const ExpandableSection = ({
                 </div>
               </div>
             )}
+
             <input
               id="cargo-image-upload"
               type="file"

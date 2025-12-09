@@ -18,3 +18,22 @@ export const CompletedRequest = async (quotation_id: number) => {
       return err.response;
     });
 };
+
+export const AddCompletedRequest = async (
+  formData: FormData,
+  quotation_id: number,
+) => {
+  return await axios
+    .put(
+      `${apiUrl}/commercial/approve-service-quotation/?quotation_id=${quotation_id}`,
+      formData,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
+      },
+    )
+    .catch((err) => {
+      return err.response;
+    });
+};

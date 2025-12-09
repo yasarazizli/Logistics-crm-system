@@ -33,6 +33,7 @@ const VerifyLawyer = ({
   const inputsRef = {
     contract_number: useRef<HTMLInputElement>(null),
     contract_language: useRef<HTMLSelectElement>(null),
+    bank: useRef<HTMLSelectElement>(null),
     contract_start_time: useRef<HTMLInputElement>(null),
     contract_end_time: useRef<HTMLInputElement>(null),
     payment_type: useRef<HTMLSelectElement>(null),
@@ -57,6 +58,10 @@ const VerifyLawyer = ({
       {
         name: "contract_language",
         data: inputsRef.contract_language.current?.value,
+      },
+      {
+        name: "bank",
+        data: inputsRef.bank.current?.value,
       },
       {
         name: "contract_start_time",
@@ -95,6 +100,16 @@ const VerifyLawyer = ({
   };
 
   const language = ["English", "Azerbaijan", "Russian"];
+
+  const bank = [
+    "ABB (RUB)",
+    "ABB (USD)",
+    "ABB (AZN)",
+    "Pasha Bank (USD)",
+    "Pasha Bank (RUB)",
+    "Pasha Bank (EUR)",
+    "Pasha Bank (AZN)",
+  ];
 
   const payment = ["prepay", "postpay"];
 
@@ -135,6 +150,22 @@ const VerifyLawyer = ({
               {language.map((lang) => (
                 <option key={lang} value={lang}>
                   {t(`workers.language.${lang}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>{"Select Bank"}</label>
+            <select
+              className={styles.select}
+              required
+              name="contract_language"
+              ref={inputsRef.bank}
+            >
+              <option value="">{"Select Bank"}</option>
+              {bank.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
                 </option>
               ))}
             </select>

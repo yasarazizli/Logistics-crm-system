@@ -194,7 +194,6 @@ export default function Table({
   onVendorClick,
   onTableDataChange,
 }: TableProps) {
-  // State-ləri birbaşa initial dəyərlərlə başlat
   const [columns, setColumns] = useState<number[]>(
     initialRows && initialRows.length > 0
       ? initialRows.map((_, idx) => idx)
@@ -203,7 +202,6 @@ export default function Table({
 
   const columnsLength = columns.length;
 
-  // Digər state-ləri boş array kimi başlat
   const [selectedTransportType, setSelectedTransportType] = useState<
     (OptionType | null)[]
   >(Array(columnsLength).fill(null));
@@ -226,7 +224,6 @@ export default function Table({
     Array(columnsLength).fill(null),
   );
 
-  // selectedPackaging state-i üçün default dəyər
   const [selectedPackaging, setSelectedPackaging] = useState<
     (OptionType | null)[][][]
   >(() => {
@@ -235,7 +232,6 @@ export default function Table({
       .map(() => Array(columnsLength).fill(Array(3).fill(null)));
   });
 
-  // textValues state-i üçün initial dəyərlər
   const [textValues, setTextValues] = useState<{ [key: string]: string }>(
     () => {
       const values: { [key: string]: string } = {};
@@ -282,7 +278,6 @@ export default function Table({
     [key: string]: number;
   }>({});
 
-  // summaryData state-i üçün initial dəyər
   const [summaryData, setSummaryData] = useState<TableSummaryData>(
     initialSummary || {
       amount: "0$",
@@ -301,13 +296,13 @@ export default function Table({
   >(null);
   const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(0);
 
-  // Sadəcə LocalStorage üçün useEffect
   useEffect(() => {
     localStorage.setItem("table_columns", JSON.stringify(columns));
   }, [columns]);
 
-  // Hesaplamalar üçün useEffect - asılılıqları minimuma endir
   useEffect(() => {
+    const round = (num: number, decimals = 65) => Number(num.toFixed(decimals));
+
     const newCalculatedValues: { [key: string]: number } = {};
     let totalAmount = 0;
     let totalVAT = 0;
@@ -330,18 +325,18 @@ export default function Table({
       );
       const unitType = selectedUnit[colIndex]?.value;
 
-      const totalPrice = payload * sellingPrice;
+      const totalPrice = round(payload * sellingPrice);
       newCalculatedValues[`Total price-${colIndex}`] = totalPrice;
 
       const isVatChecked = textValues[`VAT 18%-${colIndex}`] === "true";
-      const vatAmount = isVatChecked ? totalPrice * 0.18 : 0;
+      const vatAmount = isVatChecked ? round(totalPrice * 0.18) : 0;
       newCalculatedValues[`VAT amount-${colIndex}`] = vatAmount;
 
       let totalPurchase = 0;
       if (unitType === "ton") {
-        totalPurchase = payload * purchasePricePerTon;
+        totalPurchase = round(payload * purchasePricePerTon);
       } else if (unitType === "unit") {
-        totalPurchase = payload * purchasePricePerUnit;
+        totalPurchase = round(payload * purchasePricePerUnit);
       }
       newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
@@ -352,21 +347,20 @@ export default function Table({
     });
 
     setCalculatedValues(newCalculatedValues);
+
     setSummaryData({
-      amount: `${totalAmount.toFixed(2)}$`,
-      vat: `${totalVAT.toFixed(2)}$`,
-      totalAmount: `${(totalAmount + totalVAT).toFixed(2)}$`,
-      perTonPrice: `${totalPurchasePrice.toFixed(2)}$`,
-      transportationTime: `${totalEstimatedTime} days`,
+      amount: `${round(totalAmount)}$`,
+      vat: `${round(totalVAT)}$`,
+      totalAmount: `${round(totalAmount + totalVAT)}$`,
+      perTonPrice: `${round(totalPurchasePrice)}$`,
+      transportationTime: `${round(totalEstimatedTime, 0)} days`,
     });
   }, [textValues, selectedUnit, columns]);
 
-  // convertTableToJSON funksiyası
   const convertTableToJSON = useCallback((): CompleteTableData => {
     const rows: TableRowData[] = columns.map((colIndex) => {
       const unitType = selectedUnit[colIndex]?.value || "";
 
-      // selectedPackaging üçün təhlükəsiz əməliyyat
       const packagingRow = selectedPackaging[6] || [];
       const packagingCell = packagingRow[colIndex] || [null, null, null];
 

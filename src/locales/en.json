@@ -76,7 +76,8 @@
     "buttons": {
       "redirect": "Back to Home",
       "next": "Sign-in",
-      "next_1": "next"
+      "next_1": "next",
+      "next_2": "Sign-up"
     }
   },
   "forget": {

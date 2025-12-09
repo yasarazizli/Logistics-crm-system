@@ -3,5 +3,4 @@ import PriceQuotation from "@/features/auth/components/pages/PriceQuotation/Pric
 const PriceQuotationPage = () => {
   return <PriceQuotation />;
 };
-
 export default PriceQuotationPage;

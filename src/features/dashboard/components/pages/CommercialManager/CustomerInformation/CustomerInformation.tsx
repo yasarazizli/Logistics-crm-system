@@ -83,7 +83,7 @@ const CustomerInformation = () => {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [generalNote, setGeneralNote] = useState("");
+  const [note, setNote] = useState("");
 
   const [offers, setOffers] = useState<OfferData[]>([
     {
@@ -330,8 +330,8 @@ const CustomerInformation = () => {
             setStartDate(apiData.start_date ?? "");
             setEndDate(apiData.end_date ?? "");
             setUnCode(apiData.un_code?.toString() || "");
+            setNote(apiData.note?.toString() || "");
 
-            // İlk offer-i quotation məlumatları ilə yenilə
             setOffers([
               {
                 tableData: apiData.rows || [],
@@ -535,8 +535,8 @@ const CustomerInformation = () => {
             className={styles.input}
             type="text"
             placeholder="Your note here"
-            value={generalNote}
-            onChange={(e) => setGeneralNote(e.target.value)}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
           />
         </div>
 

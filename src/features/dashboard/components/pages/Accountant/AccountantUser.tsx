@@ -7,6 +7,7 @@ import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAccountantUser } from "@/features/dashboard/services/Accountant/accountant.service.ts";
 import AddBalance from "@/features/dashboard/components/shared/Modals/Accountant/AddBalance.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
+import CreditLimit from "@/features/dashboard/components/shared/Modals/Accountant/CreditLimit.tsx";
 
 const filterKeys = ["fullname", "phone", "email", "companyname"] as const;
 
@@ -19,9 +20,9 @@ const AccountantUser = () => {
     companyname: "",
   });
 
-  const [modal, setModal] = useState<null | { type: "update"; id: number }>(
-    null,
-  );
+  const [modal, setModal] = useState<
+    null | { type: "update"; id: number } | { type: "limit"; id: number }
+  >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
 
@@ -81,6 +82,16 @@ const AccountantUser = () => {
     />
   );
 
+  const AddLimit = modal?.type === "limit" && (
+    <CreditLimit
+      id={modal.id}
+      modalClose={() => {
+        setModal(null);
+        setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+      }}
+    />
+  );
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-GB", {
@@ -107,7 +118,8 @@ const AccountantUser = () => {
             { name: "Company name" },
             { name: "Validitity date" },
             { name: "Balance" },
-            { name: "" },
+            { name: "Balance transaction" },
+            { name: "Credit Limit" },
           ]}
           filters={
             <>
@@ -120,6 +132,7 @@ const AccountantUser = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -148,6 +161,16 @@ const AccountantUser = () => {
                   </div>
                 </div>
               </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => setModal({ type: "limit", id: item.id })}
+                  >
+                    <PenIcon />
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </Table>
@@ -160,6 +183,7 @@ const AccountantUser = () => {
       </div>
 
       {updateModal}
+      {AddLimit}
     </div>
   );
 };

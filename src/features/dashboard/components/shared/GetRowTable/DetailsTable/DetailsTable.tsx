@@ -542,6 +542,8 @@ export default function Table({
     let totalPurchasePrice = 0;
     let totalEstimatedTime = 0;
 
+    const round = (num: number, decimals = 65) => Number(num.toFixed(decimals));
+
     columns.forEach((_, colIndex) => {
       const payload = parseFloat(textValues[`PayLoad-${colIndex}`] || "0");
       const sellingPrice = parseFloat(
@@ -559,19 +561,19 @@ export default function Table({
 
       const unitType = selectedUnit[colIndex]?.value;
 
-      const totalPrice = payload * sellingPrice;
+      const totalPrice = round(payload * sellingPrice);
       newCalculatedValues[`Total price-${colIndex}`] = totalPrice;
 
       const isVatChecked = textValues[`VAT 18%-${colIndex}`] === "true";
-      const vatAmount = isVatChecked ? totalPrice * 0.18 : 0;
+      const vatAmount = isVatChecked ? round(totalPrice * 0.18) : 0;
       newCalculatedValues[`VAT amount-${colIndex}`] = vatAmount;
 
       let totalPurchase = 0;
-      if (unitType === "ton") {
-        totalPurchase = payload * purchasePricePerTon;
-      } else if (unitType === "unit") {
-        totalPurchase = payload * purchasePricePerUnit;
-      }
+      if (unitType === "ton")
+        totalPurchase = round(payload * purchasePricePerTon);
+      if (unitType === "unit")
+        totalPurchase = round(payload * purchasePricePerUnit);
+
       newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
       totalAmount += totalPrice;
@@ -581,11 +583,11 @@ export default function Table({
     });
 
     const newSummaryData = {
-      amount: `${totalAmount.toFixed(2)}$`,
-      vat: `${totalVAT.toFixed(2)}$`,
-      totalAmount: `${(totalAmount + totalVAT).toFixed(2)}$`,
-      perTonPrice: `${totalPurchasePrice.toFixed(2)}$`,
-      transportationTime: `${totalEstimatedTime} days`,
+      amount: `${round(totalAmount)}$`,
+      vat: `${round(totalVAT)}$`,
+      totalAmount: `${round(totalAmount + totalVAT)}$`,
+      perTonPrice: `${round(totalPurchasePrice)}$`,
+      transportationTime: `${round(totalEstimatedTime, 0)} days`,
     };
 
     setSummaryData(newSummaryData);
@@ -1228,15 +1230,12 @@ export default function Table({
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div className={styles.clickable_text}>
                               <input
-                                type="text"
+                                type="number"
                                 value={textValues[`Sub Code-${colIndex}`] || ""}
-                                onChange={(e) =>
-                                  handleTextChange(
-                                    "Sub Code",
-                                    colIndex,
-                                    e.target.value,
-                                  )
-                                }
+                                onChange={(e) => {
+                                  const value = e.target.value.slice(0, 10);
+                                  handleTextChange("Sub Code", colIndex, value);
+                                }}
                                 className={styles.clickable_text}
                                 placeholder=""
                               />

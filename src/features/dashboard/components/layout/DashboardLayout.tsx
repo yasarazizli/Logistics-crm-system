@@ -6,9 +6,7 @@ import styles from "./DashboardLayout.module.scss";
 
 const DashboardLayout = ({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+}: Readonly<{ children: React.ReactNode }>) => {
   return (
     <div className={styles.dashboard__layout}>
       <div className={styles.sidebar}>

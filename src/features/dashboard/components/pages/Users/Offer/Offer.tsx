@@ -239,6 +239,45 @@ const CustomerInformation = () => {
     }
   };
 
+  const EditOffer = async () => {
+    const formData = new FormData();
+
+    const allOfferNotes = offers.map((offer) => ({
+      note: offerNotes[offer.id] || "",
+      id: offer.id,
+    }));
+
+    formData.append("btn_status", "edit");
+    formData.append("offer_note", JSON.stringify(allOfferNotes));
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/commercial/approve-offer/?order_id=${order.order_id}&offer_id=${selectedOfferId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: getCookie("allianceToken"),
+          },
+        },
+      );
+
+      if (response?.status === 200) {
+        toast.success(errorMessageHandler(response.data));
+        navigate(`/${i18n.language}/users`);
+        fetchOffers();
+        const clearedNotes: { [key: number]: string } = {};
+        offers.forEach((offer) => {
+          clearedNotes[offer.id] = "";
+        });
+        setOfferNotes(clearedNotes);
+      }
+    } catch (error) {
+      console.error("Reddetme hatası:", error);
+      toast.error("Teklif reddedilirken hata oluştu");
+    }
+  };
+
   const handleEditClick = (offerId: number) => {
     setSelectedOfferId(offerId);
     setModal({ type: "create", offerId });
@@ -492,7 +531,7 @@ const CustomerInformation = () => {
                       viewType="green__light"
                     />
                     <Button
-                      text="Edit"
+                      text="Note"
                       viewType="dark-green"
                       onClick={() => handleEditClick(offer.id)}
                     />
@@ -611,6 +650,11 @@ const CustomerInformation = () => {
           <Button
             onClick={sendSelectedOffer}
             text="Send"
+            viewType="dark-green"
+          />
+          <Button
+            onClick={EditOffer}
+            text="Send to Edit"
             viewType="dark-green"
           />
         </div>

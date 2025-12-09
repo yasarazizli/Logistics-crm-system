@@ -12,13 +12,13 @@ import { formCreator } from "@/libs/form.ts";
 import { errorMessageHandler } from "@/libs/error.ts";
 import {
   allHsCode,
-  createServices,
   getAllCountry,
   getAllPort,
   getAllServicesName,
   getAllStationCode,
   getAllVendors,
 } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
+import { AddCompletedRequest } from "@/features/dashboard/services/BuyersManager/manager.service.ts";
 
 interface OptionType {
   value: number;
@@ -87,11 +87,12 @@ const customStyles: StylesConfig<OptionType, false> = {
   }),
 };
 
-const CreateServices = ({
-  modalClose,
-}: {
+interface ComplatedProps {
   modalClose: (isRender: boolean) => void;
-}) => {
+  selectedId: number | null;
+}
+
+const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
 
@@ -363,7 +364,12 @@ const CreateServices = ({
       { name: "note", data: inputsRef.note.current?.value },
     ]);
 
-    const { status, data } = await createServices(formData);
+    if (!selectedId) {
+      toast.error("ID for the Select is missing");
+      return;
+    }
+
+    const { status, data } = await AddCompletedRequest(formData, selectedId);
     if (status === 200) toast.success(errorMessageHandler(data));
     else toast.error(errorMessageHandler(data));
 
@@ -726,4 +732,4 @@ const CreateServices = ({
   );
 };
 
-export default CreateServices;
+export default CreateQuotation;

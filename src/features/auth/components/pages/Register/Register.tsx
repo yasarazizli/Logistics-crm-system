@@ -127,7 +127,7 @@ const Register = ({
           ))}
 
         <div className={styles.register__buttons}>
-          <Button text={t("register.buttons.next")} type={"submit"} />
+          <Button text={t("register.buttons.next_2")} type={"submit"} />
           <div className={styles.register__buttons__redirect}>
             <span>Already have an account?</span>
             <Link to={`/${i18n.language}/auth/login`}>Sign in</Link>

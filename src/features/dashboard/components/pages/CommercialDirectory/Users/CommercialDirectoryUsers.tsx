@@ -12,7 +12,6 @@ import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAllUsers } from "@/features/dashboard/services/CommercialDirectory/commercial.services.ts";
 import CreateDirectory from "@/features/dashboard/components/shared/Modals/CommericalDirectory/CreateDirectory.tsx";
 import SelectManager from "@/features/dashboard/components/shared/Modals/CommericalDirectory/SelectManager.tsx";
-import SelectFinancer from "@/features/dashboard/components/shared/Modals/CommericalDirectory/SelectFinancer.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 
 interface CD {
@@ -112,20 +111,6 @@ const CommercialDirectory = () => {
     );
   };
 
-  const handleManagerSelect_2 = (employee: {
-    id: number;
-    full_name: string;
-  }) => {
-    if (!selectedUserId) return;
-    setData((prev) =>
-      prev.map((user) =>
-        user.id === selectedUserId
-          ? { ...user, accountant: employee.full_name }
-          : user,
-      ),
-    );
-  };
-
   const totalPages = Math.ceil(total / pageSize);
 
   return (
@@ -154,7 +139,6 @@ const CommercialDirectory = () => {
             { name: "Contract Start Date" },
             { name: "Contract End Date" },
             { name: "Commercial manager" },
-            { name: "Financier" },
           ]}
           filters={
             <>
@@ -168,7 +152,6 @@ const CommercialDirectory = () => {
                   />
                 </td>
               ))}
-              <td></td>
               <td></td>
             </>
           }
@@ -222,18 +205,6 @@ const CommercialDirectory = () => {
                   <SharedIcon />
                 </div>
               </td>
-              <td>
-                <div
-                  className={styles.manager}
-                  onClick={() => {
-                    setSelectedUserId(item.id);
-                    setModal({ type: "accountant" });
-                  }}
-                >
-                  {item.accountant || "Seçilməyib"}
-                  <SharedIcon />
-                </div>
-              </td>
             </tr>
           ))}
         </Table>
@@ -261,16 +232,6 @@ const CommercialDirectory = () => {
           }}
           id={selectedUserId}
           onSelect={handleManagerSelect}
-        />
-      )}
-      {modal?.type === "accountant" && selectedUserId && (
-        <SelectFinancer
-          modalClose={() => {
-            setModal(null);
-            setSelectedUserId(null);
-          }}
-          id={selectedUserId}
-          onSelect={handleManagerSelect_2}
         />
       )}
     </div>

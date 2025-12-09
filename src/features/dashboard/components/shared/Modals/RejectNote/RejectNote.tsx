@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
 interface NoteProps {
-  modalClose: (noteText?: string) => void; // isRender parametrini çıxardın
+  modalClose: (noteText?: string) => void;
   existingNote?: string;
 }
 

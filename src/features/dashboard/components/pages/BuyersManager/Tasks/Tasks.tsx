@@ -5,10 +5,15 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { GetAllBuyers } from "@/features/dashboard/services/BuyersDirector/buyersdirector.service.ts";
-import { AgreeIcon, EyesIcon } from "@/assets/icons/shared.vectors.tsx";
+import {
+  AgreeIcon,
+  EyesIcon,
+  PenIcon,
+} from "@/assets/icons/shared.vectors.tsx";
 import i18n from "@/locales/i18n.ts";
 import { useNavigate } from "react-router-dom";
 import Complated from "@/features/dashboard/components/shared/Modals/Complated/Complated.tsx";
+import CreateQuotation from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateQuotation.tsx";
 
 interface Buyers {
   order_id: number;
@@ -45,7 +50,9 @@ const Tasks = () => {
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [pageHelper, setPageHelper] = useState({ render: false });
-  const [modal, setModal] = useState<null | { type: "completed" }>(null);
+  const [modal, setModal] = useState<
+    null | { type: "completed" } | { type: "create" }
+  >(null);
 
   const debouncedFilters = {
     service_name: useDebounce(filters.service_name, 700),
@@ -113,6 +120,7 @@ const Tasks = () => {
             { name: "To" },
             { name: "Completed" },
             { name: "Details" },
+            { name: "Add Service" },
           ]}
           filters={
             <>
@@ -126,6 +134,7 @@ const Tasks = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
             </>
@@ -162,6 +171,19 @@ const Tasks = () => {
                   </div>
                 </div>
               </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => {
+                      setSelectedId(item.id);
+                      setModal({ type: "create" });
+                    }}
+                  >
+                    <PenIcon />
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </Table>
@@ -174,6 +196,15 @@ const Tasks = () => {
 
         {modal?.type === "completed" && (
           <Complated
+            modalClose={() => {
+              setModal(null);
+              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+            }}
+            selectedId={selectedId}
+          />
+        )}
+        {modal?.type === "create" && (
+          <CreateQuotation
             modalClose={() => {
               setModal(null);
               setPageHelper((prev) => ({ ...prev, render: !prev.render }));

@@ -154,9 +154,8 @@ const Vendor = () => {
             <tr key={item.id}>
               <td>{item.name}</td>
               <td>
-                {" "}
                 <div className={styles.document}>
-                  File -
+                  File
                   {item.contract ? (
                     <a
                       href={item.contract}

@@ -185,7 +185,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     "Empty Return Wagon",
   ];
 
-  // Transportation type dəyişdikdə routes-ları sıfırla
   useEffect(() => {
     setRoutes([
       {
@@ -231,19 +230,16 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     ]);
   }, [transportationType]);
 
-  // Wagon type dəyişdikdə parent komponentə bildir
   useEffect(() => {
     if (onWagonTypeChange) onWagonTypeChange(wagonType);
   }, [wagonType, onWagonTypeChange]);
 
-  // Transportation type dəyişdikdə parent komponentə bildir
   useEffect(() => {
     if (onTransportationTypeChange) {
       onTransportationTypeChange(transportationType);
     }
   }, [transportationType, onTransportationTypeChange]);
 
-  // Transportation type dəyişdikdə wagon type-i sıfırla
   useEffect(() => {
     setWagonType("");
   }, [transportationType]);
@@ -578,7 +574,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     setRoutes((prev) => {
       const updated = [...prev];
 
-      // YALNIZ ölkə dəyişəndə sıfırlama et
       if (field === "country" && value !== updated[index][type].country) {
         updated[index][type] = {
           country: value,
@@ -625,7 +620,6 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
           setRoutes([...updated]);
         });
       } else {
-        // Digər field-lər üçün sadəcə dəyəri yenilə
         updated[index][type][field] = value;
       }
 
@@ -887,7 +881,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       >
         <div style={{ width: "100%" }}>
           <div className={styles.selectWrapper}>
-            <label className={styles.label}>Container</label>
+            <label className={styles.label}>Packaging</label>
             <Select
               value={containerOptions.find(
                 (option) => option.value === selectedOption1,
@@ -918,7 +912,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
 
         {selectedOption1 === "Container" && (
           <div className={styles.selectWrapper}>
-            <label className={styles.label}>Size</label>
+            <label className={styles.label}>Container Size</label>
             <Select<OptionType, false>
               value={sizeOptions.find(
                 (option) => option.value === selectedOption2,
@@ -977,7 +971,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
             type="number"
             className={styles.input}
             name="netWeight"
-            label="Net Weight"
+            label="Net Weight (Ton)"
             value={containerInputs.netWeight}
             onChange={handleContainerInputChange}
             placeholder="Per Container Net Weight(Ton)"
@@ -986,7 +980,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
             type="number"
             className={styles.input}
             name="grossWeight"
-            label="Gross Weight"
+            label="Gross Weight (Ton)"
             value={containerInputs.grossWeight}
             onChange={handleContainerInputChange}
             placeholder="Per Container Gross Weight(Ton)"
@@ -1017,7 +1011,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               type="number"
               className={styles.input}
               name="netWeight"
-              label="Net Weight"
+              label="Net Weight (Ton)"
               value={breakBulkInputs.netWeight}
               onChange={handleBreakBulkInputChange}
               placeholder="Net Weight(Ton)"
@@ -1026,7 +1020,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               type="number"
               className={styles.input}
               name="grossWeight"
-              label="Gross Weight"
+              label="Gross Weight (Ton)"
               value={breakBulkInputs.grossWeight}
               onChange={handleBreakBulkInputChange}
               placeholder="Gross Weight(Ton)"
@@ -1038,7 +1032,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               <Input
                 type="number"
                 name="width"
-                label="Width"
+                label="Width (metr)"
                 placeholder="Enter width"
                 value={breakBulkInputs.width}
                 onChange={handleBreakBulkInputChange}
@@ -1047,7 +1041,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                 type="number"
                 className={styles.input}
                 name="length"
-                label="Length"
+                label="Length (metr)"
                 placeholder="Enter length"
                 value={breakBulkInputs.length}
                 onChange={handleBreakBulkInputChange}
@@ -1056,7 +1050,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                 type="number"
                 className={styles.input}
                 name="height"
-                label="Height"
+                label="Height (metr)"
                 placeholder="Enter height"
                 value={breakBulkInputs.height}
                 onChange={handleBreakBulkInputChange}
@@ -1110,7 +1104,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               type="number"
               className={styles.input}
               name="netWeight"
-              label="Net Weight"
+              label="Net Weight (Ton)"
               value={generalInputs.netWeight}
               onChange={handleGeneralInputChange}
               placeholder="Net Weight(Ton)"
@@ -1119,7 +1113,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               type="number"
               className={styles.input}
               name="grossWeight"
-              label="Gross Weight"
+              label="Gross Weight (Ton)"
               value={generalInputs.grossWeight}
               onChange={handleGeneralInputChange}
               placeholder="Gross Weight(Ton)"
@@ -1130,7 +1124,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
             <div style={{ display: "flex", gap: "20px", padding: "16px" }}>
               <Input
                 type="number"
-                label="Width"
+                label="Width (metr)"
                 name="width"
                 placeholder="Enter width"
                 value={generalInputs.width}
@@ -1140,7 +1134,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                 type="number"
                 className={styles.input}
                 name="length"
-                label="Length"
+                label="Length (metr)"
                 placeholder="Enter length"
                 value={generalInputs.length}
                 onChange={handleGeneralInputChange}
@@ -1149,7 +1143,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                 type="number"
                 className={styles.input}
                 name="height"
-                label="Height"
+                label="Height (metr)"
                 placeholder="Enter height"
                 value={generalInputs.height}
                 onChange={handleGeneralInputChange}
@@ -1182,7 +1176,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               type="number"
               className={styles.input}
               name="netWeight"
-              label="Net Weight"
+              label="Net Weight (Ton)"
               value={generalInputs.netWeight}
               onChange={handleGeneralInputChange}
               placeholder="Net Weight(Ton)"
@@ -1191,7 +1185,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               type="number"
               className={styles.input}
               name="grossWeight"
-              label="Gross Weight"
+              label="Gross Weight (Ton)"
               value={generalInputs.grossWeight}
               onChange={handleGeneralInputChange}
               placeholder="Gross Weight(Ton)"
@@ -1202,7 +1196,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
             <div style={{ display: "flex", gap: "20px", padding: "16px" }}>
               <Input
                 type="number"
-                label="Width"
+                label="Width (metr)"
                 name="width"
                 placeholder="Enter width"
                 value={generalInputs.width}
@@ -1212,7 +1206,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                 type="number"
                 className={styles.input}
                 name="length"
-                label="Length"
+                label="Length (metr)"
                 placeholder="Enter length"
                 value={generalInputs.length}
                 onChange={handleGeneralInputChange}
@@ -1221,7 +1215,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                 type="number"
                 className={styles.input}
                 name="height"
-                label="Height"
+                label="Height (metr)"
                 placeholder="Enter height"
                 value={generalInputs.height}
                 onChange={handleGeneralInputChange}

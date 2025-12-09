@@ -149,3 +149,15 @@ export const EditOrder = async (formData: FormData, order_id: number) => {
       return err.response;
     });
 };
+
+export const addCreditLimit = async (formData: FormData, id: number) => {
+  return await axios
+    .put(`${apiUrl}/invoice/change-limit/?id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

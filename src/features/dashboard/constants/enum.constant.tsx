@@ -1,11 +1,3 @@
-// Contract Status Enum
-export enum ContractStatus {
-  verified,
-  unverified,
-  empty,
-  monitoring,
-}
-
 // Roles Enum
 export enum Roles {
   lawyer = "lawyer",
