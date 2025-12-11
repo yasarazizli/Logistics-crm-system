@@ -171,6 +171,15 @@ const Details = () => {
     return "";
   }, []);
 
+  const [notes, setNotes] = useState<
+    Array<{
+      name: string;
+      role: string;
+      date: string;
+      note: string;
+    }>
+  >([]);
+
   useEffect(() => {
     const fetchRequest = async () => {
       try {
@@ -186,7 +195,25 @@ const Details = () => {
 
             setStartDate(formattedStartDate);
             setEndDate(formattedEndDate);
-            setNote(apiData.not || "");
+          }
+
+          if (apiData.note) {
+            try {
+              const parsedNotes = JSON.parse(apiData.note);
+              if (Array.isArray(parsedNotes)) {
+                setNotes(parsedNotes);
+              }
+            } catch (e) {
+              console.error("Error parsing notes:", e);
+              setNotes([
+                {
+                  name: "System",
+                  role: "system",
+                  date: new Date().toISOString(),
+                  note: apiData.note,
+                },
+              ]);
+            }
           }
         }
       } catch (error) {
@@ -481,6 +508,23 @@ const Details = () => {
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
+          {notes.length > 0 && (
+            <div className={styles.notesList}>
+              <h3>Previous Notes:</h3>
+              {notes.map((item, index) => (
+                <div key={index} className={styles.noteItem}>
+                  <div className={styles.noteHeader}>
+                    <strong>{item.name}</strong>
+                    <span className={styles.role}>({item.role})</span>
+                    <span className={styles.date}>
+                      {new Date(item.date).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className={styles.noteContent}>{item.note}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className={styles.button}>
           <Button onClick={handleRejectClick} text="Reject" viewType="red" />

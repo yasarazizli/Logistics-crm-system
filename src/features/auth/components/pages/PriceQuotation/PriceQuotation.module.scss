@@ -5,6 +5,66 @@
 .note {
   page-break-inside: avoid;
   break-inside: avoid;
+
+  .notesList {
+    margin-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+    }
+  }
+
+  .noteItem {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #1D736B;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .noteHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+
+    strong {
+      font-size: 14px;
+      color: #1D736B;
+    }
+
+    .role {
+      font-size: 12px;
+      color: #666;
+      background-color: #e9ecef;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .date {
+      font-size: 12px;
+      color: #888;
+      margin-left: auto;
+    }
+  }
+
+  .noteContent {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #444;
+    margin: 0;
+  }
+
 }
 
 

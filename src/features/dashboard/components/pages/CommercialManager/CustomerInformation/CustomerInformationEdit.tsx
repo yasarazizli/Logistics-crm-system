@@ -558,6 +558,15 @@ const CustomerInformationEdit = () => {
     ],
   );
 
+  const [notes, setNotes] = useState<
+    Array<{
+      name: string;
+      role: string;
+      date: string;
+      note: string;
+    }>
+  >([]);
+
   useEffect(() => {
     const fetchRequest = async () => {
       try {
@@ -565,11 +574,29 @@ const CustomerInformationEdit = () => {
         if (response?.status === 200) {
           const apiData = response?.data;
 
+          if (apiData.note) {
+            try {
+              const parsedNotes = JSON.parse(apiData.note);
+              if (Array.isArray(parsedNotes)) {
+                setNotes(parsedNotes);
+              }
+            } catch (e) {
+              console.error("Error parsing notes:", e);
+              setNotes([
+                {
+                  name: "System",
+                  role: "system",
+                  date: new Date().toISOString(),
+                  note: apiData.note,
+                },
+              ]);
+            }
+          }
+
           if (apiData) {
             setTotalWeight(apiData.total_weight?.toString() || "");
             setStartDate(apiData.start_date || "");
             setEndDate(apiData.end_date || "");
-            setNote(apiData.not || "");
           }
         }
       } catch (error) {
@@ -891,6 +918,23 @@ const CustomerInformationEdit = () => {
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
+          {notes.length > 0 && (
+            <div className={styles.notesList}>
+              <h3>Previous Notes:</h3>
+              {notes.map((item, index) => (
+                <div key={index} className={styles.noteItem}>
+                  <div className={styles.noteHeader}>
+                    <strong>{item.name}</strong>
+                    <span className={styles.role}>({item.role})</span>
+                    <span className={styles.date}>
+                      {new Date(item.date).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className={styles.noteContent}>{item.note}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className={styles.button}>
