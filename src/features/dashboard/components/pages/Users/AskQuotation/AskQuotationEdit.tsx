@@ -221,9 +221,13 @@ const AskQuotation = () => {
 
           if (apiData.note) {
             try {
-              const parsedNotes = JSON.parse(apiData.note);
-              if (Array.isArray(parsedNotes)) {
-                setNotes(parsedNotes);
+              if (typeof apiData.note === "string") {
+                const parsed = JSON.parse(apiData.note);
+                setNotes(Array.isArray(parsed) ? parsed : [parsed]);
+              } else if (Array.isArray(apiData.note)) {
+                setNotes(apiData.note);
+              } else if (typeof apiData.note === "object") {
+                setNotes([apiData.note]);
               }
             } catch (e) {
               console.error("Error parsing notes:", e);
@@ -232,10 +236,15 @@ const AskQuotation = () => {
                   name: "System",
                   role: "system",
                   date: new Date().toISOString(),
-                  note: apiData.note,
+                  note:
+                    typeof apiData.note === "string"
+                      ? apiData.note
+                      : "Invalid note format",
                 },
               ]);
             }
+          } else {
+            setNotes([]);
           }
         }
       } catch (error) {
