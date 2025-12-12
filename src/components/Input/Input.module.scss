@@ -4,6 +4,12 @@
   flex-direction: column;
   gap: 8px;
 
+  .red {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
   &.file {
     & .input__box {
       display: flex;

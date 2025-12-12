@@ -14,6 +14,12 @@
       flex-direction: column;
       gap: 16px;
 
+      .red {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+
       label {
         display: flex;
         width: fit-content;
@@ -70,7 +76,7 @@
     .wagon {
       width: 100%;
       display: flex;
-      gap: 16px;
+      gap: 10px;
       flex-direction: column;
 
       .info {
@@ -188,7 +194,7 @@
     border: none;
     cursor: pointer;
     height: 54px;
-    margin-top: 39px;
+    margin-top: 42px;
 
   }
 

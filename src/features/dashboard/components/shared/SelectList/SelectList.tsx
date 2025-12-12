@@ -148,7 +148,10 @@ const SelectList = ({
   return (
     <div className={styles.all__select}>
       <div className={styles.select}>
-        <label>Cargo Name</label>
+        <div className={styles.red}>
+          <label>Cargo Name</label>
+          <div style={{ color: "red", paddingTop: "6px" }}>*</div>
+        </div>
         <Select
           options={cargoOptions}
           value={selectedCargo}
@@ -159,7 +162,10 @@ const SelectList = ({
         />
       </div>
       <div className={styles.select}>
-        <label>HS Code</label>
+        <div className={styles.red}>
+          <label>Hs Code</label>
+          <div style={{ color: "red", paddingTop: "6px" }}>*</div>
+        </div>
         <Select
           options={codeOptions}
           value={selectedCode}

@@ -494,6 +494,7 @@ const Details = () => {
             <Input
               type="date"
               label="Start Date"
+              red="*"
               style={{ height: "52px" }}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
@@ -501,6 +502,7 @@ const Details = () => {
             <Input
               type="date"
               label="End Date"
+              red="*"
               style={{ height: "52px" }}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}

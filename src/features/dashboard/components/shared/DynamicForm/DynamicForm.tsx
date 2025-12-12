@@ -82,6 +82,34 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
     const onFormDataChangeRef = useRef(onFormDataChange);
     onFormDataChangeRef.current = onFormDataChange;
 
+    const processPastedValues = (
+      values: string,
+      type: "containers" | "wagons",
+    ): string[] => {
+      const separators = /\n|,|;|\t/;
+      return values
+        .split(separators)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+        .map((item) => {
+          if (type === "containers") {
+            const formatted = item.replace(/[^a-zA-Z0-9]/g, "");
+            const letters = formatted.slice(0, 4).replace(/[^a-zA-Z]/g, "");
+            const numbers = formatted
+              .slice(4)
+              .replace(/[^0-9]/g, "")
+              .slice(0, 7);
+            return letters + numbers;
+          }
+
+          if (type === "wagons") {
+            return item.replace(/[^0-9]/g, "").slice(0, 7);
+          }
+
+          return item;
+        });
+    };
+
     useImperativeHandle(ref, () => ({
       getFormData: () => formRef.current,
       setFormData: (data: DynamicFormData) => {
@@ -114,6 +142,16 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       field: "number" | "dropOff" | "requiredNumber" | "requiredDropOff",
       value: string | boolean,
     ) => {
+      if (field === "number" && typeof value === "string") {
+        let formatted = value;
+        formatted = formatted.replace(/[^a-zA-Z0-9]/g, "");
+        const letters = formatted.slice(0, 4).replace(/[^a-zA-Z]/g, "");
+        const numbers = formatted
+          .slice(4)
+          .replace(/[^0-9]/g, "")
+          .slice(0, 7);
+        value = letters + numbers;
+      }
       setForm((prev) => {
         const updated = [...prev[type]];
         (updated[index] as any)[field] = value;
@@ -142,10 +180,82 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       }
     };
 
+    const handlePaste = (
+      e: React.ClipboardEvent<HTMLInputElement>,
+      type: "containers" | "wagons",
+      index: number,
+      field: "number" | "dropOff",
+    ) => {
+      e.preventDefault();
+
+      const pastedText = e.clipboardData.getData("text");
+
+      if (field === "number") {
+        const processedValues = processPastedValues(pastedText, type);
+
+        if (processedValues.length === 0) return;
+
+        setForm((prev) => {
+          const currentArray = [...prev[type]];
+          const isFirstItem =
+            currentArray.length === 1 && currentArray[0].number === "";
+
+          if (isFirstItem && index === 0) {
+            const newItems = [];
+
+            for (let i = 0; i < processedValues.length; i++) {
+              newItems.push({
+                number: processedValues[i],
+                dropOff: "",
+                requiredNumber:
+                  i === 0 ? currentArray[0].requiredNumber : false,
+                requiredDropOff:
+                  i === 0 ? currentArray[0].requiredDropOff : false,
+              });
+            }
+
+            return { ...prev, [type]: newItems };
+          } else {
+            const updated = [...currentArray];
+
+            updated[index] = {
+              ...updated[index],
+              number: processedValues[0],
+            };
+
+            for (let i = 1; i < processedValues.length; i++) {
+              updated.push({
+                number: processedValues[i],
+                dropOff: "",
+                requiredNumber: false,
+                requiredDropOff: false,
+              });
+            }
+
+            return { ...prev, [type]: updated };
+          }
+        });
+      } else {
+        const pastedValue =
+          pastedText.split("\n")[0] || pastedText.split(",")[0];
+        handleContainerWagonChange(type, index, field, pastedValue);
+      }
+    };
+
     const handleRemove = (type: "containers" | "wagons", index: number) => {
       setForm((prev) => {
         const updated = [...prev[type]];
         updated.splice(index, 1);
+
+        if (updated.length === 0) {
+          updated.push({
+            number: "",
+            dropOff: "",
+            requiredNumber: false,
+            requiredDropOff: false,
+          });
+        }
+
         return { ...prev, [type]: updated };
       });
     };
@@ -154,7 +264,10 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       <div className={styles.formContainer}>
         <div className={styles.input__box}>
           <div className={styles.formGroup}>
-            <label>Shipper</label>
+            <div className={styles.red}>
+              <label>Shipper</label>
+              <div style={{ color: "red", paddingTop: "8px" }}>*</div>
+            </div>
             <Input
               placeholder="Shipper"
               className={styles.input}
@@ -163,7 +276,10 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
             />
           </div>
           <div className={styles.formGroup}>
-            <label>Consignee</label>
+            <div className={styles.red}>
+              <label>Consignee</label>
+              <div style={{ color: "red", paddingTop: "8px" }}>*</div>
+            </div>
             <Input
               placeholder="Consignee"
               className={styles.input}
@@ -313,6 +429,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "containers")}
+                  onPaste={(e) => handlePaste(e, "containers", index, "number")}
                 />
               </div>
 
@@ -351,6 +468,9 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "containers")}
+                  onPaste={(e) =>
+                    handlePaste(e, "containers", index, "dropOff")
+                  }
                 />
               </div>
 
@@ -358,6 +478,8 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                 <button
                   className={styles.removeBtn}
                   onClick={() => handleRemove("containers", index)}
+                  type="button"
+                  title="Remove this container"
                 >
                   X
                 </button>
@@ -394,6 +516,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   className={styles.input}
                   value={w.number}
                   placeholder="Wagon №"
+                  maxLength={7}
                   disabled={index > 0 ? false : !w.requiredNumber}
                   onChange={(e) =>
                     handleContainerWagonChange(
@@ -404,6 +527,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                  onPaste={(e) => handlePaste(e, "wagons", index, "number")}
                 />
               </div>
 
@@ -442,6 +566,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                  onPaste={(e) => handlePaste(e, "wagons", index, "dropOff")}
                 />
               </div>
 
@@ -449,6 +574,8 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                 <button
                   className={styles.removeBtn}
                   onClick={() => handleRemove("wagons", index)}
+                  type="button"
+                  title="Remove this wagon"
                 >
                   X
                 </button>

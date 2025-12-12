@@ -82,6 +82,34 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
     const onFormDataChangeRef = useRef(onFormDataChange);
     onFormDataChangeRef.current = onFormDataChange;
 
+    const processPastedValues = (
+      values: string,
+      type: "containers" | "wagons",
+    ): string[] => {
+      const separators = /\n|,|;|\t/;
+      return values
+        .split(separators)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+        .map((item) => {
+          if (type === "containers") {
+            const formatted = item.replace(/[^a-zA-Z0-9]/g, "");
+            const letters = formatted.slice(0, 4).replace(/[^a-zA-Z]/g, "");
+            const numbers = formatted
+              .slice(4)
+              .replace(/[^0-9]/g, "")
+              .slice(0, 7);
+            return letters + numbers;
+          }
+
+          if (type === "wagons") {
+            return item.replace(/[^0-9]/g, "").slice(0, 7);
+          }
+
+          return item;
+        });
+    };
+
     useImperativeHandle(ref, () => ({
       getFormData: () => formRef.current,
       setFormData: (apiData: any) => {
@@ -207,6 +235,16 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       field: "number" | "dropOff" | "requiredNumber" | "requiredDropOff",
       value: string | boolean,
     ) => {
+      if (field === "number" && typeof value === "string") {
+        let formatted = value;
+        formatted = formatted.replace(/[^a-zA-Z0-9]/g, "");
+        const letters = formatted.slice(0, 4).replace(/[^a-zA-Z]/g, "");
+        const numbers = formatted
+          .slice(4)
+          .replace(/[^0-9]/g, "")
+          .slice(0, 7);
+        value = letters + numbers;
+      }
       setForm((prev) => {
         const updated = [...prev[type]];
         (updated[index] as any)[field] = value;
@@ -235,6 +273,76 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       }
     };
 
+    // Yeni: Paste hadisəsini idarə etmək
+    const handlePaste = (
+      e: React.ClipboardEvent<HTMLInputElement>,
+      type: "containers" | "wagons",
+      index: number,
+      field: "number" | "dropOff",
+    ) => {
+      e.preventDefault();
+
+      const pastedText = e.clipboardData.getData("text");
+
+      if (field === "number") {
+        const processedValues = processPastedValues(pastedText, type);
+
+        if (processedValues.length === 0) return;
+
+        setForm((prev) => {
+          const currentArray = [...prev[type]];
+
+          // İlk element boşdursa, ondan başlayaraq doldur
+          if (
+            currentArray.length === 1 &&
+            currentArray[0].number === "" &&
+            index === 0
+          ) {
+            const newItems = [];
+
+            for (let i = 0; i < processedValues.length; i++) {
+              newItems.push({
+                number: processedValues[i],
+                dropOff: "",
+                requiredNumber:
+                  i === 0 ? currentArray[0].requiredNumber : false,
+                requiredDropOff:
+                  i === 0 ? currentArray[0].requiredDropOff : false,
+              });
+            }
+
+            return { ...prev, [type]: newItems };
+          } else {
+            // Cari elementdən başlayaraq əlavə et
+            const updated = [...currentArray];
+
+            // Cari elementə ilk dəyəri qoy
+            updated[index] = {
+              ...updated[index],
+              number: processedValues[0],
+            };
+
+            // Qalan dəyərlər üçün yeni elementlər əlavə et
+            for (let i = 1; i < processedValues.length; i++) {
+              updated.push({
+                number: processedValues[i],
+                dropOff: "",
+                requiredNumber: false,
+                requiredDropOff: false,
+              });
+            }
+
+            return { ...prev, [type]: updated };
+          }
+        });
+      } else {
+        // Drop-off field üçün normal paste
+        const pastedValue =
+          pastedText.split("\n")[0] || pastedText.split(",")[0];
+        handleContainerWagonChange(type, index, field, pastedValue);
+      }
+    };
+
     const handleRemove = (type: "containers" | "wagons", index: number) => {
       setForm((prev) => {
         const updated = [...prev[type]];
@@ -243,11 +351,21 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       });
     };
 
+    // Yeni: Checkbox toggle funksiyası
+    const handleToggle = (
+      field: "notifyParty" | "terminal" | "containerOwner" | "wagonOwner",
+    ) => {
+      setForm((prev) => ({ ...prev, [field]: !prev[field] }));
+    };
+
     return (
       <div className={styles.formContainer}>
         <div className={styles.input__box}>
           <div className={styles.formGroup}>
-            <label>Shipper</label>
+            <div className={styles.red}>
+              <label>Shipper</label>
+              <div style={{ color: "red", paddingTop: "8px" }}>*</div>
+            </div>
             <Input
               placeholder="Shipper"
               className={styles.input}
@@ -256,7 +374,10 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
             />
           </div>
           <div className={styles.formGroup}>
-            <label>Consignee</label>
+            <div className={styles.red}>
+              <label>Consignee</label>
+              <div style={{ color: "red", paddingTop: "8px" }}>*</div>
+            </div>
             <Input
               placeholder="Consignee"
               className={styles.input}
@@ -272,12 +393,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   <input
                     type="checkbox"
                     checked={form.notifyParty}
-                    onChange={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        notifyParty: !prev.notifyParty,
-                      }))
-                    }
+                    onChange={() => handleToggle("notifyParty")}
                     className={styles.custom_checkbox}
                   />
                   Notify Party
@@ -299,9 +415,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   <input
                     type="checkbox"
                     checked={form.terminal}
-                    onChange={() =>
-                      setForm((prev) => ({ ...prev, terminal: !prev.terminal }))
-                    }
+                    onChange={() => handleToggle("terminal")}
                     className={styles.custom_checkbox}
                   />
                   Terminal
@@ -322,12 +436,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   <input
                     type="checkbox"
                     checked={form.containerOwner}
-                    onChange={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        containerOwner: !prev.containerOwner,
-                      }))
-                    }
+                    onChange={() => handleToggle("containerOwner")}
                     className={styles.custom_checkbox}
                   />
                   Container Owner
@@ -348,12 +457,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                   <input
                     type="checkbox"
                     checked={form.wagonOwner}
-                    onChange={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        wagonOwner: !prev.wagonOwner,
-                      }))
-                    }
+                    onChange={() => handleToggle("wagonOwner")}
                     className={styles.custom_checkbox}
                   />
                   Wagon Owner
@@ -480,6 +584,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "containers")}
+                  onPaste={(e) => handlePaste(e, "containers", index, "number")}
                 />
               </div>
 
@@ -520,6 +625,9 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "containers")}
+                  onPaste={(e) =>
+                    handlePaste(e, "containers", index, "dropOff")
+                  }
                 />
               </div>
 
@@ -562,6 +670,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                 <Input
                   className={styles.input}
                   value={w.number}
+                  maxLength={7}
                   placeholder="Wagon №"
                   disabled={
                     isRegister ? false : index > 0 ? false : !w.requiredNumber
@@ -575,6 +684,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                  onPaste={(e) => handlePaste(e, "wagons", index, "number")}
                 />
               </div>
 
@@ -615,6 +725,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                  onPaste={(e) => handlePaste(e, "wagons", index, "dropOff")}
                 />
               </div>
 

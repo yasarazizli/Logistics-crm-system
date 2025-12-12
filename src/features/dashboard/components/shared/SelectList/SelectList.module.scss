@@ -10,6 +10,12 @@
     flex-direction: column;
     gap: 8px;
 
+    .red {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
     label {
       color: #000;
       font-size: 16px;

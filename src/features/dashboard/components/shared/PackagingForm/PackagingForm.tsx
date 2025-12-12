@@ -9,6 +9,7 @@ import {
 } from "@/features/dashboard/services/PriceQuotation/pricequotation.services.ts";
 import { FromToIcon } from "@/assets/icons/shared.vectors.tsx";
 import Select, { SingleValue, StylesConfig } from "react-select";
+import { toast } from "react-toastify";
 
 export interface PackagingData {
   package_type: string;
@@ -350,10 +351,36 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = e.target;
+
     setContainerInputs((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    if (typingTimeout) clearTimeout(typingTimeout);
+
+    const timeout = setTimeout(() => {
+      validateWeights(value, name);
+    }, 700);
+
+    setTypingTimeout(timeout);
+  };
+
+  const [typingTimeout, setTypingTimeout] = useState<any>(null);
+
+  const validateWeights = (value: string, fieldName: string) => {
+    const net = Number(
+      fieldName === "netWeight" ? value : containerInputs.netWeight,
+    );
+    const gross = Number(
+      fieldName === "grossWeight" ? value : containerInputs.grossWeight,
+    );
+
+    if (!net || !gross) return;
+
+    if (net > gross) {
+      toast.error("Net weight cannot be greater than gross weight.");
+    }
   };
 
   const handleBreakBulkInputChange = (
@@ -364,6 +391,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       ...prev,
       [name]: value,
     }));
+
+    if (typingTimeout) clearTimeout(typingTimeout);
+
+    const timeout = setTimeout(() => {
+      validateWeights(value, name);
+    }, 700);
+
+    setTypingTimeout(timeout);
   };
 
   const handleBulkLiquidInputChange = (
@@ -382,6 +417,14 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       ...prev,
       [name]: value,
     }));
+
+    if (typingTimeout) clearTimeout(typingTimeout);
+
+    const timeout = setTimeout(() => {
+      validateWeights(value, name);
+    }, 700);
+
+    setTypingTimeout(timeout);
   };
 
   const handlePackingTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -881,7 +924,10 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
       >
         <div style={{ width: "100%" }}>
           <div className={styles.selectWrapper}>
-            <label className={styles.label}>Packaging</label>
+            <div className={styles.red}>
+              <label className={styles.label}>Packaging</label>
+              <div style={{ color: "red", paddingTop: "6px" }}>*</div>
+            </div>
             <Select
               value={containerOptions.find(
                 (option) => option.value === selectedOption1,
@@ -1368,6 +1414,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                   <Input
                     className={styles.input}
                     label="From"
+                    red={titles[index] === "Requested route" ? "*" : undefined}
                     placeholder={
                       transportationType === "Rail"
                         ? "Country / City / Station Code"
@@ -1528,6 +1575,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
                   <Input
                     className={styles.input}
                     label="To"
+                    red={titles[index] === "Requested route" ? "*" : undefined}
                     placeholder={
                       transportationType === "Rail"
                         ? "Country / City / Station Code"

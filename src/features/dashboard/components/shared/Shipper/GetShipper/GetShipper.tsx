@@ -70,9 +70,37 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
     const onFormDataChangeRef = useRef(onFormDataChange);
     onFormDataChangeRef.current = onFormDataChange;
 
+    const processPastedValues = (
+      values: string,
+      type: "containers" | "wagons",
+    ): string[] => {
+      const separators = /\n|,|;|\t/;
+      return values
+        .split(separators)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+        .map((item) => {
+          if (type === "containers") {
+            const formatted = item.replace(/[^a-zA-Z0-9]/g, "");
+            const letters = formatted.slice(0, 4).replace(/[^a-zA-Z]/g, "");
+            const numbers = formatted
+              .slice(4)
+              .replace(/[^0-9]/g, "")
+              .slice(0, 7);
+            return letters + numbers;
+          }
+
+          if (type === "wagons") {
+            return item.replace(/[^0-9]/g, "").slice(0, 7);
+          }
+
+          return item;
+        });
+    };
+
     useEffect(() => {
       const fetchShipmentData = async () => {
-        if (!order.order_id) return;
+        if (!order?.order_id) return;
 
         try {
           const response = await QuotationData(order.order_id);
@@ -194,6 +222,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
 
       fetchShipmentData();
     }, [order]);
+
     useImperativeHandle(ref, () => ({
       getFormData: () => {
         const currentForm = formRef.current;
@@ -368,12 +397,80 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
       }
     };
 
+    const handlePaste = (
+      e: React.ClipboardEvent<HTMLInputElement>,
+      type: "containers" | "wagons",
+      index: number,
+      field: "number" | "dropOff",
+    ) => {
+      e.preventDefault();
+
+      const pastedText = e.clipboardData.getData("text");
+
+      if (field === "number") {
+        const processedValues = processPastedValues(pastedText, type);
+
+        if (processedValues.length === 0) return;
+
+        setForm((prev) => {
+          const updated = [...prev[type]];
+
+          if (processedValues.length === 1) {
+            updated[index] = {
+              ...updated[index],
+              number: processedValues[0],
+            };
+            return { ...prev, [type]: updated };
+          }
+
+          updated[index] = {
+            ...updated[index],
+            number: processedValues[0],
+          };
+
+          const newItems = [...updated];
+          for (let i = 1; i < processedValues.length; i++) {
+            newItems.push({
+              number: processedValues[i],
+              dropOff: "",
+            });
+          }
+
+          return { ...prev, [type]: newItems };
+        });
+
+        setTimeout(() => {
+          const newIndex = index + processedValues.length - 1;
+          if (inputRefs.current[type][newIndex]) {
+            inputRefs.current[type][newIndex].focus();
+          }
+        }, 50);
+      } else {
+        const pastedValue =
+          pastedText.split("\n")[0] || pastedText.split(",")[0];
+        handleInputChange(type, index, field, pastedValue);
+      }
+    };
+
     const handleInputChange = (
       type: "containers" | "wagons",
       index: number,
       field: "number" | "dropOff",
       value: string,
     ) => {
+      if (type === "containers") {
+        if (field === "number") {
+          let formatted = value;
+          formatted = formatted.replace(/[^a-zA-Z0-9]/g, "");
+          const letters = formatted.slice(0, 4).replace(/[^a-zA-Z]/g, "");
+          const numbers = formatted
+            .slice(4)
+            .replace(/[^0-9]/g, "")
+            .slice(0, 7);
+          value = letters + numbers;
+        }
+      }
+
       setForm((prev) => {
         const updated = [...prev[type]];
         updated[index] = { ...updated[index], [field]: value };
@@ -395,7 +492,10 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
       <div className={styles.formContainer}>
         <div className={styles.input__box}>
           <div className={styles.formGroup}>
-            <label>Shipper</label>
+            <div className={styles.red}>
+              <label>Shipper</label>
+              <div style={{ color: "red", paddingTop: "8px" }}>*</div>
+            </div>
             <Input
               placeholder="Shipper"
               className={styles.input}
@@ -405,7 +505,10 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
           </div>
 
           <div className={styles.formGroup}>
-            <label>Consignee</label>
+            <div className={styles.red}>
+              <label>Consignee</label>
+              <div style={{ color: "red", paddingTop: "8px" }}>*</div>
+            </div>
             <Input
               placeholder="Consignee"
               className={styles.input}
@@ -471,7 +574,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
             <div key={`container-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
                 <div className={styles.info}>
-                  <label>Container {index > 0 && `${index + 1}`}</label>
+                  <label>Container {index > 0 ? `${index + 1}` : ""}</label>
                   {index === 0 && (
                     <div
                       className={styles.tooltipWrapper}
@@ -506,11 +609,12 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "containers")}
+                  onPaste={(e) => handlePaste(e, "containers", index, "number")}
                 />
               </div>
               <div className={styles.wagon}>
                 <div className={styles.info}>
-                  <label>Drop-off {index > 0 && `${index + 1}`}</label>
+                  <label>Drop-off {index > 0 ? `${index + 1}` : ""}</label>
                 </div>
                 <Input
                   className={styles.input}
@@ -525,12 +629,17 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "containers")}
+                  onPaste={(e) =>
+                    handlePaste(e, "containers", index, "dropOff")
+                  }
                 />
               </div>
               {index > 0 && (
                 <button
                   className={styles.removeBtn}
                   onClick={() => handleRemove("containers", index)}
+                  type="button"
+                  title="Remove this container"
                 >
                   X
                 </button>
@@ -545,12 +654,13 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
             <div key={`wagon-${index}`} className={styles.dynamicRow}>
               <div className={styles.wagon}>
                 <div className={styles.info}>
-                  <label>Wagon {index > 0 && `${index + 1}`}</label>
+                  <label>Wagon {index > 0 ? `${index + 1}` : ""}</label>
                 </div>
                 <Input
                   inputRef={(el: HTMLInputElement | null) => {
                     if (el) inputRefs.current.wagons[index] = el;
                   }}
+                  maxLength={7}
                   className={styles.input}
                   value={w.number}
                   placeholder="Wagon №"
@@ -558,11 +668,12 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
                     handleInputChange("wagons", index, "number", e.target.value)
                   }
                   onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                  onPaste={(e) => handlePaste(e, "wagons", index, "number")}
                 />
               </div>
               <div className={styles.wagon}>
                 <div className={styles.info}>
-                  <label>Drop-off {index > 0 && `${index + 1}`}</label>
+                  <label>Drop-off {index > 0 ? `${index + 1}` : ""}</label>
                 </div>
                 <Input
                   className={styles.input}
@@ -577,12 +688,15 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
                     )
                   }
                   onKeyDown={(e) => handleKeyDown(e, "wagons")}
+                  onPaste={(e) => handlePaste(e, "wagons", index, "dropOff")}
                 />
               </div>
               {index > 0 && (
                 <button
                   className={styles.removeBtn}
                   onClick={() => handleRemove("wagons", index)}
+                  type="button"
+                  title="Remove this wagon"
                 >
                   X
                 </button>

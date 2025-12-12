@@ -545,6 +545,13 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+
+    .red {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
   }
 
   .label {
