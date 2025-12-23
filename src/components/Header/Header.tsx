@@ -29,7 +29,7 @@ const Header = () => {
           <Language />
         </div>
 
-        {auth.role === "" && (
+        {auth.role !== "" && (
           <div
             className={styles.notificationWrapper}
             onClick={toggleNotifications}
