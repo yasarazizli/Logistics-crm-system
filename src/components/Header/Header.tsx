@@ -29,18 +29,20 @@ const Header = () => {
           <Language />
         </div>
 
-        <div
-          className={styles.notificationWrapper}
-          onClick={toggleNotifications}
-        >
-          <NotificationIcon />
+        {auth.role === "" && (
+          <div
+            className={styles.notificationWrapper}
+            onClick={toggleNotifications}
+          >
+            <NotificationIcon />
 
-          {unreadCount > 0 && (
-            <span className={styles.badge}>{unreadCount}</span>
-          )}
+            {unreadCount > 0 && (
+              <span className={styles.badge}>{unreadCount}</span>
+            )}
 
-          {openNotifications && <NotificationsDropdown messages={messages} />}
-        </div>
+            {openNotifications && <NotificationsDropdown messages={messages} />}
+          </div>
+        )}
 
         <div className={styles.special__button}>
           <CompanyIcon />
