@@ -11,7 +11,6 @@ export default function PrivateRoute() {
 
   const normalizedPath = `/${location.pathname.replace(/^\/[^/]+\//, "")}`;
 
-  // Əgər login olmayıbsa, login səhifəsinə yönləndir
   if (!auth.isAuth) {
     return <Navigate to={`/${i18n.language}/auth/login`} />;
   }
@@ -26,6 +25,7 @@ export default function PrivateRoute() {
       "/users/ask/order",
       "/users/ask/quotation/edit",
       "/users/ask/quotation/update",
+      "/notification",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/users`} />;
@@ -34,7 +34,7 @@ export default function PrivateRoute() {
 
   // Lawyer
   if (auth.role === Roles.lawyer) {
-    const accessiblePages = ["/lawyer/users"];
+    const accessiblePages = ["/lawyer/users", "/notification"];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/lawyer/users`} />;
     }
@@ -46,6 +46,7 @@ export default function PrivateRoute() {
       "/accountant/users",
       "/accountant/balance",
       "/accountant/order",
+      "/notification",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/accountant/users`} />;
@@ -61,6 +62,7 @@ export default function PrivateRoute() {
       "/buyers/details",
       "/buyers/manager/order",
       "/buyers/manager/order/subcode",
+      "/notification",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/vendors`} />;
@@ -74,6 +76,7 @@ export default function PrivateRoute() {
       "/commercial/directory/services",
       "/commercial/director/order",
       "/commercial/director/orders",
+      "/notification",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/directory/users`} />;
@@ -86,6 +89,7 @@ export default function PrivateRoute() {
       "/commercial/manager/order",
       "/commercial/manager/information",
       "/commercial/manager/information/edit",
+      "/notification",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/manager/order`} />;
@@ -98,6 +102,7 @@ export default function PrivateRoute() {
       "/commercial/specialist",
       "/commercial/manager/information",
       "/commercial/manager/information/edit",
+      "/notification",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/specialist`} />;
@@ -106,7 +111,7 @@ export default function PrivateRoute() {
 
   // Director
   if (auth.role === Roles.buyer_directory) {
-    const accessiblePages = ["/buyers/director/tasks"];
+    const accessiblePages = ["/buyers/director/tasks", "/notification"];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/buyers/director/tasks`} />;
     }
@@ -118,6 +123,7 @@ export default function PrivateRoute() {
       "/monitoring",
       "/monitoring/order",
       "/monitoring/services",
+      "/notification",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/monitoring`} />;

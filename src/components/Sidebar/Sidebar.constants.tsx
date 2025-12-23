@@ -9,6 +9,7 @@ import {
   TasksIcon,
   VendorIcon,
 } from "@/assets/icons/sidebar.vectors.tsx";
+import { NotificationIconSidebar } from "@/assets/icons/header.vectors.tsx";
 
 export const navigation = [
   {
@@ -110,7 +111,13 @@ export const navigation = [
     name: "main.title__5",
     path: "commercial/manager/order",
     icon: OrdersIcon,
-    roles: ["commercial_manager", "admin"],
+    roles: ["admin"],
+  },
+  {
+    name: "main.title__5",
+    path: "commercial/manager/order",
+    icon: HomeIcon,
+    roles: ["commercial_manager"],
   },
 
   // Commercial Specialist
@@ -150,5 +157,24 @@ export const navigation = [
     path: "monitoring/services",
     icon: ServiceIcon,
     roles: ["monitoring"],
+  },
+
+  {
+    name: "Notification",
+    path: "notification",
+    icon: NotificationIconSidebar,
+    roles: [
+      "admin",
+      "lawyer",
+      "accountant",
+      "buyer_manager",
+      "commercial_manager",
+      "commercial_directory",
+      "commercial_specialist",
+      "admin",
+      "user",
+      "monitoring",
+      "buyer_directory",
+    ],
   },
 ];

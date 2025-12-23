@@ -910,6 +910,15 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
     });
   };
 
+  const handleBlur = () => {
+    if (!selectedOption1) {
+      toast.error("Packaging field is required!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
   return (
     <div className={styles.packing}>
       <h2 className={styles.title}>Packaging Type</h2>
@@ -928,6 +937,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               <label className={styles.label}>Packaging</label>
               <div style={{ color: "red", paddingTop: "6px" }}>*</div>
             </div>
+
             <Select
               value={containerOptions.find(
                 (option) => option.value === selectedOption1,
@@ -939,6 +949,7 @@ const PackagingForm: React.FC<PackagingFormProps> = ({
               styles={customStyles}
               isClearable
               placeholder="Select Container Type"
+              onBlur={handleBlur}
             />
           </div>
 

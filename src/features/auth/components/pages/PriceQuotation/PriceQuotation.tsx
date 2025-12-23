@@ -77,7 +77,17 @@ const PriceQuotation = () => {
 
   const handleSubmit = async (status: "draft" | "send") => {
     if (!selectedCode || !totalWeight) {
-      alert("Lütfen tüm gerekli alanları doldurun");
+      toast.error("Please select HsCode and CargoName");
+      return;
+    }
+
+    if (!packagingData.package_type || packagingData.package_type === "") {
+      toast.error("Please select Packaging type");
+      return;
+    }
+
+    if (!startDate || endDate === "") {
+      toast.error("Please select Date");
       return;
     }
 

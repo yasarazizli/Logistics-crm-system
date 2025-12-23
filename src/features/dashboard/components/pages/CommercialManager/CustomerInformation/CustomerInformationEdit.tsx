@@ -330,6 +330,16 @@ const CustomerInformationEdit = () => {
         return;
       }
 
+      if (!packagingData.package_type || packagingData.package_type === "") {
+        toast.error("Please select Packaging type");
+        return;
+      }
+
+      if (!startDate || endDate === "") {
+        toast.error("Please select Date");
+        return;
+      }
+
       setLoader(true);
 
       const order_quotation = {

@@ -206,6 +206,11 @@ const CustomerInformation = () => {
       return;
     }
 
+    if (!startDate || endDate === "") {
+      toast.error("Please select Date");
+      return;
+    }
+
     setLoader(true);
 
     const order_offers = offers.map((offer, index) => {

@@ -61,6 +61,7 @@ import AskOrderEditPage from "@/features/dashboard/pages/Others/AskOrderEditPage
 import AdminUsersPage from "@/features/dashboard/pages/Admin/Users/AdminUsersPage.tsx";
 import VerifyRedirectPage from "@/features/auth/pages/VerifyRedirectPage.tsx";
 import RegisterExpiredPage from "@/features/auth/pages/RegisterExpiredPage.tsx";
+import NotificationPage from "@/features/dashboard/pages/Notification/NotificationPage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -120,6 +121,7 @@ const AppRoutes = () => {
       {/* Privet Route */}
       <Route path="/:lang" element={<PrivateRoute />}>
         <Route path="users" element={<UsersPage />} />
+        <Route path="notification" element={<NotificationPage />} />
         <Route path="lawyer/users" element={<LawyerPage />} />
         <Route path="accountant/users" element={<AccountantUserPage />} />
         <Route path="accountant/order" element={<AccountantOrderPage />} />
