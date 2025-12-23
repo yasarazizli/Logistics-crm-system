@@ -145,8 +145,12 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           containersArray.push({
             number: "",
             dropOff: "",
-            requiredNumber: false,
-            requiredDropOff: false,
+            requiredNumber: isRegister
+              ? false
+              : apiData.container_no_required || false,
+            requiredDropOff: isRegister
+              ? false
+              : apiData.container_drop_off_required || false,
           });
         }
 
@@ -181,8 +185,12 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           wagonsArray.push({
             number: "",
             dropOff: "",
-            requiredNumber: false,
-            requiredDropOff: false,
+            requiredNumber: isRegister
+              ? false
+              : apiData.wagon_no_required || false,
+            requiredDropOff: isRegister
+              ? false
+              : apiData.wagon_drop_off_required || false,
           });
         }
 
@@ -210,10 +218,11 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           wagons: wagonsArray,
         };
 
+        console.log("Form Data Loaded - Containers:", containersArray);
+        console.log("Form Data Loaded - Wagons:", wagonsArray);
         setForm(formData);
       },
     }));
-
     useEffect(() => {
       if (onFormDataChangeRef.current) {
         onFormDataChangeRef.current(form);

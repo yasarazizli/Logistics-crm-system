@@ -134,7 +134,7 @@ const Users = () => {
     "pending",
     "offered",
     "ordered",
-    "completed",
+    "shipped",
     "draft",
     "rejected",
   ];
@@ -143,7 +143,7 @@ const Users = () => {
     pending: "#F5E233",
     offered: "#F5E233",
     ordered: "#1D7321",
-    completed: "#1D7321",
+    shipped: "#1D7321",
     draft: "#808080",
     rejected: "#F74156",
   };
@@ -218,7 +218,7 @@ const Users = () => {
       baseHeaders.push({ name: "User confirmation", key: "user_confirmation" });
     }
 
-    if (filters.status === "completed") {
+    if (filters.status === "shipped") {
       baseHeaders.push({ name: "Clone Order", key: "clone_order" });
     }
 
@@ -254,7 +254,7 @@ const Users = () => {
       baseFilterCells.push(<td key="user_confirmation"></td>);
     }
 
-    if (filters.status === "completed") {
+    if (filters.status === "shipped") {
       baseFilterCells.push(<td key="clone_order"></td>);
     }
 
@@ -387,7 +387,7 @@ const Users = () => {
                 </td>
               )}
 
-              {filters.status === "completed" && (
+              {filters.status === "shipped" && (
                 <td>
                   <div className={styles.icon}>
                     <div

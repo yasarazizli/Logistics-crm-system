@@ -174,7 +174,7 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
   const [packingType, setPackingType] = useState("");
   const [showPackingTypeInput, setShowPackingTypeInput] = useState(false);
 
-  const [transportationType, setTransportationType] = useState<string>("Rail");
+  const [transportationType, setTransportationType] = useState<string>("");
   const [wagonType, setWagonType] = useState<string>("");
   const [wagonProvision, setWagonProvision] = useState<boolean>(false);
   const [wagonProvision2, setWagonProvision2] = useState<boolean>(false);
@@ -224,51 +224,6 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
       toPorts: [] as Port[],
     },
   ]);
-
-  useEffect(() => {
-    setRoutes([
-      {
-        from: { country: "", city: "", hs: "", address: "", port: "" },
-        to: { country: "", city: "", hs: "", address: "", port: "" },
-        fromCities: [],
-        toCities: [],
-        fromStationCodes: [],
-        toStationCodes: [],
-        fromPorts: [],
-        toPorts: [],
-      },
-      {
-        from: { country: "", city: "", hs: "", address: "", port: "" },
-        to: { country: "", city: "", hs: "", address: "", port: "" },
-        fromCities: [],
-        toCities: [],
-        fromStationCodes: [],
-        toStationCodes: [],
-        fromPorts: [],
-        toPorts: [],
-      },
-      {
-        from: { country: "", city: "", hs: "", address: "", port: "" },
-        to: { country: "", city: "", hs: "", address: "", port: "" },
-        fromCities: [],
-        toCities: [],
-        fromStationCodes: [],
-        toStationCodes: [],
-        fromPorts: [],
-        toPorts: [],
-      },
-      {
-        from: { country: "", city: "", hs: "", address: "", port: "" },
-        to: { country: "", city: "", hs: "", address: "", port: "" },
-        fromCities: [],
-        toCities: [],
-        fromStationCodes: [],
-        toStationCodes: [],
-        fromPorts: [],
-        toPorts: [],
-      },
-    ]);
-  }, [transportationType]);
 
   const [, setQuotation] = useState<QuotationType | null>(null);
 
@@ -361,6 +316,7 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
 
     setRoutes(newRoutes);
   };
+
   const handleDropdownOpen = async (type: "from" | "to", index: number) => {
     const route = routes[index];
     const location = type === "from" ? route.from : route.to;
@@ -410,52 +366,105 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
           if (apiData.packing) {
             setSelectedOption1(apiData.packing.package_type || "");
             setSelectedOption2(apiData.packing.size?.toString() || "20");
-
             const apiPackingType = apiData.packing.packing_type || "";
-            setSelectedOption3(apiPackingType);
+            console.log("API Packing Type (Raw):", apiPackingType);
+            let formattedPackingType = "";
+            if (apiPackingType) {
+              if (apiPackingType.toLowerCase() === "big bag") {
+                formattedPackingType = "Big Bag";
+              } else {
+                formattedPackingType = apiPackingType
+                  .split(" ")
+                  .map(
+                    (word: any) =>
+                      word.charAt(0).toUpperCase() +
+                      word.slice(1).toLowerCase(),
+                  )
+                  .join(" ");
+              }
+            }
 
-            setContainerInputs({
-              totalQuantity: apiData.packing.total_quantity?.toString() || "",
-              netWeight: apiData.packing.net_weight?.toString() || "",
-              grossWeight: apiData.packing.gross_weight?.toString() || "",
-            });
+            console.log("Formatted Packing Type:", formattedPackingType);
+            setSelectedOption3(formattedPackingType);
 
-            setBreakBulkInputs({
-              totalQuantity: apiData.packing.total_quantity?.toString() || "",
-              netWeight: apiData.packing.net_weight?.toString() || "",
-              grossWeight: apiData.packing.gross_weight?.toString() || "",
-              width: apiData.packing.width?.toString() || "",
-              length: apiData.packing.length?.toString() || "",
-              height: apiData.packing.height?.toString() || "",
-            });
-
-            setGeneralInputs({
-              totalQuantity: apiData.packing.total_quantity?.toString() || "",
-              netWeight: apiData.packing.net_weight?.toString() || "",
-              grossWeight: apiData.packing.gross_weight?.toString() || "",
-              width: apiData.packing.width?.toString() || "",
-              length: apiData.packing.length?.toString() || "",
-              height: apiData.packing.height?.toString() || "",
-            });
-
-            setBulkLiquidInputs({
-              netWeight: apiData.packing.net_weight?.toString() || "",
-            });
+            if (apiData.packing.package_type === "Container") {
+              setContainerInputs({
+                totalQuantity: apiData.packing.total_quantity?.toString() || "",
+                netWeight: apiData.packing.net_weight?.toString() || "",
+                grossWeight: apiData.packing.gross_weight?.toString() || "",
+              });
+            } else if (apiData.packing.package_type === "Break_Bulk") {
+              setBreakBulkInputs({
+                totalQuantity: apiData.packing.total_quantity?.toString() || "",
+                netWeight: apiData.packing.net_weight?.toString() || "",
+                grossWeight: apiData.packing.gross_weight?.toString() || "",
+                width: apiData.packing.width?.toString() || "",
+                length: apiData.packing.length?.toString() || "",
+                height: apiData.packing.height?.toString() || "",
+              });
+            } else if (apiData.packing.package_type === "Bulk") {
+              if (formattedPackingType === "Bulk Liquid") {
+                setBulkLiquidInputs({
+                  netWeight: apiData.packing.net_weight?.toString() || "",
+                });
+              } else {
+                setGeneralInputs({
+                  totalQuantity:
+                    apiData.packing.total_quantity?.toString() || "",
+                  netWeight: apiData.packing.net_weight?.toString() || "",
+                  grossWeight: apiData.packing.gross_weight?.toString() || "",
+                  width: apiData.packing.width?.toString() || "",
+                  length: apiData.packing.length?.toString() || "",
+                  height: apiData.packing.height?.toString() || "",
+                });
+              }
+            } else if (apiData.packing.package_type === "Oversize_Cargo") {
+              setGeneralInputs({
+                totalQuantity: apiData.packing.total_quantity?.toString() || "",
+                netWeight: apiData.packing.net_weight?.toString() || "",
+                grossWeight: apiData.packing.gross_weight?.toString() || "",
+                width: apiData.packing.width?.toString() || "",
+                length: apiData.packing.length?.toString() || "",
+                height: apiData.packing.height?.toString() || "",
+              });
+            }
           }
 
           setShowPackingTypeInput(apiData.stackable || false);
           setPackingType(apiData.in_row?.toString() || "");
 
-          if (apiData.transport_type) {
-            const transportType =
-              apiData.transport_type.charAt(0).toUpperCase() +
-              apiData.transport_type.slice(1);
+          if (apiData.transport_type && !transportationType) {
+            const transportType = apiData.transport_type
+              .split(" ")
+              .map(
+                (word: any) =>
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+              )
+              .join(" ");
+            console.log("Setting Transport Type:", transportType);
             setTransportationType(transportType);
           }
 
           const apiWagonType = apiData.wagon_type || "";
-          setWagonType(apiWagonType);
+          console.log("API Wagon Type (Raw):", apiWagonType);
 
+          if (apiWagonType && !wagonType) {
+            let formattedWagonType = "";
+            if (apiWagonType.toLowerCase() === "container truck") {
+              formattedWagonType = "Container Truck";
+            } else if (apiWagonType) {
+              formattedWagonType = apiWagonType
+                .split(" ")
+                .map(
+                  (word: any) =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+                )
+                .join(" ");
+            }
+
+            console.log("Setting Wagon Type:", formattedWagonType);
+            setWagonType(formattedWagonType);
+          }
           setWagonProvision2(apiData.request_container_provision || false);
           setWagonProvision(apiData.request_wagon_provision || false);
 
@@ -585,7 +594,8 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
   }, [transportationType, onTransportationTypeChange]);
 
   useEffect(() => {
-    setWagonType("");
+    if (!isInitialLoad.current && transportationType) {
+    }
   }, [transportationType]);
 
   useEffect(() => {
@@ -1028,8 +1038,17 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
 
   const findOptionIgnoreCase = (options: OptionType[], value: string) => {
     if (!value) return null;
-    return options.find(
-      (option) => option.value.toLowerCase() === value.toLowerCase(),
+
+    const exactMatch = options.find((option) => option.value === value);
+    if (exactMatch) return exactMatch;
+
+    return (
+      options.find(
+        (option) => option.value.toLowerCase() === value.toLowerCase(),
+      ) ||
+      options.find(
+        (option) => option.label.toLowerCase() === value.toLowerCase(),
+      )
     );
   };
 
@@ -1556,7 +1575,9 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
                 onChange={(option: SingleValue<OptionType>) => {
                   const newType = option ? option.value : "";
                   setTransportationType(newType);
-                  setWagonType("");
+                  if (isInitialLoad.current === false) {
+                    setWagonType("");
+                  }
                 }}
                 options={transportationOptions}
                 styles={customStyles}

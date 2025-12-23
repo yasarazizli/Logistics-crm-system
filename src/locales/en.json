@@ -258,7 +258,7 @@
       "pending": "Pending",
       "offered": "Offered",
       "ordered": "Ordered",
-      "completed": "Completed",
+      "shipped": "Shipped",
       "draft": "Draft",
       "rejected": "Rejected",
       "price": "Balance:",
