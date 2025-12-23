@@ -227,6 +227,80 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
 
   const [, setQuotation] = useState<QuotationType | null>(null);
 
+  const formatText = (text: string): string => {
+    if (!text) return "";
+
+    const specialCases: Record<string, string> = {
+      "big bag": "Big Bag",
+      "box/crate": "Box/Crate",
+      "drums/barrel": "Drums/Barrel",
+      "ibc tank": "IBC Tank",
+      "standart dc": "Standart DC",
+      "standart hc": "Standart HC",
+      "reefer dc": "Reefer DC",
+      "reefer hc": "Reefer HC",
+      "open top": "Open Top",
+      "flexi tank": "Flexi Tank",
+      "bulk dry": "Bulk Dry",
+      "bulk liquid": "Bulk Liquid",
+      "covered wagons": "Covered Wagons",
+      "open wagons": "Open Wagons",
+      "flat wagons": "Flat Wagons",
+      "tank wagons": "Tank Wagons",
+      "hopper wagons": "Hopper Wagons",
+      "fitting platform": "Fitting Platform",
+      "container truck": "Container Truck",
+      "tent truck": "Tent Truck",
+      "flatbed truck": "Flatbed Truck",
+      "refrigerated truck": "Refrigerated Truck",
+      "lowbed truck": "Lowbed Truck",
+      "car carrier truck": "Car Carrier Truck",
+      "container ship": "Container Ship",
+      "general cargo ship": "General Cargo Ship",
+      "tanker ship": "Tanker Ship",
+      "roll on/roll off ship": "Roll on/Roll off Ship",
+      "bulk carrier": "Bulk Carrier",
+      rail: "Rail",
+      road: "Road",
+      sea: "Sea",
+      multimodal: "Multimodal",
+    };
+
+    const lowerText = text.toLowerCase().trim();
+
+    if (specialCases[lowerText]) {
+      return specialCases[lowerText];
+    }
+
+    if (text.includes("/")) {
+      return text
+        .split("/")
+        .map((part) => {
+          return part
+            .trim()
+            .split(" ")
+            .map((word) => {
+              if (word === word.toUpperCase() && word.length > 1) {
+                return word;
+              }
+              return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            })
+            .join(" ");
+        })
+        .join("/");
+    }
+
+    return text
+      .split(" ")
+      .map((word) => {
+        if (word === word.toUpperCase() && word.length > 1) {
+          return word;
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(" ");
+  };
+
   const parseAndSetRoutes = async (apiData: QuotationType) => {
     const newRoutes = [...routes];
 
@@ -354,6 +428,8 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
     );
   };
 
+  const [isTypeSelectReady, setIsTypeSelectReady] = useState(false);
+
   useEffect(() => {
     setLoader(true);
     const fetchRequest = async () => {
@@ -364,28 +440,24 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
           setQuotation(apiData);
 
           if (apiData.packing) {
-            setSelectedOption1(apiData.packing.package_type || "");
-            setSelectedOption2(apiData.packing.size?.toString() || "20");
             const apiPackingType = apiData.packing.packing_type || "";
             console.log("API Packing Type (Raw):", apiPackingType);
-            let formattedPackingType = "";
-            if (apiPackingType) {
-              if (apiPackingType.toLowerCase() === "big bag") {
-                formattedPackingType = "Big Bag";
-              } else {
-                formattedPackingType = apiPackingType
-                  .split(" ")
-                  .map(
-                    (word: any) =>
-                      word.charAt(0).toUpperCase() +
-                      word.slice(1).toLowerCase(),
-                  )
-                  .join(" ");
-              }
-            }
 
+            const formattedPackingType = formatText(apiPackingType);
             console.log("Formatted Packing Type:", formattedPackingType);
-            setSelectedOption3(formattedPackingType);
+
+            setSelectedOption1(apiData.packing.package_type || "");
+
+            setSelectedOption2(apiData.packing.size?.toString() || "20");
+
+            setTimeout(() => {
+              setSelectedOption3(formattedPackingType);
+              setIsTypeSelectReady(true);
+              console.log(
+                "Type select is READY with value:",
+                formattedPackingType,
+              );
+            }, 100);
 
             if (apiData.packing.package_type === "Container") {
               setContainerInputs({
@@ -434,37 +506,20 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
           setPackingType(apiData.in_row?.toString() || "");
 
           if (apiData.transport_type && !transportationType) {
-            const transportType = apiData.transport_type
-              .split(" ")
-              .map(
-                (word: any) =>
-                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-              )
-              .join(" ");
-            console.log("Setting Transport Type:", transportType);
-            setTransportationType(transportType);
+            const formattedTransportType = formatText(apiData.transport_type);
+            console.log("Setting Transport Type:", formattedTransportType);
+            setTransportationType(formattedTransportType);
           }
 
           const apiWagonType = apiData.wagon_type || "";
           console.log("API Wagon Type (Raw):", apiWagonType);
 
           if (apiWagonType && !wagonType) {
-            let formattedWagonType = "";
-            if (apiWagonType.toLowerCase() === "container truck") {
-              formattedWagonType = "Container Truck";
-            } else if (apiWagonType) {
-              formattedWagonType = apiWagonType
-                .split(" ")
-                .map(
-                  (word: any) =>
-                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-                )
-                .join(" ");
-            }
-
+            const formattedWagonType = formatText(apiWagonType);
             console.log("Setting Wagon Type:", formattedWagonType);
             setWagonType(formattedWagonType);
           }
+
           setWagonProvision2(apiData.request_container_provision || false);
           setWagonProvision(apiData.request_wagon_provision || false);
 
@@ -1210,24 +1265,69 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
           </div>
         )}
 
-        {selectedOption1 !== "Oversize_Cargo" && (
+        {selectedOption1 !== "Oversize_Cargo" && isTypeSelectReady && (
           <div className={styles.selectWrapper}>
             <label className={styles.label}>Type</label>
+
+            <div
+              style={{
+                position: "absolute",
+                top: "-20px",
+                left: "0",
+                fontSize: "10px",
+                color: "green",
+                backgroundColor: "white",
+                padding: "2px 5px",
+                borderRadius: "3px",
+                border: "1px solid green",
+                zIndex: 1000,
+              }}
+            ></div>
+
             <Select<OptionType, false>
-              value={
-                findOptionIgnoreCase(
-                  getTypeOptions(selectedOption1),
-                  selectedOption3,
-                ) || null
-              }
+              value={(() => {
+                const options = getTypeOptions(selectedOption1);
+                const found = options.find(
+                  (opt) => opt.value === selectedOption3,
+                );
+                console.log("SELECT FINAL RENDER:", {
+                  lookingFor: selectedOption3,
+                  found: found?.value,
+                  allOptions: options.map((o) => o.value),
+                });
+                return found || null;
+              })()}
               onChange={(option: SingleValue<OptionType>) => {
+                console.log("USER SELECTED:", option?.value);
                 setSelectedOption3(option ? option.value : "");
               }}
               options={getTypeOptions(selectedOption1)}
               styles={customStyles}
               isClearable
               placeholder="Select Type"
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
             />
+          </div>
+        )}
+
+        {selectedOption1 !== "Oversize_Cargo" && !isTypeSelectReady && (
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Type</label>
+            <div
+              style={{
+                height: "53px",
+                borderRadius: "6px",
+                border: "1px solid #E7E7E7",
+                backgroundColor: "#F5F5F5",
+                display: "flex",
+                alignItems: "center",
+                padding: "0 10px",
+                color: "#7b7979",
+                fontFamily: "Manrope",
+                fontSize: "14px",
+              }}
+            ></div>
           </div>
         )}
       </div>
