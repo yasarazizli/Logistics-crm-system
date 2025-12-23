@@ -145,7 +145,7 @@ const AddBalance = ({
             type="button"
             onClick={() => modalClose(false)}
           />
-          <Button text={t("shared.buttons.add")} type="submit" />
+          <Button text={t("shared.buttons.save")} type="submit" />
         </div>
       </form>
     </Modal>

@@ -227,12 +227,6 @@ const CustomerInformationEdit = () => {
     setExtraInputs((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleOfferNoteChange = useCallback((index: number, note: string) => {
-    setOffers((prev) =>
-      prev.map((offer, i) => (i === index ? { ...offer, note } : offer)),
-    );
-  }, []);
-
   const handleDeleteService = useCallback(
     (offerIndex: number, deletedIds: number[]) => {
       setDeletedServiceIds((prev) => [...prev, ...deletedIds]);
@@ -901,12 +895,6 @@ const CustomerInformationEdit = () => {
                   onClick={handleDownloadFullPDF}
                 />
               </div>
-              <Input
-                label="Customer note"
-                placeholder="Your note here"
-                value={offer.note}
-                onChange={(e) => handleOfferNoteChange(index, e.target.value)}
-              />
             </div>
 
             <div style={{ marginBottom: "32px" }}>

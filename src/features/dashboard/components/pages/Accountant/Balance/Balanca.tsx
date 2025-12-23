@@ -78,6 +78,8 @@ const Balance = () => {
     setModal({ type: action, id });
   };
 
+  const showEditColumn = filters.invoice_status !== "approved";
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -112,7 +114,7 @@ const Balance = () => {
             { name: "Amount" },
             { name: "Note" },
             { name: "Document" },
-            { name: "Edit" },
+            ...(showEditColumn ? [{ name: "Edit" }] : []),
           ]}
           filters={
             <>
@@ -146,7 +148,7 @@ const Balance = () => {
                 />
               </td>
               <td></td>
-              <td></td>
+              {showEditColumn && <td></td>}
             </>
           }
         >
@@ -176,35 +178,38 @@ const Balance = () => {
                 </div>
               </td>
 
-              <td>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                  }}
-                >
+              {filters.invoice_status !== "approved" && (
+                <td>
                   <div
-                    className={styles.icon}
-                    onClick={() => handleActionClick(item.id, "agree")}
-                    style={{ cursor: "pointer" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "10px",
+                    }}
                   >
-                    <div className={styles.icon__2}>
-                      <AddIconTable />
+                    <div
+                      className={styles.icon}
+                      onClick={() => handleActionClick(item.id, "agree")}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className={styles.icon__2}>
+                        <AddIconTable />
+                      </div>
+                    </div>
+
+                    <div
+                      className={styles.icon}
+                      onClick={() => handleActionClick(item.id, "reject")}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className={styles.icon__1}>
+                        <CrossIcon />
+                      </div>
                     </div>
                   </div>
-                  <div
-                    className={styles.icon}
-                    onClick={() => handleActionClick(item.id, "reject")}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className={styles.icon__1}>
-                      <CrossIcon />
-                    </div>
-                  </div>
-                </div>
-              </td>
+                </td>
+              )}
             </tr>
           ))}
         </Table>

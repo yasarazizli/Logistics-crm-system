@@ -104,12 +104,6 @@ const CustomerInformation = () => {
   const handleExtraChange = (name: string, value: string) =>
     setExtraInputs((prev) => ({ ...prev, [name]: value }));
 
-  const handleOfferNoteChange = (index: number, note: string) => {
-    setOffers((prev) =>
-      prev.map((offer, i) => (i === index ? { ...offer, note } : offer)),
-    );
-  };
-
   const setDynamicFormRef = useCallback(
     (index: number, ref: DynamicFormRef | null) => {
       if (ref) {
@@ -549,12 +543,6 @@ const CustomerInformation = () => {
                   onClick={handleDownloadFullPDF}
                 />
               </div>
-              <Input
-                label="Customer note"
-                placeholder="Your note here"
-                value={offer.note}
-                onChange={(e) => handleOfferNoteChange(index, e.target.value)}
-              />
             </div>
 
             <div style={{ marginBottom: "32px" }}>

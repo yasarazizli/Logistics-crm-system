@@ -406,7 +406,9 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
 
                       {open && (
                         <div className={styles.tooltipBlock}>
-                          <div className={styles.box}>4 hərf + 7 rəqəm</div>
+                          <div className={styles.box}>
+                            4 letters + 7 numbers
+                          </div>
                           <div className={styles.lineIcon}>
                             <LineIcon />
                           </div>

@@ -132,7 +132,7 @@ export const navigation = [
   {
     name: "main.title__7",
     path: "buyers/director/tasks",
-    icon: TasksIcon,
+    icon: HomeIcon,
     roles: ["buyer_directory"],
   },
 
