@@ -1666,7 +1666,7 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
 
         <div className={styles.wagon__area}>
           <div className={styles.selected}>
-            <label className={styles.label}>Transportation type</label>
+            <label className={styles.label}>Transportation mode</label>
             <div className={styles.selectWrapper}>
               <Select<OptionType, false>
                 value={transportationOptions.find(
@@ -1689,7 +1689,7 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
 
           {transportationType !== "Multimodal" && (
             <div className={styles.selected}>
-              <label className={styles.label}>Wagon type</label>
+              <label className={styles.label}>Transportation type</label>
               <div className={styles.selectWrapper}>
                 <Select<OptionType, false>
                   value={
@@ -1702,7 +1702,7 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
                   }}
                   options={wagonOptionsForSelect}
                   styles={customStyles}
-                  placeholder="Select Wagon Type"
+                  placeholder="Transportation type"
                   isClearable
                 />
               </div>

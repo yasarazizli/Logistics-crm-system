@@ -38,7 +38,7 @@ const customStyles: StylesConfig<Option, false> = {
     fontSize: "14px",
     fontWeight: 500,
     boxShadow: "none",
-    minWidth: "230px",
+    minWidth: "370px",
     color: "#7b7979",
     "&:hover": { border: "1px solid #F5F5F5" },
   }),

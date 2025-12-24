@@ -15,11 +15,17 @@ const Modal = ({
   return (
     <div className={styles.modal}>
       <div onClick={modalClose} className={styles.modal__outer}></div>
+
       <div className={styles.modal__inner}>
         <div className={styles.head}>
           {title && <p className={styles.title}>{title}</p>}
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+
+          <button type="button" onClick={modalClose} className={styles.close}>
+            <p>✕</p>
+          </button>
         </div>
+
         {children}
       </div>
     </div>

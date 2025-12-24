@@ -2,7 +2,6 @@ import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import Select, { StylesConfig } from "react-select";
-
 import styles from "@/components/Modal/Modal.module.scss";
 import Input from "@/components/Input/Input.tsx";
 import Button from "@/components/Button/Button.tsx";
@@ -137,15 +136,6 @@ const CreateServices = ({
   const [selectedTransportType, setSelectedTransportType] =
     useState<OptionType | null>(null);
 
-  const [languages] = useState<OptionType[]>([
-    { value: 1, label: "Azerbaijani" },
-    { value: 2, label: "Russian" },
-    { value: 3, label: "English" },
-  ]);
-  const [selectedLanguage, setSelectedLanguage] = useState<OptionType | null>(
-    null,
-  );
-
   const [stationCodes, setStationCodes] = useState<OptionType[]>([]);
   const [selectedFromStation, setSelectedFromStation] =
     useState<OptionType | null>(null);
@@ -159,7 +149,6 @@ const CreateServices = ({
   );
   const [selectedToPort, setSelectedToPort] = useState<OptionType | null>(null);
 
-  const [contractFileName, setContractFileName] = useState<string>("");
   const [protocolFileName, setProtocolFileName] = useState<string>("");
 
   const [serviceNames, setServiceNames] = useState<OptionType[]>([]);
@@ -282,11 +271,6 @@ const CreateServices = ({
     });
   }, [selectedCountry, selectedTransportMode]);
 
-  const handleFileChange = () => {
-    const file = inputsRef.contract_file.current?.files?.[0];
-    if (file) setContractFileName(file.name);
-  };
-
   const handleFileChangeProtocol = () => {
     const file = inputsRef.protocol_file.current?.files?.[0];
     if (file) setProtocolFileName(file.name);
@@ -347,14 +331,6 @@ const CreateServices = ({
       {
         name: "purchase_price_ton",
         data: inputsRef.purchase_price_ton.current?.value,
-      },
-      {
-        name: "language",
-        data: selectedLanguage?.label || null,
-      },
-      {
-        name: "contract_file",
-        data: inputsRef.contract_file.current?.files?.[0],
       },
       {
         name: "protocol_file",
@@ -568,7 +544,9 @@ const CreateServices = ({
                   </>
                 ) : null}
               </div>
+            </div>
 
+            <div className={styles.right}>
               <div className={styles.flex__row}>
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
@@ -586,9 +564,6 @@ const CreateServices = ({
                   />
                 </div>
               </div>
-            </div>
-
-            <div className={styles.right}>
               <div className={styles.flex__mode}>
                 <Input
                   type="date"
@@ -626,53 +601,6 @@ const CreateServices = ({
                   required
                 />
               </div>
-
-              <div className={styles.flex__row}>
-                <div className={styles.selectWrapper}>
-                  <label className={styles.label}>
-                    {t("services.modals.create.contract_language")}
-                  </label>
-                  <Select
-                    options={languages}
-                    value={selectedLanguage}
-                    onChange={setSelectedLanguage}
-                    styles={customStyles}
-                    placeholder={t("services.modals.create.value")}
-                    isSearchable
-                    required
-                    isClearable
-                  />
-                </div>
-              </div>
-
-              <div className={styles.dropzone}>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                  }}
-                >
-                  <span>{t("services.modals.create.contract__file")}</span>
-                  <label
-                    htmlFor="contract-file-upload"
-                    className={styles.dropzone__label}
-                    style={{ height: "58px" }}
-                  >
-                    {contractFileName ||
-                      t("services.modals.create.file__placeholder")}
-                  </label>
-                  <input
-                    type="file"
-                    id="contract-file-upload"
-                    ref={inputsRef.contract_file}
-                    onChange={handleFileChange}
-                    className={styles.dropzone__input}
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                  />
-                </div>
-              </div>
-
               <div className={styles.dropzone}>
                 <div
                   style={{
@@ -685,7 +613,7 @@ const CreateServices = ({
                   <label
                     htmlFor="protocol-file-upload"
                     className={styles.dropzone__label}
-                    style={{ height: "58px" }}
+                    style={{ height: "54px" }}
                   >
                     {protocolFileName ||
                       t("services.modals.create.file__placeholder")}
@@ -707,7 +635,6 @@ const CreateServices = ({
                 inputRef={inputsRef.note}
                 autoComplete="off"
                 required
-                maxLength={11}
               />
             </div>
           </div>
