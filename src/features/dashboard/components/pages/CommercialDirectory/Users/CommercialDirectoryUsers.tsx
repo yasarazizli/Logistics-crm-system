@@ -201,7 +201,7 @@ const CommercialDirectory = () => {
                     setModal({ type: "manager" });
                   }}
                 >
-                  {item.commercial_manager || "Seçilməyib"}
+                  {item.commercial_manager || "Not selected"}
                   <SharedIcon />
                 </div>
               </td>

@@ -12,6 +12,7 @@ import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAllUsers } from "@/features/dashboard/services/CommercialDirectory/commercial.services.ts";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import Button from "@/components/Button/Button.tsx";
+import CreateDirectory from "@/features/dashboard/components/shared/Modals/CommericalDirectory/CreateDirectory.tsx";
 
 interface CD {
   id: number;
@@ -68,6 +69,9 @@ const AdminUsers = () => {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
+  const [modal, setModal] = useState<null | { type: "create" }>(null);
+  const [pageHelper, setPageHelper] = useState({ render: false });
+
   useEffect(() => {
     setLoader(true);
     const fetchData = async () => {
@@ -84,7 +88,7 @@ const AdminUsers = () => {
     };
     fetchData();
     setLoader(false);
-  }, [page, ...Object.values(debouncedFilters)]);
+  }, [page, pageHelper, ...Object.values(debouncedFilters)]);
 
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -104,7 +108,7 @@ const AdminUsers = () => {
           text="Add Clients"
           viewType="green__light"
           icon={PlusIcon}
-          // onClick={() => setModal({ type: "create" })}
+          onClick={() => setModal({ type: "create" })}
         />
       </div>
 
@@ -211,6 +215,15 @@ const AdminUsers = () => {
           totalPages={totalPages}
           onPageChange={(pg) => setPage(pg)}
         />
+
+        {modal?.type === "create" && (
+          <CreateDirectory
+            modalClose={() => {
+              setModal(null);
+              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+            }}
+          />
+        )}
       </div>
     </div>
   );

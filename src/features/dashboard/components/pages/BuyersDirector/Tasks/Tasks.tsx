@@ -144,7 +144,7 @@ const Tasks = () => {
                     setModal({ type: "manager" });
                   }}
                 >
-                  {item.buyers || "Seçilməyib"}
+                  {item.buyers || "Not selected"}
                   <SharedIcon />
                 </div>
               </td>
