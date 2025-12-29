@@ -2,10 +2,16 @@ import { useContext, useEffect, useState } from "react";
 import styles from "@/features/dashboard/components/pages/Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { FileIcon } from "@/assets/icons/shared.vectors.tsx";
+import {
+  DeleteIcon,
+  FileIcon,
+  PenIcon,
+  PlusIcon,
+} from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAllUsers } from "@/features/dashboard/services/CommercialDirectory/commercial.services.ts";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
+import Button from "@/components/Button/Button.tsx";
 
 interface CD {
   id: number;
@@ -93,7 +99,13 @@ const AdminUsers = () => {
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
-        <h1>Users</h1>
+        <h1>Clients</h1>
+        <Button
+          text="Add Clients"
+          viewType="green__light"
+          icon={PlusIcon}
+          // onClick={() => setModal({ type: "create" })}
+        />
       </div>
 
       <div className={styles.table}>
@@ -109,6 +121,7 @@ const AdminUsers = () => {
             { name: "Contract End Date" },
             { name: "Commercial manager" },
             { name: "Financier" },
+            { name: "" },
           ]}
           filters={
             <>
@@ -122,6 +135,7 @@ const AdminUsers = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
             </>
@@ -169,6 +183,24 @@ const AdminUsers = () => {
               </td>
               <td>
                 <div>{item.accountant}</div>
+              </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__1}
+                    // onClick={() => setModal({ type: "delete", id: item.id })}
+                  >
+                    <DeleteIcon />
+                  </div>
+                  <div
+                    className={styles.icon__2}
+                    // onClick={() =>
+                    //   setModal({ type: "update", id: item.id, employee: item })
+                    // }
+                  >
+                    <PenIcon />
+                  </div>
+                </div>
               </td>
             </tr>
           ))}

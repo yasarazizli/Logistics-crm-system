@@ -7,6 +7,7 @@ import {
   DeleteIcon,
   PenIcon,
   PlusIcon,
+  SharedIcon,
 } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getEmployees } from "@/features/dashboard/services/Employees/employees.service.ts";
@@ -15,6 +16,7 @@ import UpdateEmployees from "@/features/dashboard/components/shared/Modals/Emplo
 import DeleteEmployees from "@/features/dashboard/components/shared/Modals/Employees/DeleteEmployees.tsx";
 import { useTranslation } from "react-i18next";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
+import SelectManager from "@/features/dashboard/components/shared/Modals/CommericalDirectory/SelectManager.tsx";
 
 const filterKeys = ["fullname", "email", "phone"] as const;
 
@@ -42,9 +44,11 @@ const Employees = () => {
     | { type: "create" }
     | { type: "update"; id: number; employee: Employee }
     | { type: "delete"; id: number }
+    | { type: "manager" }
   >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -135,6 +139,17 @@ const Employees = () => {
     "monitoring",
   ];
 
+  const handleManagerSelect = (employee: { id: number; full_name: string }) => {
+    if (!selectedUserId) return;
+    setData((prev) =>
+      prev.map((user) =>
+        user.id === selectedUserId
+          ? { ...user, commercial_manager: employee.full_name }
+          : user,
+      ),
+    );
+  };
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -174,6 +189,9 @@ const Employees = () => {
             { name: "Phone Number" },
             { name: "Role" },
             { name: "" },
+            ...(filters.role === "commercial_specialist"
+              ? [{ name: "Select Manager" }]
+              : []),
           ]}
           filters={
             <>
@@ -188,6 +206,7 @@ const Employees = () => {
               ))}
               <td></td>
               <td></td>
+              {filters.role === "commercial_specialist" ? <td></td> : ""}
             </>
           }
         >
@@ -215,6 +234,20 @@ const Employees = () => {
                   </div>
                 </div>
               </td>
+              {filters.role === "commercial_specialist" && (
+                <td>
+                  <div
+                    className={styles.manager}
+                    onClick={() => {
+                      setSelectedUserId(item.id);
+                      setModal({ type: "manager" });
+                    }}
+                  >
+                    {item.commercial_manager || "Seçilməyib"}
+                    <SharedIcon />
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </Table>
@@ -224,6 +257,16 @@ const Employees = () => {
           totalPages={totalPages}
           onPageChange={(pg) => setPage(pg)}
         />
+        {modal?.type === "manager" && selectedUserId && (
+          <SelectManager
+            modalClose={() => {
+              setModal(null);
+              setSelectedUserId(null);
+            }}
+            id={selectedUserId}
+            onSelect={handleManagerSelect}
+          />
+        )}
       </div>
 
       {createModal}
