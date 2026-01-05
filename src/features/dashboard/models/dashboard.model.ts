@@ -14,6 +14,7 @@ export interface UserModel {
   contract_end_date: null | string;
   company_name: null | string;
   identity_number: string;
+  new_notification: number;
   commercial_manager: string;
   accountant: {
     id: number;

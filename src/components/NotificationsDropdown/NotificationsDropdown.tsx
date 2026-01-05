@@ -48,7 +48,7 @@ const NotificationsDropdown = ({
         <Link to={`/${i18n.language}/notification`}>See all notifications</Link>
       </div>
       {messages.map((item, index) => (
-        <div key={index} className={styles.item}>
+        <div key={index} className={item.read ? styles.passive : styles.item}>
           <div className={styles.icon}>
             <GreenNotificationIcon />
           </div>
@@ -64,7 +64,7 @@ const NotificationsDropdown = ({
       ))}
       {Array.isArray(data) &&
         data.map((i: any, n: number) => (
-          <div key={n} className={styles.passive}>
+          <div key={n} className={i.read ? styles.passive : styles.item}>
             <div className={styles.icon}>
               <GreenNotificationIcon />
             </div>

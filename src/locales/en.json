@@ -223,8 +223,8 @@
     "roles": {
       "admin": "Admin",
       "user": "User",
-      "buyer_manager": "Buyers Manager",
-      "buyer_directory": "Buyers Director",
+      "buyer_manager": "Purchasing Specialist",
+      "buyer_directory": "Purchasing Manager",
       "commercial_directory": "Commercial Directory",
       "commercial_manager": "Commercial Manager",
       "commercial_specialist": "Commercial Specialist",
@@ -293,7 +293,7 @@
     "modals": {
       "create": {
         "title": "Add HS Code",
-        "title__user": "Create User",
+        "title__user": "Create Client",
         "title__1": "Add Country",
         "title__2": "Add Station",
         "title__3": "Add City",
@@ -732,8 +732,8 @@
     "full_name": "Name surname",
 
     "modal" : {
-      "title": "Select the Manager",
-      "label": "Manager",
+      "title": "Select the Specialist",
+      "label": "Specialist",
       "title_1": "Select the Accountant",
       "title_2": "Select the Member",
       "label_1": "Accountant",

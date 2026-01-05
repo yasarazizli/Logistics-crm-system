@@ -16,6 +16,7 @@ import { errorMessageHandler } from "@/libs/error.ts";
 
 const Login = () => {
   const { t, i18n } = useTranslation();
+  const { check } = useContext(AuthContext);
   const { setLoader } = useContext(LoaderContext);
   const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ const Login = () => {
         user: data,
       });
       setCookie("allianceToken", data?.token, 15);
+      await check();
       switch (data.role) {
         case "lawyer":
           navigate(`/${i18n.language}/lawyer/users`);

@@ -1149,7 +1149,7 @@ export const GreenNotificationIcon = () => {
       viewBox="0 0 20 20"
       fill="none"
     >
-      <g clip-path="url(#clip0_4215_3559)">
+      <g clipPath="url(#clip0_4215_3559)">
         <mask
           id="mask0_4215_3559"
           maskUnits="userSpaceOnUse"

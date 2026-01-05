@@ -5,6 +5,7 @@ export type NotificationMessage = {
   sender_name: string;
   sender_role: string;
   date: string;
+  read: boolean;
 };
 
 export const useWebSocket = (url: string) => {

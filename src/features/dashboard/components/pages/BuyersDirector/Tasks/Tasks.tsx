@@ -110,7 +110,7 @@ const Tasks = () => {
             { name: "Transport Type" },
             { name: "From" },
             { name: "To" },
-            { name: "Choose manager" },
+            { name: "Choose Specialist" },
           ]}
           filters={
             <>

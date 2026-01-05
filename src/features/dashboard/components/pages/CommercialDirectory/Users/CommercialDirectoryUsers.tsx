@@ -116,7 +116,7 @@ const CommercialDirectory = () => {
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
-        <h1>Users</h1>
+        <h1>Clients</h1>
         <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
           <Button
             text="Create user"

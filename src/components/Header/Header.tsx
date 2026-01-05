@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
-import Language from "@/components/Language/Language.tsx";
+// import Language from "@/components/Language/Language.tsx";
 import { CompanyIcon } from "@/assets/icons/shared.vectors.tsx";
 import styles from "@/components/Header/Header.module.scss";
 import { NotificationIcon } from "@/assets/icons/header.vectors.tsx";
@@ -17,17 +17,24 @@ const Header = () => {
     userId ? `ws://127.0.0.1:8080/ws?user_id=${userId}` : "",
   );
 
+  const totalUnread = (auth.user?.new_notification || 0) + (unreadCount || 0);
+
   const toggleNotifications = () => {
+    if (!openNotifications) {
+      markAllAsRead();
+      if (auth.user) {
+        auth.user.new_notification = 0;
+      }
+    }
     setOpenNotifications((p) => !p);
-    markAllAsRead();
   };
 
   return (
     <div className={styles.dashboard__header}>
       <div className={styles.buttons}>
-        <div className={`${styles.button} ${styles.language}`}>
-          <Language />
-        </div>
+        {/*<div className={`${styles.button} ${styles.language}`}>*/}
+        {/*  <Language />*/}
+        {/*</div>*/}
 
         {auth.role !== "" && (
           <div
@@ -36,8 +43,8 @@ const Header = () => {
           >
             <NotificationIcon />
 
-            {unreadCount > 0 && (
-              <span className={styles.badge}>{unreadCount}</span>
+            {!openNotifications && totalUnread > 0 && (
+              <span className={styles.badge}>{totalUnread}</span>
             )}
 
             {openNotifications && <NotificationsDropdown messages={messages} />}
