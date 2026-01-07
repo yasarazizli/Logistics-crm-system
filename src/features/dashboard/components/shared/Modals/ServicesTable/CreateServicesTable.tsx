@@ -108,7 +108,6 @@ const CreateServicesTable = ({
 
         if (response?.status === 200) {
           setData(response.data?.data || []);
-          console.log("Salam", response.data?.data);
           const totalCount = response.data?.count || 0;
           setTotalPages(Math.ceil(totalCount / pageSize));
         }

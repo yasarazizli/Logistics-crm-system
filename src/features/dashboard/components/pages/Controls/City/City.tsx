@@ -59,7 +59,6 @@ const City = () => {
         debouncedFilters.country,
       );
       if (response?.status === 200) {
-        console.log("data", response.data?.cities);
         setData(response.data?.cities || []);
         setTotal(response.data?.page_count || 0);
       }

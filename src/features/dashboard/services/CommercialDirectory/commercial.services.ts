@@ -13,6 +13,7 @@ export const getAllUsers = async (params: {
   balance?: string;
   page?: number;
   pageSize?: number;
+  is_active?: boolean;
 }) => {
   return await axios
     .get(`${apiUrl}/accounts/get-all-user/?contract_status=all`, {

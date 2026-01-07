@@ -463,12 +463,12 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                 selectedTransportMode?.label === "Multimodal" ? (
                   <>
                     <div className={styles.selectWrapper}>
-                      <label className={styles.label}>
-                        {selectedTransportMode?.label === "Multimodal"
-                          ? "From Address"
-                          : "From"}
-                      </label>
                       <Input
+                        label={
+                          selectedTransportMode?.label === "Multimodal"
+                            ? "From Address"
+                            : "From"
+                        }
                         type="text"
                         inputRef={inputsRef.from_id}
                         placeholder={
@@ -479,13 +479,13 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                       />
                     </div>
                     <div className={styles.selectWrapper}>
-                      <label className={styles.label}>
-                        {selectedTransportMode?.label === "Multimodal"
-                          ? "To Address"
-                          : "To"}
-                      </label>
                       <Input
                         type="text"
+                        label={
+                          selectedTransportMode?.label === "Multimodal"
+                            ? "To Address"
+                            : "To"
+                        }
                         inputRef={inputsRef.to_id}
                         placeholder={
                           selectedTransportMode?.label === "Multimodal"

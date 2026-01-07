@@ -92,7 +92,6 @@ const Services = () => {
 
       if (response?.status === 200) {
         setData(response.data?.data || []);
-        console.log(response?.data);
         setTotal(response.data?.count || 0);
       }
       setLoader(false);

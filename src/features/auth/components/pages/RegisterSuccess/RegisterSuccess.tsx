@@ -10,8 +10,6 @@ const RegisterSuccess = () => {
   const params = new URLSearchParams(location.search);
   const isVerified = params.get("verified") === "true";
 
-  console.log("Verified param:", isVerified);
-
   return (
     <div className={styles.success}>
       <div className={styles.success__info}>

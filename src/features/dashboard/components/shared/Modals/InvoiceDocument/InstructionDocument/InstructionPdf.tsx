@@ -48,11 +48,7 @@ const InstructionPdf = ({
     setLoader(true);
     setLoading(true);
 
-    console.log("Fetching invoice for order ID:", id);
-
     const { status, data } = await getOrderInstructionDetailRequest(id);
-
-    console.log("API Response:", { status, data });
 
     if (status === 200) {
       setOrderModel(data);

@@ -260,8 +260,6 @@ const SubCode = () => {
           const apiData = response.data;
 
           if (apiData && Array.isArray(apiData)) {
-            console.log("API Data:", apiData);
-
             const formattedOffers = apiData.map((offer: ApiOfferData) => {
               const tableData: TableRowData[] =
                 offer.service?.map((service) => ({
@@ -340,8 +338,6 @@ const SubCode = () => {
                   }
                 : null;
 
-              console.log(`Shipment data for offer ${offer.id}:`, shipmentData);
-
               return {
                 tableData,
                 summary,
@@ -368,10 +364,6 @@ const SubCode = () => {
       offers.forEach((offer, index) => {
         const ref = dynamicFormRefs.current.get(index);
         if (ref && offer.shipmentData) {
-          console.log(
-            `Updating form data for index ${index}`,
-            offer.shipmentData,
-          );
           setTimeout(() => {
             ref.setFormData(offer.shipmentData);
           }, 200);
@@ -438,18 +430,12 @@ const SubCode = () => {
 
         const serviceId = row.id || 0;
 
-        console.log(
-          `Row ${rowIndex}: id=${serviceId}, subCode=${subCodeValue}`,
-        );
-
         return {
           service_id: serviceId,
           sub_code: subCodeValue,
         };
       }),
     );
-
-    console.log("Sending data:", orderServiceData);
 
     const formData = new FormData();
     formData.append("order_services", JSON.stringify(orderServiceData));

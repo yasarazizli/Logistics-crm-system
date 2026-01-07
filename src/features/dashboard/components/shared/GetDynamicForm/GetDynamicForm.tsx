@@ -218,8 +218,6 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           wagons: wagonsArray,
         };
 
-        console.log("Form Data Loaded - Containers:", containersArray);
-        console.log("Form Data Loaded - Wagons:", wagonsArray);
         setForm(formData);
       },
     }));

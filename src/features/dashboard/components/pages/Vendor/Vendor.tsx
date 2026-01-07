@@ -46,8 +46,6 @@ const Vendor = () => {
         pageSize,
       });
       if (response?.status === 200) {
-        console.log("data", response.data?.data);
-        console.log("data", response.data);
         setData(response.data?.vendors || []);
         setTotal(response.data?.page_count || 0);
       }

@@ -150,7 +150,6 @@ const PriceQuotation = () => {
       },
     );
     if (response && response.status === 200) {
-      console.log("Sunucu yanıtı:", response.data);
       navigate(`/${i18n.language}/auth/login`);
       toast.success(errorMessageHandler(response.data));
       setLoader(false);

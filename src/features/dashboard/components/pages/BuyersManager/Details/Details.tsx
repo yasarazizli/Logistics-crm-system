@@ -180,11 +180,6 @@ const Details = () => {
             const formattedStartDate = convertToISO(apiData.start_date);
             const formattedEndDate = convertToISO(apiData.end_date);
 
-            console.log("Original start_date:", apiData.start_date);
-            console.log("Formatted start_date:", formattedStartDate);
-            console.log("Original end_date:", apiData.end_date);
-            console.log("Formatted end_date:", formattedEndDate);
-
             setStartDate(formattedStartDate);
             setEndDate(formattedEndDate);
           }
@@ -235,8 +230,6 @@ const Details = () => {
           const apiData = response.data;
 
           if (apiData && Array.isArray(apiData)) {
-            console.log("API Data:", apiData);
-
             const formattedOffers = apiData.map((offer: ApiOfferData) => {
               const tableData: TableRowData[] =
                 offer.service?.map((service) => ({
@@ -315,8 +308,6 @@ const Details = () => {
                   }
                 : null;
 
-              console.log(`Shipment data for offer ${offer.id}:`, shipmentData);
-
               return {
                 tableData,
                 summary,
@@ -343,10 +334,6 @@ const Details = () => {
       offers.forEach((offer, index) => {
         const ref = dynamicFormRefs.current.get(index);
         if (ref && offer.shipmentData) {
-          console.log(
-            `Updating form data for index ${index}`,
-            offer.shipmentData,
-          );
           setTimeout(() => {
             ref.setFormData(offer.shipmentData);
           }, 200);

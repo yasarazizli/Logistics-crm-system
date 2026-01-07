@@ -27,7 +27,6 @@ const NotificationsDropdown = ({
         const response = await NotificationApi(user_id);
         if (response?.status === 200) {
           setData(response.data);
-          console.log(response.data);
         }
       } catch (error) {
         console.error(error);

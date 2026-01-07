@@ -40,8 +40,6 @@ const Notification = () => {
         pageSize,
       });
       if (response?.status === 200) {
-        console.log("data", response.data?.data);
-        console.log("data", response.data);
         setData(response.data?.data || []);
         setTotal(response.data?.page_count || 0);
       }

@@ -18,17 +18,8 @@ export const useWebSocket = (url: string) => {
   useEffect(() => {
     if (!url) return;
 
-    console.log("WS connecting:", url);
     socketRef.current = new WebSocket(url);
-
-    socketRef.current.onopen = () => {
-      console.log("WS connected");
-      setConnected(true);
-    };
-
     socketRef.current.onmessage = (event) => {
-      console.log("📩 WS raw:", event.data);
-
       try {
         const data = JSON.parse(event.data);
         setMessages((prev) => [data, ...prev]);
@@ -43,12 +34,10 @@ export const useWebSocket = (url: string) => {
     };
 
     socketRef.current.onclose = () => {
-      console.log("WS closed");
       setConnected(false);
     };
 
     return () => {
-      console.log("WS cleanup");
       socketRef.current?.close();
     };
   }, [url]);

@@ -58,7 +58,6 @@ const Country = () => {
         debouncedFilters.date,
       );
       if (response?.status === 200) {
-        console.log("data", response.data?.data);
         setData(response.data?.data || []);
         setTotal(response.data?.count || 0);
       }

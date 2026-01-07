@@ -441,10 +441,8 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
 
           if (apiData.packing) {
             const apiPackingType = apiData.packing.packing_type || "";
-            console.log("API Packing Type (Raw):", apiPackingType);
 
             const formattedPackingType = formatText(apiPackingType);
-            console.log("Formatted Packing Type:", formattedPackingType);
 
             setSelectedOption1(apiData.packing.package_type || "");
 
@@ -453,10 +451,6 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
             setTimeout(() => {
               setSelectedOption3(formattedPackingType);
               setIsTypeSelectReady(true);
-              console.log(
-                "Type select is READY with value:",
-                formattedPackingType,
-              );
             }, 100);
 
             if (apiData.packing.package_type === "Container") {

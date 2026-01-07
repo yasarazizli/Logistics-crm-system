@@ -2,7 +2,7 @@ import styles from "@/components/Modal/Modal.module.scss";
 import Input from "@/components/Input/Input.tsx";
 import Button from "@/components/Button/Button.tsx";
 import Modal from "@/components/Modal/Modal.tsx";
-import { FormEvent, useContext, useRef } from "react";
+import { FormEvent, useContext, useRef, useState } from "react";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { formCreator } from "@/libs/form.ts";
 import { toast } from "react-toastify";
@@ -46,7 +46,7 @@ const UpdateEmployees = ({
     setLoader(true);
 
     const formData = formCreator([
-      { name: "role", data: inputsRef.role.current?.value },
+      { name: "role", data: role },
       { name: "full_name", data: inputsRef.full_name.current?.value },
       { name: "email", data: inputsRef.email.current?.value },
       { name: "phone", data: inputsRef.phone.current?.value },
@@ -78,6 +78,8 @@ const UpdateEmployees = ({
     "accountant",
     "monitoring",
   ];
+
+  const [role, setRole] = useState(employee?.role || "");
 
   return (
     <Modal
@@ -149,8 +151,8 @@ const UpdateEmployees = ({
               className={styles.select}
               required
               name="role"
-              ref={inputsRef.role}
-              value={employee?.role}
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
             >
               <option value="">
                 {t("workers.modals.create.inputs.description.label__5")}

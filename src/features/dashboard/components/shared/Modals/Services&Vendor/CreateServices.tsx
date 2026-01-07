@@ -456,13 +456,13 @@ const CreateServices = ({
                 selectedTransportMode?.label === "Multimodal" ? (
                   <>
                     <div className={styles.selectWrapper}>
-                      <label className={styles.label}>
-                        {selectedTransportMode?.label === "Multimodal"
-                          ? "From Address"
-                          : "From"}
-                      </label>
                       <Input
                         type="text"
+                        label={
+                          selectedTransportMode?.label === "Multimodal"
+                            ? "From Address"
+                            : "From"
+                        }
                         inputRef={inputsRef.from_id}
                         placeholder={
                           selectedTransportMode?.label === "Multimodal"
@@ -472,13 +472,13 @@ const CreateServices = ({
                       />
                     </div>
                     <div className={styles.selectWrapper}>
-                      <label className={styles.label}>
-                        {selectedTransportMode?.label === "Multimodal"
-                          ? "To Address"
-                          : "To"}
-                      </label>
                       <Input
                         type="text"
+                        label={
+                          selectedTransportMode?.label === "Multimodal"
+                            ? "To Address"
+                            : "To"
+                        }
                         inputRef={inputsRef.to_id}
                         placeholder={
                           selectedTransportMode?.label === "Multimodal"

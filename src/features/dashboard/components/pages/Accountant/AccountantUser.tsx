@@ -51,8 +51,6 @@ const AccountantUser = () => {
         debouncedFilters.company_name,
       );
       if (response?.status === 200) {
-        console.log("data", response.data?.users);
-        console.log("data", response.data?.users);
         setData(response.data?.users || []);
         setTotal(response.data?.page_count || 0);
       }

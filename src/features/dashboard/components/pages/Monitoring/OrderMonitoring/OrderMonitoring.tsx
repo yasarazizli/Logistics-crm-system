@@ -323,8 +323,6 @@ const Details = () => {
                   }
                 : null;
 
-              console.log(`Shipment data for offer ${offer.id}:`, shipmentData);
-
               return {
                 tableData,
                 summary,

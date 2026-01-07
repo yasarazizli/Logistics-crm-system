@@ -64,7 +64,6 @@ const InvoicePdf = ({
 
     if (status === 200) {
       setOrderModel(data);
-      console.log("Order model set:", data);
     } else {
       toast.error(errorMessageHandler(data));
     }

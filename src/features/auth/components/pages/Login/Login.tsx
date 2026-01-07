@@ -2,7 +2,7 @@ import styles from "./Login.module.scss";
 import { loginInputs } from "@/features/auth/constants/auth.constant.ts";
 import Input from "@/components/Input/Input.tsx";
 import { AuthPageIcon } from "@/assets/images/auth/auth.vector.tsx";
-import { FormEvent, useContext, useRef } from "react";
+import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import Button from "@/components/Button/Button.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,7 @@ import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { setCookie } from "@/libs/cookie.ts";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
+import Blocked from "@/features/dashboard/components/shared/Modals/Blocked/Blocked.tsx";
 
 const Login = () => {
   const { t, i18n } = useTranslation();
@@ -20,11 +21,22 @@ const Login = () => {
   const { setLoader } = useContext(LoaderContext);
   const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [blockedModal, setBlockedModal] = useState(false);
 
   const inputRefs = {
     email: useRef<HTMLInputElement>(null),
     password: useRef<HTMLInputElement>(null),
   };
+
+  useEffect(() => {
+    const isBlocked = localStorage.getItem("USER_BLOCKED");
+
+    if (isBlocked) {
+      setBlockedModal(true);
+
+      localStorage.removeItem("USER_BLOCKED");
+    }
+  }, []);
 
   const login = async (event: FormEvent) => {
     event.preventDefault();
@@ -134,6 +146,7 @@ const Login = () => {
           <Link to={`/${i18n.language}/auth/register`}>Sign-up</Link>
         </div>
       </form>
+      {blockedModal && <Blocked modalClose={() => setBlockedModal(false)} />}
     </div>
   );
 };

@@ -75,8 +75,6 @@ const Employees = () => {
         debouncedFilters.role,
       );
       if (response?.status === 200) {
-        console.log("data", response.data?.employee);
-        console.log("data", response.data);
         setData(response.data?.employee || []);
         setTotal(response.data?.count || 0);
       }

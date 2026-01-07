@@ -68,8 +68,6 @@ const LawyerUser = () => {
         debouncedFilters.contract_status,
       );
       if (response?.status === 200) {
-        console.log("data", response.data?.users);
-        console.log("data", response.data);
         setData(response.data?.users || []);
         setTotal(response.data?.page_count || 0);
       }

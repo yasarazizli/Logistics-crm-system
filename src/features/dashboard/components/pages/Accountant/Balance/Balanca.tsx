@@ -49,8 +49,6 @@ const Balance = () => {
         pageSize,
       });
       if (response?.status === 200) {
-        console.log("data", response.data?.invoices);
-        console.log("data", response.data);
         setData(response.data.invoices || []);
         setTotal(response.data?.page_count || 0);
       }

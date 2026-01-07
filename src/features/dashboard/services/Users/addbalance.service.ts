@@ -26,3 +26,15 @@ export const addContract = async (formData: FormData, id: number) => {
       return err.response;
     });
 };
+
+export const EditUsers = async (formData: FormData, id: number) => {
+  return await axios
+    .put(`${apiUrl}/admin/update-user/?id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

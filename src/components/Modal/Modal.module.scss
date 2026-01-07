@@ -23,7 +23,6 @@
     overflow-x: hidden;
     & .head {
       position: relative;
-      display: flex;
       align-items: center;
       justify-content: space-between;
 
@@ -312,6 +311,15 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    & .icon {
+      display: flex;
+      width: var(--Components-Static-Icons-Icon-Height-LG, 62px);
+      height: var(--Components-Static-Icons-Icon-Height-LG, 62px);
+      justify-content: center;
+      align-items: center;
+      border-radius: var(--Components-Static-Icons-Circular-Border-Radius, 999px);
+      background: rgba(247, 65, 86, 0.16);
+    }
     & .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -322,6 +330,26 @@
     &__text{
       color: rgba(255, 255, 255, 0.6);
     }
+
+    & .blocked__head {
+      color: var(--Overlays-Modal-Title-Color, #6B7280);
+      font-size: 19px;
+      font-style: normal;
+      line-height: normal;
+      letter-spacing: 0.11px;
+    }
+
+    & .blocked__title {
+      display: flex;
+      flex-direction: column;
+      color: #6B7280;
+      font-size: 15px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 24px;
+      letter-spacing: 0.08px;
+    }
+
   }
 
   &__buttons {

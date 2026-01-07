@@ -3,6 +3,7 @@ import App from "./App.tsx";
 import "../src/assets/styles/global.scss";
 import "./locales/i18n.ts";
 import { Buffer } from "buffer";
+import "@/features/dashboard/services/AxiosInterceptor/axiosInterceptor.ts";
 
 declare global {
   interface Window {
