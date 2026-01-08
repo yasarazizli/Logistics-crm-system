@@ -280,7 +280,6 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       }
     };
 
-    // Yeni: Paste hadisəsini idarə etmək
     const handlePaste = (
       e: React.ClipboardEvent<HTMLInputElement>,
       type: "containers" | "wagons",
@@ -299,7 +298,6 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
         setForm((prev) => {
           const currentArray = [...prev[type]];
 
-          // İlk element boşdursa, ondan başlayaraq doldur
           if (
             currentArray.length === 1 &&
             currentArray[0].number === "" &&
@@ -320,16 +318,13 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
 
             return { ...prev, [type]: newItems };
           } else {
-            // Cari elementdən başlayaraq əlavə et
             const updated = [...currentArray];
 
-            // Cari elementə ilk dəyəri qoy
             updated[index] = {
               ...updated[index],
               number: processedValues[0],
             };
 
-            // Qalan dəyərlər üçün yeni elementlər əlavə et
             for (let i = 1; i < processedValues.length; i++) {
               updated.push({
                 number: processedValues[i],
@@ -343,7 +338,6 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
           }
         });
       } else {
-        // Drop-off field üçün normal paste
         const pastedValue =
           pastedText.split("\n")[0] || pastedText.split(",")[0];
         handleContainerWagonChange(type, index, field, pastedValue);
@@ -358,7 +352,6 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
       });
     };
 
-    // Yeni: Checkbox toggle funksiyası
     const handleToggle = (
       field: "notifyParty" | "terminal" | "containerOwner" | "wagonOwner",
     ) => {

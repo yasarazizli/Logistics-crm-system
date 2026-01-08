@@ -501,16 +501,13 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
 
           if (apiData.transport_type && !transportationType) {
             const formattedTransportType = formatText(apiData.transport_type);
-            console.log("Setting Transport Type:", formattedTransportType);
             setTransportationType(formattedTransportType);
           }
 
           const apiWagonType = apiData.wagon_type || "";
-          console.log("API Wagon Type (Raw):", apiWagonType);
 
           if (apiWagonType && !wagonType) {
             const formattedWagonType = formatText(apiWagonType);
-            console.log("Setting Wagon Type:", formattedWagonType);
             setWagonType(formattedWagonType);
           }
 
@@ -1284,15 +1281,9 @@ const GetPackagingForm: React.FC<PackagingFormProps> = ({
                 const found = options.find(
                   (opt) => opt.value === selectedOption3,
                 );
-                console.log("SELECT FINAL RENDER:", {
-                  lookingFor: selectedOption3,
-                  found: found?.value,
-                  allOptions: options.map((o) => o.value),
-                });
                 return found || null;
               })()}
               onChange={(option: SingleValue<OptionType>) => {
-                console.log("USER SELECTED:", option?.value);
                 setSelectedOption3(option ? option.value : "");
               }}
               options={getTypeOptions(selectedOption1)}

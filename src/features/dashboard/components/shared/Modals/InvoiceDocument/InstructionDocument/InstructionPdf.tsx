@@ -73,12 +73,10 @@ const InstructionPdf = ({
     return (
       <Document>
         <Page size="A4" style={invoiceDocument.page}>
-          {/* Header */}
           <View style={invoiceHead.header}>
             <Image style={invoiceHead.header__logo} src={logo} />
           </View>
 
-          {/* Başlık */}
           <View style={invoiceValidateDetail.box}>
             <View style={invoiceValidateDetail.item}>
               <Text
@@ -115,7 +113,11 @@ const InstructionPdf = ({
               { label: "Packing type", value: orderModel?.packing_type },
               { label: "Padcode", value: orderModel?.padcode },
               { label: "Shipper", value: orderModel?.shipper },
-              { label: "Wagon No", value: orderModel?.vaqon_no },
+              {
+                label:
+                  orderModel?.pack === "wagon" ? "Wagon No" : "Container No",
+                value: orderModel?.vaqon_no,
+              },
             ].map((item, index) => (
               <View key={index} style={invoiceTable.footerRow}>
                 <Text

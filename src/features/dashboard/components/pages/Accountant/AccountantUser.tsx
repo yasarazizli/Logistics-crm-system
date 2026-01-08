@@ -118,6 +118,7 @@ const AccountantUser = () => {
             { name: "Balance" },
             { name: "Balance transaction" },
             { name: "Credit Limit" },
+            { name: "Credit Limit Transaction" },
           ]}
           filters={
             <>
@@ -130,6 +131,7 @@ const AccountantUser = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -159,6 +161,7 @@ const AccountantUser = () => {
                   </div>
                 </div>
               </td>
+              <td>{item.max_credit_limit}</td>
               <td>
                 <div className={styles.icon}>
                   <div

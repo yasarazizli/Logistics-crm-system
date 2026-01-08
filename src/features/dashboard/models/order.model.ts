@@ -284,4 +284,5 @@ export interface InstructionModel {
   shipper: string;
   to: string;
   vaqon_no: string;
+  pack: string;
 }
