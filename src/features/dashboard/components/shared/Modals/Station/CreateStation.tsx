@@ -38,7 +38,7 @@ const CreateStation = ({
 
   useEffect(() => {
     const fetchCountries = async () => {
-      const res = await CountryFinder("");
+      const res = await CountryFinder("", 1, 999);
       if (res?.status === 200 && res.data?.data) {
         setCountries(res.data?.data);
       }

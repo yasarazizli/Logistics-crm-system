@@ -71,10 +71,12 @@ interface CountryApiResponse {
 
 export const CountryFinder = async (
   name: string,
+  page: number,
+  pageSize: number,
 ): Promise<AxiosResponse<CountryApiResponse> | undefined> => {
   try {
     const response = await axios.get<CountryApiResponse>(
-      `${apiUrl}/geography/get-all-country/?name=${name}`,
+      `${apiUrl}/geography/get-all-country/?name=${name}&page=${page}&pageSize=${pageSize}`,
       {
         headers: {
           Authorization: getCookie("allianceToken"),
