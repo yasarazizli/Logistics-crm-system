@@ -155,6 +155,13 @@ const CreateServices = ({
   const [selectedServiceName, setSelectedServiceName] =
     useState<OptionType | null>(null);
 
+  const [selectedFromCountry, setSelectedFromCountry] =
+    useState<OptionType | null>(null);
+
+  const [selectedToCountry, setSelectedToCountry] = useState<OptionType | null>(
+    null,
+  );
+
   useEffect(() => {
     setLoader(true);
 
@@ -173,9 +180,9 @@ const CreateServices = ({
       const { data, status } = await allHsCode();
       if (status === 200 && Array.isArray(data.data)) {
         const mapped = data.data.map(
-          (item: { id: number; cargo: string; description: string }) => ({
+          (item: { id: number; cargo: string; code: string }) => ({
             value: item.id,
-            label: `${item.cargo} - ${item.description}`,
+            label: `${item.cargo} - ${item.code}`,
           }),
         );
         setHsCode(mapped);
@@ -306,6 +313,20 @@ const CreateServices = ({
               ? selectedToStation?.value
               : selectedToPort?.value,
       },
+
+      {
+        name: "from_country_id",
+        data:
+          selectedFromCountry?.label ||
+          inputsRef.from_id.current?.value ||
+          null,
+      },
+      {
+        name: "to_country_id",
+        data:
+          selectedToCountry?.label || inputsRef.to_id.current?.value || null,
+      },
+
       { name: "transport_type", data: selectedTransportType?.label || null },
       { name: "transport_mode", data: selectedTransportMode?.label || null },
       {
@@ -398,7 +419,6 @@ const CreateServices = ({
                   placeholder={t("services.modals.create.location")}
                   inputRef={inputsRef.location}
                   autoComplete="off"
-                  required
                   maxLength={11}
                 />
                 <div className={styles.selectWrapper}>
@@ -547,6 +567,33 @@ const CreateServices = ({
             </div>
 
             <div className={styles.right}>
+              <div className={styles.flex__mode}>
+                <div className={styles.selectWrapper}>
+                  <label className={styles.label}>From Country</label>
+                  <Select
+                    options={countries}
+                    value={selectedFromCountry}
+                    onChange={setSelectedFromCountry}
+                    styles={customStyles}
+                    placeholder="Select from country"
+                    isSearchable
+                    isClearable
+                  />
+                </div>
+
+                <div className={styles.selectWrapper}>
+                  <label className={styles.label}>To Country</label>
+                  <Select
+                    options={countries}
+                    value={selectedToCountry}
+                    onChange={setSelectedToCountry}
+                    styles={customStyles}
+                    placeholder="Select to country"
+                    isSearchable
+                    isClearable
+                  />
+                </div>
+              </div>
               <div className={styles.flex__row}>
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
@@ -570,7 +617,6 @@ const CreateServices = ({
                   label={t("services.modals.create.contract__date")}
                   inputRef={inputsRef.contract_experied_date}
                   autoComplete="off"
-                  required
                 />
 
                 <Input
@@ -578,7 +624,6 @@ const CreateServices = ({
                   label={t("services.modals.create.protocol__date")}
                   inputRef={inputsRef.protocol_experied_date}
                   autoComplete="off"
-                  required
                 />
               </div>
 
@@ -589,7 +634,6 @@ const CreateServices = ({
                   placeholder={t("services.modals.create.value")}
                   inputRef={inputsRef.purchase_price_unit}
                   autoComplete="off"
-                  required
                 />
 
                 <Input
@@ -598,7 +642,6 @@ const CreateServices = ({
                   placeholder={t("services.modals.create.value")}
                   inputRef={inputsRef.purchase_price_ton}
                   autoComplete="off"
-                  required
                 />
               </div>
               <div className={styles.dropzone}>
@@ -606,7 +649,7 @@ const CreateServices = ({
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 10,
+                    gap: 11,
                   }}
                 >
                   <span>{t("services.modals.create.upload__file")}</span>
@@ -630,11 +673,10 @@ const CreateServices = ({
               </div>
               <Input
                 type="text"
-                label={"Note"}
-                placeholder={"Note"}
+                label="Note"
+                placeholder="Note"
                 inputRef={inputsRef.note}
                 autoComplete="off"
-                required
               />
             </div>
           </div>

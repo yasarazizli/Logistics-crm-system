@@ -85,11 +85,14 @@ export const allHsCode = async () => {
 
 export const getAllCountry = async () => {
   return await axios
-    .get(`${apiUrl}/geography/get-all-country/?name=&page=&pageSize=&date=`, {
-      headers: {
-        Authorization: getCookie("allianceToken"),
+    .get(
+      `${apiUrl}/geography/get-all-country/?name=&page=1&pageSize=999&date=`,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
       },
-    })
+    )
     .catch((err) => {
       return err.response;
     });
@@ -148,6 +151,18 @@ export const getAllPort = async (country: string) => {
 export const getAllServicesName = async () => {
   return await axios
     .get(`${apiUrl}/buyers/all-service-name/?name`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const getAllServicesData = async (id: number | null) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-quotation-trans-data/?id=${id}`, {
       headers: {
         Authorization: getCookie("allianceToken"),
       },

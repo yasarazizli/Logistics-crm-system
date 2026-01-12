@@ -5,11 +5,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { GetAllBuyers } from "@/features/dashboard/services/BuyersDirector/buyersdirector.service.ts";
-import {
-  AgreeIcon,
-  EyesIcon,
-  PenIcon,
-} from "@/assets/icons/shared.vectors.tsx";
+import { EyesIcon, PenIcon } from "@/assets/icons/shared.vectors.tsx";
 import i18n from "@/locales/i18n.ts";
 import { useNavigate } from "react-router-dom";
 import Complated from "@/features/dashboard/components/shared/Modals/Complated/Complated.tsx";
@@ -118,7 +114,6 @@ const Tasks = () => {
             { name: "Transport Type" },
             { name: "From" },
             { name: "To" },
-            { name: "Completed" },
             { name: "Details" },
             { name: "Add Service" },
           ]}
@@ -136,7 +131,6 @@ const Tasks = () => {
               ))}
               <td></td>
               <td></td>
-              <td></td>
             </>
           }
         >
@@ -148,19 +142,6 @@ const Tasks = () => {
               <td>{item.transport_type}</td>
               <td>{item.from}</td>
               <td>{item.to}</td>
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={styles.icon__3}
-                    onClick={() => {
-                      setSelectedId(item.id);
-                      setModal({ type: "completed" });
-                    }}
-                  >
-                    <AgreeIcon />
-                  </div>
-                </div>
-              </td>
               <td>
                 <div className={styles.icon}>
                   <div

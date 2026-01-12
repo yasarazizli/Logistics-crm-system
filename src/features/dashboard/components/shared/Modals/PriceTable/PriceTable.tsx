@@ -7,7 +7,10 @@ import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
 import { createPrice } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
-import { getAllServicesName } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
+import {
+  getAllCountry,
+  getAllServicesName,
+} from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 
 interface Option {
@@ -24,6 +27,8 @@ interface Service {
   transport_mode: string;
   from_id: string;
   to_id: string;
+  from_country_id: string;
+  to_country_id: string;
   transport_type: string;
   payload: string;
   total_quantity: string;
@@ -101,6 +106,8 @@ const PriceTable = ({
     transport_mode: "",
     from_id: "",
     to_id: "",
+    from_country_id: "",
+    to_country_id: "",
     transport_type: "",
     payload: "",
     total_quantity: "",
@@ -109,10 +116,27 @@ const PriceTable = ({
   const [ports, setPorts] = useState<Option[]>([]);
   const [stations, setStations] = useState<Option[]>([]);
   const [serviceNames, setServiceNames] = useState<Option[]>([]);
+  const [countries, setCountries] = useState<Option[]>([]);
 
   const handleInputChange = (field: keyof Service, value: string) => {
     setService((prev) => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    const fetchCountry = async () => {
+      const { data, status } = await getAllCountry();
+      if (status === 200 && Array.isArray(data.data)) {
+        const mapped = data.data.map(
+          (country: { id: number; name: string }) => ({
+            value: country.id,
+            label: country.name,
+          }),
+        );
+        setCountries(mapped);
+      }
+    };
+    fetchCountry();
+  }, []);
 
   useEffect(() => {
     setLoader(true);
@@ -178,6 +202,7 @@ const PriceTable = ({
     onChange: (option: SingleValue<Option>) => void,
     options: Option[],
     placeholder: string,
+    required: boolean,
   ) => (
     <Select
       styles={customStyles}
@@ -189,6 +214,7 @@ const PriceTable = ({
       menuPortalTarget={document.body}
       menuPosition="fixed"
       menuShouldBlockScroll
+      required={required}
     />
   );
 
@@ -207,6 +233,8 @@ const PriceTable = ({
     formData.append("transport_mode", service.transport_mode);
     formData.append("from_id", service.from_id);
     formData.append("to_id", service.to_id);
+    formData.append("from_country_id", service.from_country_id);
+    formData.append("to_country_id", service.to_country_id);
     formData.append("transport_type", service.transport_type);
     formData.append("payload", service.payload);
     formData.append("total_quantity", service.total_quantity);
@@ -233,6 +261,8 @@ const PriceTable = ({
           { name: "Transport mode" },
           { name: "From" },
           { name: "To" },
+          { name: "From Country" },
+          { name: "To Country" },
           { name: "Transport type" },
           { name: "PayLoad" },
           { name: "Total quantity" },
@@ -247,6 +277,7 @@ const PriceTable = ({
               (opt) => handleInputChange("service_name", opt?.value || ""),
               serviceNames,
               "Select Service",
+              true,
             )}
           </td>
           <td className={styles.cellInput}>
@@ -265,6 +296,7 @@ const PriceTable = ({
                 { value: "sea", label: "Sea" },
               ],
               "Select...",
+              true,
             )}
           </td>
           <td className={styles.cellInput}>
@@ -274,6 +306,7 @@ const PriceTable = ({
                 (opt) => handleInputChange("from_id", opt?.value || ""),
                 ports,
                 "Select Port",
+                true,
               )
             ) : service.transport_mode === "rail" ? (
               renderSelect(
@@ -281,6 +314,7 @@ const PriceTable = ({
                 (opt) => handleInputChange("from_id", opt?.value || ""),
                 stations,
                 "Select Station",
+                true,
               )
             ) : (
               <input
@@ -296,6 +330,7 @@ const PriceTable = ({
                 (opt) => handleInputChange("to_id", opt?.value || ""),
                 ports,
                 "Select Port",
+                true,
               )
             ) : service.transport_mode === "rail" ? (
               renderSelect(
@@ -303,6 +338,7 @@ const PriceTable = ({
                 (opt) => handleInputChange("to_id", opt?.value || ""),
                 stations,
                 "Select Station",
+                true,
               )
             ) : (
               <input
@@ -313,10 +349,29 @@ const PriceTable = ({
           </td>
           <td className={styles.cellInput}>
             {renderSelect(
+              service.from_country_id,
+              (opt) => handleInputChange("from_country_id", opt?.value || ""),
+              countries,
+              "From Country",
+              false,
+            )}
+          </td>
+          <td className={styles.cellInput}>
+            {renderSelect(
+              service.to_country_id,
+              (opt) => handleInputChange("to_country_id", opt?.value || ""),
+              countries,
+              "To Country",
+              false,
+            )}
+          </td>
+          <td className={styles.cellInput}>
+            {renderSelect(
               service.transport_type,
               (opt) => handleInputChange("transport_type", opt?.value || ""),
               transportTypeOptions,
               "Select Transport Type",
+              true,
             )}
           </td>
           <td className={styles.cellInput}>

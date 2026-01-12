@@ -14,6 +14,7 @@ import {
   allHsCode,
   getAllCountry,
   getAllPort,
+  getAllServicesData,
   getAllServicesName,
   getAllStationCode,
   getAllVendors,
@@ -23,6 +24,28 @@ import { AddCompletedRequest } from "@/features/dashboard/services/BuyersManager
 interface OptionType {
   value: number;
   label: string;
+}
+
+interface ServicesProps {
+  buyers: string;
+  from: number | string;
+  from_country_id: number | null;
+  hs_code: number;
+  id: number;
+  location: string;
+  note: string;
+  service: string;
+  to: number | string;
+  to_country_id: number | null;
+  transport_mode: string;
+  transport_type: string;
+  country_id?: number;
+}
+
+interface VendorType {
+  id: number;
+  name: string;
+  contract_end_date: string;
 }
 
 const customStyles: StylesConfig<OptionType, false> = {
@@ -109,7 +132,7 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
     note: useRef<HTMLInputElement>(null),
   };
 
-  const [vendors, setVendors] = useState<OptionType[]>([]);
+  const [vendors, setVendors] = useState<VendorType[]>([]);
   const [selectedVendor, setSelectedVendor] = useState<OptionType | null>(null);
 
   const [hscode, setHsCode] = useState<OptionType[]>([]);
@@ -157,80 +180,197 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
   const [selectedServiceName, setSelectedServiceName] =
     useState<OptionType | null>(null);
 
+  const [selectedFromCountry, setSelectedFromCountry] =
+    useState<OptionType | null>(null);
+
+  const [selectedToCountry, setSelectedToCountry] = useState<OptionType | null>(
+    null,
+  );
+
+  const [serviceData, setServiceData] = useState<ServicesProps | null>(null);
+
   useEffect(() => {
     setLoader(true);
 
-    const fetchVendors = async () => {
-      const { data, status } = await getAllVendors();
-      if (status === 200) {
-        const mapped = data.map((vendor: { id: number; name: string }) => ({
-          value: vendor.id,
-          label: vendor.name,
-        }));
-        setVendors(mapped);
-      }
-    };
-
-    const fetchHsCode = async () => {
-      const { data, status } = await allHsCode();
-      if (status === 200 && Array.isArray(data.data)) {
-        const mapped = data.data.map(
-          (item: { id: number; cargo: string; description: string }) => ({
-            value: item.id,
-            label: `${item.cargo} - ${item.description}`,
-          }),
-        );
-        setHsCode(mapped);
-      }
-    };
-
-    const fetchCountry = async () => {
-      const { data, status } = await getAllCountry();
-      if (status === 200 && Array.isArray(data.data)) {
-        const mapped = data.data.map(
-          (country: { id: number; name: string }) => ({
-            value: country.id,
-            label: country.name,
-          }),
-        );
-        setCountries(mapped);
-      }
-    };
-
-    const fetchServiceNames = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await getAllServicesName();
+        const [vendorsRes, hsCodeRes, countryRes, serviceNamesRes] =
+          await Promise.all([
+            getAllVendors(),
+            allHsCode(),
+            getAllCountry(),
+            getAllServicesName(),
+          ]);
 
-        if (response.status === 200) {
-          const serviceData = response.data.data || response.data;
+        if (vendorsRes.status === 200) {
+          setVendors(vendorsRes.data);
+        }
 
+        if (hsCodeRes.status === 200 && Array.isArray(hsCodeRes.data.data)) {
+          const mappedHsCode = hsCodeRes.data.data.map(
+            (item: { id: number; cargo: string; code: string }) => ({
+              value: item.id,
+              label: `${item.cargo} - ${item.code}`,
+            }),
+          );
+          setHsCode(mappedHsCode);
+        }
+
+        if (countryRes.status === 200 && Array.isArray(countryRes.data.data)) {
+          const mappedCountries = countryRes.data.data.map(
+            (country: { id: number; name: string }) => ({
+              value: country.id,
+              label: country.name,
+            }),
+          );
+          setCountries(mappedCountries);
+        }
+
+        if (serviceNamesRes.status === 200) {
+          const serviceData = serviceNamesRes.data.data || serviceNamesRes.data;
           if (Array.isArray(serviceData)) {
-            const mapped = serviceData.map(
+            const mappedServiceNames = serviceData.map(
               (service: { ID: number; name: string }) => ({
                 value: service.ID,
                 label: service.name,
               }),
             );
-            setServiceNames(mapped);
+            setServiceNames(mappedServiceNames);
           }
         }
       } catch (error) {
-        console.error("Error fetching service names:", error);
+        console.error("Error fetching initial data:", error);
+        toast.error("Failed to load initial data");
       }
     };
 
-    Promise.all([
-      fetchVendors(),
-      fetchHsCode(),
-      fetchCountry(),
-      fetchServiceNames(),
-    ]).finally(() => {
-      setLoader(false);
+    fetchInitialData().finally(() => {
+      setTimeout(() => setLoader(false), 2500);
     });
   }, []);
 
   useEffect(() => {
-    if (!selectedCountry || !selectedTransportMode) return;
+    if (!selectedId) return;
+
+    const fetchServiceData = async () => {
+      try {
+        const { data, status } = await getAllServicesData(selectedId);
+        if (status === 200) {
+          const serviceData = Array.isArray(data) ? data[0] : data;
+          setServiceData(serviceData);
+
+          if (serviceData.country_id) {
+            const country = countries.find(
+              (c) => c.value === serviceData.country_id,
+            );
+            if (country) {
+              setSelectedCountry(country);
+            }
+          }
+        } else {
+          console.error("Failed to fetch service data:", status);
+          toast.error("Failed to load service data");
+        }
+      } catch (error) {
+        console.error("Error fetching service data:", error);
+        toast.error("Error loading service data");
+      }
+    };
+
+    fetchServiceData();
+  }, [selectedId, countries]);
+
+  useEffect(() => {
+    if (!serviceData) return;
+
+    if (inputsRef.location.current) {
+      inputsRef.location.current.value = serviceData.location || "";
+    }
+
+    if (inputsRef.note.current) {
+      inputsRef.note.current.value = serviceData.note || "";
+    }
+
+    const transportMode = transportModes.find(
+      (mode) =>
+        mode.label.toLowerCase() === serviceData.transport_mode.toLowerCase(),
+    );
+    if (transportMode) {
+      setSelectedTransportMode(transportMode);
+    }
+
+    const transportType = transportTypes.find(
+      (type) =>
+        type.label.toLowerCase() === serviceData.transport_type.toLowerCase(),
+    );
+    if (transportType) {
+      setSelectedTransportType(transportType);
+    }
+
+    const serviceName = serviceNames.find(
+      (service) =>
+        service.label.toLowerCase() === serviceData.service.toLowerCase(),
+    );
+    if (serviceName) {
+      setSelectedServiceName(serviceName);
+    }
+
+    if (serviceData.hs_code) {
+      const hsCodeItem = hscode.find(
+        (item) => item.value === serviceData.hs_code,
+      );
+      if (hsCodeItem) {
+        setSelectedHsCode(hsCodeItem);
+      }
+    }
+
+    if (serviceData.from_country_id) {
+      const fromCountry = countries.find(
+        (country) => country.value === serviceData.from_country_id,
+      );
+      if (fromCountry) {
+        setSelectedFromCountry(fromCountry);
+      }
+    }
+
+    if (serviceData.to_country_id) {
+      const toCountry = countries.find(
+        (country) => country.value === serviceData.to_country_id,
+      );
+      if (toCountry) {
+        setSelectedToCountry(toCountry);
+      }
+    }
+  }, [serviceData]);
+
+  useEffect(() => {
+    if (!selectedTransportMode || !serviceData) return;
+
+    if (selectedTransportMode.label === "Road") {
+      setTimeout(() => {
+        if (inputsRef.from_id.current) {
+          inputsRef.from_id.current.value = String(serviceData.from) || "";
+        }
+        if (inputsRef.to_id.current) {
+          inputsRef.to_id.current.value = String(serviceData.to) || "";
+        }
+      }, 100);
+    }
+
+    if (selectedTransportMode.label === "Multimodal") {
+      setTimeout(() => {
+        if (inputsRef.from_id.current) {
+          inputsRef.from_id.current.value = String(serviceData.from) || "";
+        }
+        if (inputsRef.to_id.current) {
+          inputsRef.to_id.current.value = String(serviceData.to) || "";
+        }
+      }, 100);
+    }
+  }, [selectedTransportMode, serviceData]);
+
+  useEffect(() => {
+    if (!selectedCountry || !selectedTransportMode || !serviceData) return;
 
     if (selectedTransportMode.label === "Multimodal") {
       setStationCodes([]);
@@ -238,40 +378,82 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
       return;
     }
 
-    setLoader(true);
-
     const countryName = selectedCountry.label;
     const transportMode = selectedTransportMode.label;
 
     const fetchData = async () => {
-      if (transportMode === "Rail") {
-        const { data, status } = await getAllStationCode(countryName);
-        if (status === 200) {
-          const mapped = data.map(
-            (station: { value: number; name: string }) => ({
-              value: station.value,
-              label: station.name,
-            }),
-          );
-          setStationCodes(mapped);
+      try {
+        if (transportMode === "Rail") {
+          const { data, status } = await getAllStationCode(countryName);
+          if (status === 200) {
+            const mapped = data.map(
+              (station: { value: number; name: string }) => ({
+                value: station.value,
+                label: station.name,
+              }),
+            );
+            setStationCodes(mapped);
+
+            setTimeout(() => {
+              const fromStationId =
+                typeof serviceData.from === "number"
+                  ? serviceData.from
+                  : Number(serviceData.from);
+              const toStationId =
+                typeof serviceData.to === "number"
+                  ? serviceData.to
+                  : Number(serviceData.to);
+
+              const fromStation = mapped.find(
+                (station: OptionType) => station.value === fromStationId,
+              );
+              const toStation = mapped.find(
+                (station: OptionType) => station.value === toStationId,
+              );
+
+              if (fromStation) setSelectedFromStation(fromStation);
+              if (toStation) setSelectedToStation(toStation);
+            }, 100);
+          }
+        } else if (transportMode === "Sea") {
+          const { data, status } = await getAllPort(countryName);
+          if (status === 200) {
+            const mapped =
+              data?.data?.map((port: { id: number; name: string }) => ({
+                value: port.id,
+                label: port.name,
+              })) || [];
+            setPorts(mapped);
+
+            setTimeout(() => {
+              const fromPortId =
+                typeof serviceData.from === "number"
+                  ? serviceData.from
+                  : Number(serviceData.from);
+              const toPortId =
+                typeof serviceData.to === "number"
+                  ? serviceData.to
+                  : Number(serviceData.to);
+
+              const fromPort = mapped.find(
+                (port: OptionType) => port.value === fromPortId,
+              );
+              const toPort = mapped.find(
+                (port: OptionType) => port.value === toPortId,
+              );
+
+              if (fromPort) setSelectedFromPort(fromPort);
+              if (toPort) setSelectedToPort(toPort);
+            }, 100);
+          }
         }
-      } else if (transportMode === "Sea") {
-        const { data, status } = await getAllPort(countryName);
-        if (status === 200) {
-          const mapped =
-            data?.data?.map((port: { id: number; name: string }) => ({
-              value: port.id,
-              label: port.name,
-            })) || [];
-          setPorts(mapped);
-        }
+      } catch (error) {
+        console.error("Error fetching station/port data:", error);
       }
     };
 
-    fetchData().finally(() => {
-      setLoader(false);
-    });
-  }, [selectedCountry, selectedTransportMode]);
+    fetchData().finally(() => {});
+  }, [selectedCountry, selectedTransportMode, serviceData]);
 
   const handleFileChangeProtocol = () => {
     const file = inputsRef.protocol_file.current?.files?.[0];
@@ -280,7 +462,10 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
 
   const create = async (event: FormEvent) => {
     event.preventDefault();
-    setLoader(true);
+    if (!selectedId) {
+      toast.error("ID for the Select is missing");
+      return;
+    }
 
     const formData = formCreator([
       { name: "vendor_id", data: selectedVendor?.value || null },
@@ -307,6 +492,14 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
             : selectedTransportMode?.label === "Rail"
               ? selectedToStation?.value
               : selectedToPort?.value,
+      },
+      {
+        name: "from_country_id",
+        data: selectedFromCountry?.value || null,
+      },
+      {
+        name: "to_country_id",
+        data: selectedToCountry?.value || null,
       },
       { name: "transport_type", data: selectedTransportType?.label || null },
       { name: "transport_mode", data: selectedTransportMode?.label || null },
@@ -341,17 +534,34 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
       { name: "note", data: inputsRef.note.current?.value },
     ]);
 
-    if (!selectedId) {
-      toast.error("ID for the Select is missing");
-      return;
-    }
-
     const { status, data } = await AddCompletedRequest(formData, selectedId);
-    if (status === 200) toast.success(errorMessageHandler(data));
-    else toast.error(errorMessageHandler(data));
+    if (status === 200) {
+      toast.success(errorMessageHandler(data));
+    } else {
+      toast.error(errorMessageHandler(data));
+    }
 
     setLoader(false);
     modalClose(true);
+  };
+
+  const handleVendorChange = (selectedOption: OptionType | null) => {
+    setSelectedVendor(selectedOption);
+
+    if (selectedOption && inputsRef.contract_experied_date.current) {
+      const selectedVendorData = vendors.find(
+        (vendor) => vendor.id === selectedOption.value,
+      );
+
+      if (selectedVendorData && selectedVendorData.contract_end_date) {
+        const dateParts = selectedVendorData.contract_end_date.split("-");
+        if (dateParts.length === 3) {
+          const [day, month, year] = dateParts;
+          const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+          inputsRef.contract_experied_date.current.value = formattedDate;
+        }
+      }
+    }
   };
 
   return (
@@ -370,9 +580,13 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>Select Vendor</label>
                   <Select
-                    options={vendors}
+                    options={vendors.map((vendor) => ({
+                      value: vendor.id,
+                      label: vendor.name,
+                      contract_end_date: vendor.contract_end_date,
+                    }))}
                     value={selectedVendor}
-                    onChange={setSelectedVendor}
+                    onChange={handleVendorChange}
                     styles={customStyles}
                     placeholder={t("services.modals.create.value")}
                     isSearchable
@@ -405,7 +619,6 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                   placeholder={t("services.modals.create.location")}
                   inputRef={inputsRef.location}
                   autoComplete="off"
-                  required
                   maxLength={11}
                 />
                 <div className={styles.selectWrapper}>
@@ -554,6 +767,34 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
             </div>
 
             <div className={styles.right}>
+              <div className={styles.flex__mode}>
+                <div className={styles.selectWrapper}>
+                  <label className={styles.label}>From Country</label>
+                  <Select
+                    options={countries}
+                    value={selectedFromCountry}
+                    onChange={setSelectedFromCountry}
+                    styles={customStyles}
+                    placeholder="Select from country"
+                    isSearchable
+                    isClearable
+                  />
+                </div>
+
+                <div className={styles.selectWrapper}>
+                  <label className={styles.label}>To Country</label>
+                  <Select
+                    options={countries}
+                    value={selectedToCountry}
+                    onChange={setSelectedToCountry}
+                    styles={customStyles}
+                    placeholder="Select to country"
+                    isSearchable
+                    isClearable
+                  />
+                </div>
+              </div>
+
               <div className={styles.flex__row}>
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
@@ -577,7 +818,6 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                   label={t("services.modals.create.contract__date")}
                   inputRef={inputsRef.contract_experied_date}
                   autoComplete="off"
-                  required
                 />
 
                 <Input
@@ -585,7 +825,6 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                   label={t("services.modals.create.protocol__date")}
                   inputRef={inputsRef.protocol_experied_date}
                   autoComplete="off"
-                  required
                 />
               </div>
 
@@ -596,16 +835,13 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                   placeholder={t("services.modals.create.value")}
                   inputRef={inputsRef.purchase_price_unit}
                   autoComplete="off"
-                  required
                 />
-
                 <Input
                   type="text"
                   label={t("services.modals.create.per__ton")}
                   placeholder={t("services.modals.create.value")}
                   inputRef={inputsRef.purchase_price_ton}
                   autoComplete="off"
-                  required
                 />
               </div>
               <div className={styles.dropzone}>
@@ -637,11 +873,10 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
               </div>
               <Input
                 type="text"
-                label={"Note"}
-                placeholder={"Note"}
+                label="Note"
+                placeholder="Note"
                 inputRef={inputsRef.note}
                 autoComplete="off"
-                required
               />
             </div>
           </div>
