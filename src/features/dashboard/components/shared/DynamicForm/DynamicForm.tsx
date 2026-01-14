@@ -16,7 +16,7 @@ export interface DynamicFormData {
   terminal: boolean;
   containerOwner: boolean;
   wagonOwner: boolean;
-  notifyPartyValue: number | null;
+  notifyPartyValue: number | string | null;
   terminalValue: string;
   containerOwnerValue: string;
   wagonOwnerValue: string;
@@ -132,8 +132,13 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
     };
 
     const handleNotifyPartyChange = (value: string) => {
-      const numValue = value === "" ? null : Number(value);
-      setForm((prev) => ({ ...prev, notifyPartyValue: numValue }));
+      const parsedValue =
+        value === "" ? null : isNaN(Number(value)) ? value : Number(value);
+
+      setForm((prev) => ({
+        ...prev,
+        notifyPartyValue: parsedValue,
+      }));
     };
 
     const handleContainerWagonChange = (

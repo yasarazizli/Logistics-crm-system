@@ -12,7 +12,7 @@ import { InformationIcon, LineIcon } from "@/assets/icons/shared.vectors.tsx";
 export interface DynamicFormData {
   shipper: string;
   consignee: string;
-  notifyPartyValue: number | null;
+  notifyPartyValue: number | string | null;
   terminalValue: string;
   containerOwnerValue: string;
   wagonOwnerValue: string;
@@ -248,10 +248,12 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
     ) => setForm((prev) => ({ ...prev, [field]: value }));
 
     const handleNotifyPartyChange = (value: string) => {
-      const numericValue = value.replace(/[^\d]/g, "");
+      const parsedValue =
+        value === "" ? null : isNaN(Number(value)) ? value : Number(value);
+
       setForm((prev) => ({
         ...prev,
-        notifyPartyValue: numericValue ? parseInt(numericValue, 10) : null,
+        notifyPartyValue: parsedValue,
       }));
     };
 

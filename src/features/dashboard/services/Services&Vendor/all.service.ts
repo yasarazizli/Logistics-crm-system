@@ -118,10 +118,10 @@ export const getVendorRequest = async (params: {
     });
 };
 
-export const getAllStationCode = async (country_name: string) => {
+export const getAllStationCode = async () => {
   return await axios
     .get(
-      `${apiUrl}/geography/get-all-station/?page=&pageSize=&country_name=${country_name}&code=&name=`,
+      `${apiUrl}/geography/get-all-station/?page=&pageSize=&country_name=&code=&name=`,
       {
         headers: {
           Authorization: getCookie("allianceToken"),
@@ -133,16 +133,13 @@ export const getAllStationCode = async (country_name: string) => {
     });
 };
 
-export const getAllPort = async (country: string) => {
+export const getAllPort = async () => {
   return await axios
-    .get(
-      `${apiUrl}/geography/get-all-port/?country=${country}&name=&page=&pageSize=`,
-      {
-        headers: {
-          Authorization: getCookie("allianceToken"),
-        },
+    .get(`${apiUrl}/geography/get-all-port/?country=&name=&page=&pageSize=`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
       },
-    )
+    })
     .catch((err) => {
       return err.response;
     });

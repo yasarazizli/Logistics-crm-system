@@ -183,6 +183,8 @@ export default function Table({
     "Length (Meter)",
     "Height (Meter)",
     "PayLoad",
+    "Purchase price per ton",
+    "Purchase price per unit",
     "Total quantity",
     "Selling price",
     "Total price",

@@ -28,6 +28,9 @@ const CreateVendor = ({
   };
 
   const inputsRef = {
+    person_name: useRef<HTMLInputElement>(null),
+    phone: useRef<HTMLInputElement>(null),
+    email: useRef<HTMLInputElement>(null),
     name: useRef<HTMLInputElement>(null),
     contract_start_time: useRef<HTMLInputElement>(null),
     contract_end_time: useRef<HTMLInputElement>(null),
@@ -40,6 +43,9 @@ const CreateVendor = ({
     setLoader(true);
 
     const formData = formCreator([
+      { name: "person_name", data: inputsRef.person_name.current?.value },
+      { name: "phone", data: inputsRef.phone.current?.value },
+      { name: "email", data: inputsRef.email.current?.value },
       { name: "name", data: inputsRef.name.current?.value },
       {
         name: "contract_start_time",
@@ -78,6 +84,32 @@ const CreateVendor = ({
     >
       <form className={styles.form} onSubmit={create}>
         <div className={styles.form__inputs}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <Input
+              type="text"
+              label="Name"
+              placeholder="Name"
+              inputRef={inputsRef.person_name}
+              autoComplete="off"
+              required
+            />
+            <Input
+              type="tel"
+              label="Phone"
+              placeholder="Phone"
+              inputRef={inputsRef.phone}
+              autoComplete="off"
+              required
+            />
+            <Input
+              type="text"
+              label="Email"
+              placeholder="Email"
+              inputRef={inputsRef.email}
+              autoComplete="off"
+              required
+            />
+          </div>
           <Input
             type="text"
             label={t("services.modals.create.vendor_label")}

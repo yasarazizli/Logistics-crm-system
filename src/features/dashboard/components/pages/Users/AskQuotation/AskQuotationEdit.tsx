@@ -210,13 +210,8 @@ const AskQuotation = () => {
 
           if (apiData) {
             setTotalWeight(apiData.total_weight?.toString() || "");
-            const convertToISO = (dateStr?: string) => {
-              if (!dateStr) return "";
-              const [day, month, year] = dateStr.split(".");
-              return `${year}-${month}-${day}`;
-            };
-            setStartDate(convertToISO(apiData.start_date));
-            setEndDate(convertToISO(apiData.end_date));
+            setStartDate(apiData.start_date);
+            setEndDate(apiData.end_date);
           }
 
           if (apiData.note) {
@@ -273,7 +268,6 @@ const AskQuotation = () => {
                 placeholder="Weight"
                 value={totalWeight}
                 onChange={(e) => setTotalWeight(e.target.value)}
-                required
               />
             </div>
           </div>

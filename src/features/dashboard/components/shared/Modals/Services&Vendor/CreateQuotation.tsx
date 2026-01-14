@@ -22,7 +22,7 @@ import {
 import { AddCompletedRequest } from "@/features/dashboard/services/BuyersManager/manager.service.ts";
 
 interface OptionType {
-  value: number;
+  value: number | string;
   label: string;
 }
 
@@ -91,6 +91,14 @@ const customStyles: StylesConfig<OptionType, false> = {
   }),
   indicatorSeparator: () => ({ display: "none" }),
   dropdownIndicator: () => ({ display: "none" }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
   option: (provided, state) => ({
     ...provided,
     fontFamily: "Manrope",
@@ -153,10 +161,10 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
     useState<OptionType | null>(null);
 
   const [transportTypes] = useState<OptionType[]>([
-    { value: 1, label: "Container" },
-    { value: 2, label: "Break Bulk" },
-    { value: 3, label: "Bulk" },
-    { value: 4, label: "Oversize cargo" },
+    { value: "Container", label: "Container" },
+    { value: "Break Bulk", label: "Break Bulk" },
+    { value: "Bulk", label: "Bulk" },
+    { value: "Oversize cargo", label: "Oversize cargo" },
   ]);
   const [selectedTransportType, setSelectedTransportType] =
     useState<OptionType | null>(null);
@@ -184,6 +192,58 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
     useState<OptionType | null>(null);
 
   const [selectedToCountry, setSelectedToCountry] = useState<OptionType | null>(
+    null,
+  );
+
+  const [containerSizes] = useState<OptionType[]>([
+    { value: "20", label: "20" },
+    { value: "40", label: "40" },
+    { value: "45", label: "45" },
+    { value: "other", label: "Other" },
+  ]);
+  const [selectedContainerSize, setSelectedContainerSize] =
+    useState<OptionType | null>(null);
+
+  const [containerTypes] = useState<OptionType[]>([
+    { value: "Standart DC", label: "Standart DC" },
+    { value: "Standart HC", label: "Standart HC" },
+    { value: "Reefer DC", label: "Reefer DC" },
+    { value: "Reefer HC", label: "Reefer HC" },
+    { value: "Open Top", label: "Open Top" },
+    { value: "Flatrack", label: "Flatrack" },
+    { value: "Bulk", label: "Bulk" },
+    { value: "Flexi Tank", label: "Flexi Tank" },
+    { value: "Other", label: "Other" },
+  ]);
+  const [selectedContainerType, setSelectedContainerType] =
+    useState<OptionType | null>(null);
+
+  const [breakBulkTypes] = useState<OptionType[]>([
+    { value: "Bag", label: "Bag" },
+    { value: "Big Bag", label: "Big Bag" },
+    { value: "Box/Crate", label: "Box/Crate" },
+    { value: "Pallet", label: "Pallet" },
+    { value: "Drums/Barrel", label: "Drums/Barrel" },
+    { value: "IBC Tank", label: "IBC Tank" },
+    { value: "Other", label: "Other" },
+  ]);
+  const [selectedBreakBulkType, setSelectedBreakBulkType] =
+    useState<OptionType | null>(null);
+
+  const [bulkTypes] = useState<OptionType[]>([
+    { value: "Bulk Dry", label: "Bulk Dry" },
+    { value: "Bulk Liquid", label: "Bulk Liquid" },
+    { value: "Other", label: "Other" },
+  ]);
+  const [selectedBulkType, setSelectedBulkType] = useState<OptionType | null>(
+    null,
+  );
+
+  const [ownershipOptions] = useState<OptionType[]>([
+    { value: "SOC", label: "SOC" },
+    { value: "COC", label: "COC" },
+  ]);
+  const [selectedOwnership, setSelectedOwnership] = useState<OptionType | null>(
     null,
   );
 
@@ -370,7 +430,7 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
   }, [selectedTransportMode, serviceData]);
 
   useEffect(() => {
-    if (!selectedCountry || !selectedTransportMode || !serviceData) return;
+    if (!selectedTransportMode || !serviceData) return;
 
     if (selectedTransportMode.label === "Multimodal") {
       setStationCodes([]);
@@ -378,13 +438,12 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
       return;
     }
 
-    const countryName = selectedCountry.label;
     const transportMode = selectedTransportMode.label;
 
     const fetchData = async () => {
       try {
         if (transportMode === "Rail") {
-          const { data, status } = await getAllStationCode(countryName);
+          const { data, status } = await getAllStationCode();
           if (status === 200) {
             const mapped = data.map(
               (station: { value: number; name: string }) => ({
@@ -416,7 +475,7 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
             }, 100);
           }
         } else if (transportMode === "Sea") {
-          const { data, status } = await getAllPort(countryName);
+          const { data, status } = await getAllPort();
           if (status === 200) {
             const mapped =
               data?.data?.map((port: { id: number; name: string }) => ({
@@ -453,11 +512,30 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
     };
 
     fetchData().finally(() => {});
-  }, [selectedCountry, selectedTransportMode, serviceData]);
+  }, [selectedTransportMode, serviceData]);
 
   const handleFileChangeProtocol = () => {
     const file = inputsRef.protocol_file.current?.files?.[0];
     if (file) setProtocolFileName(file.name);
+  };
+
+  const handleVendorChange = (selectedOption: OptionType | null) => {
+    setSelectedVendor(selectedOption);
+
+    if (selectedOption && inputsRef.contract_experied_date.current) {
+      const selectedVendorData = vendors.find(
+        (vendor) => vendor.id === Number(selectedOption.value),
+      );
+
+      if (selectedVendorData && selectedVendorData.contract_end_date) {
+        const dateParts = selectedVendorData.contract_end_date.split("-");
+        if (dateParts.length === 3) {
+          const [day, month, year] = dateParts;
+          const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+          inputsRef.contract_experied_date.current.value = formattedDate;
+        }
+      }
+    }
   };
 
   const create = async (event: FormEvent) => {
@@ -466,6 +544,8 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
       toast.error("ID for the Select is missing");
       return;
     }
+
+    setLoader(true);
 
     const formData = formCreator([
       { name: "vendor_id", data: selectedVendor?.value || null },
@@ -532,6 +612,11 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
         data: inputsRef.protocol_file.current?.files?.[0],
       },
       { name: "note", data: inputsRef.note.current?.value },
+      { name: "container_size", data: selectedContainerSize?.value || null },
+      { name: "container_type", data: selectedContainerType?.label || null },
+      { name: "break_bulk_type", data: selectedBreakBulkType?.label || null },
+      { name: "bulk_type", data: selectedBulkType?.label || null },
+      { name: "ownership", data: selectedOwnership?.label || null },
     ]);
 
     const { status, data } = await AddCompletedRequest(formData, selectedId);
@@ -545,22 +630,73 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
     modalClose(true);
   };
 
-  const handleVendorChange = (selectedOption: OptionType | null) => {
-    setSelectedVendor(selectedOption);
+  const renderTransportTypeOptions = () => {
+    if (!selectedTransportType) return null;
 
-    if (selectedOption && inputsRef.contract_experied_date.current) {
-      const selectedVendorData = vendors.find(
-        (vendor) => vendor.id === selectedOption.value,
-      );
-
-      if (selectedVendorData && selectedVendorData.contract_end_date) {
-        const dateParts = selectedVendorData.contract_end_date.split("-");
-        if (dateParts.length === 3) {
-          const [day, month, year] = dateParts;
-          const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-          inputsRef.contract_experied_date.current.value = formattedDate;
-        }
-      }
+    switch (selectedTransportType.label) {
+      case "Container":
+        return (
+          <>
+            <div className={styles.selectWrapper}>
+              <label className={styles.label}>Container Size</label>
+              <Select
+                options={containerSizes}
+                value={selectedContainerSize}
+                onChange={setSelectedContainerSize}
+                styles={customStyles}
+                placeholder="Select Container Size"
+                isSearchable
+                isClearable
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <label className={styles.label}>Container Type</label>
+              <Select
+                options={containerTypes}
+                value={selectedContainerType}
+                onChange={setSelectedContainerType}
+                styles={customStyles}
+                placeholder="Select Container Type"
+                isSearchable
+                isClearable
+              />
+            </div>
+          </>
+        );
+      case "Break Bulk":
+        return (
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Break Bulk Type</label>
+            <Select
+              options={breakBulkTypes}
+              value={selectedBreakBulkType}
+              onChange={setSelectedBreakBulkType}
+              styles={customStyles}
+              placeholder="Select Break Bulk Type"
+              isSearchable
+              isClearable
+            />
+          </div>
+        );
+      case "Bulk":
+        return (
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Bulk Type</label>
+            <Select
+              options={bulkTypes}
+              value={selectedBulkType}
+              onChange={setSelectedBulkType}
+              styles={customStyles}
+              placeholder="Select Bulk Type"
+              isSearchable
+              isClearable
+            />
+          </div>
+        );
+      case "Oversize cargo":
+        return null;
+      default:
+        return null;
     }
   };
 
@@ -613,14 +749,6 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
               </div>
 
               <div className={styles.flex__row}>
-                <Input
-                  type="text"
-                  label={t("services.modals.create.location")}
-                  placeholder={t("services.modals.create.location")}
-                  inputRef={inputsRef.location}
-                  autoComplete="off"
-                  maxLength={11}
-                />
                 <div className={styles.selectWrapper}>
                   <label className={styles.label}>
                     {t("services.modals.create.hs_code")}
@@ -650,6 +778,18 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                     placeholder={t("services.modals.create.value")}
                     isSearchable
                     required
+                    isClearable
+                  />
+                </div>
+                <div className={styles.selectWrapper}>
+                  <label className={styles.label}>Ownership</label>
+                  <Select
+                    options={ownershipOptions}
+                    value={selectedOwnership}
+                    onChange={setSelectedOwnership}
+                    styles={customStyles}
+                    placeholder="Select Ownership"
+                    isSearchable
                     isClearable
                   />
                 </div>
@@ -720,6 +860,9 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                         placeholder="Select From Station"
                         isSearchable
                         isClearable
+                        menuPortalTarget={document.body}
+                        menuPosition="fixed"
+                        menuShouldScrollIntoView={false}
                       />
                     </div>
                     <div className={styles.selectWrapper}>
@@ -732,6 +875,9 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                         placeholder="Select To Station"
                         isSearchable
                         isClearable
+                        menuPortalTarget={document.body}
+                        menuPosition="fixed"
+                        menuShouldScrollIntoView={false}
                       />
                     </div>
                   </>
@@ -747,6 +893,9 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                         placeholder="Select From Port"
                         isSearchable
                         isClearable
+                        menuPortalTarget={document.body}
+                        menuPosition="fixed"
+                        menuShouldScrollIntoView={false}
                       />
                     </div>
                     <div className={styles.selectWrapper}>
@@ -759,6 +908,9 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                         placeholder="Select To Port"
                         isSearchable
                         isClearable
+                        menuPortalTarget={document.body}
+                        menuPosition="fixed"
+                        menuShouldScrollIntoView={false}
                       />
                     </div>
                   </>
@@ -812,6 +964,11 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                   />
                 </div>
               </div>
+
+              <div className={styles.flex__mode}>
+                {renderTransportTypeOptions()}
+              </div>
+
               <div className={styles.flex__mode}>
                 <Input
                   type="date"

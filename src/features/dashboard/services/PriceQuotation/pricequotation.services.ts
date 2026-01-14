@@ -5,7 +5,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 export const GetAllCountry = async () => {
   return await axios
-    .get(`${apiUrl}/geography/get-all-country/`, {
+    .get(`${apiUrl}/geography/get-all-country/?page=1&pageSize=999`, {
       headers: {
         Authorization: getCookie("allianceToken"),
       },

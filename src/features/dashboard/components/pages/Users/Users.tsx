@@ -56,7 +56,7 @@ const Users = () => {
     country_destination: "",
     start_date: "",
     end_date: "",
-    status: "pending",
+    status: "all",
   });
 
   const [modal, setModal] = useState<
@@ -85,15 +85,20 @@ const Users = () => {
   useEffect(() => {
     setLoader(true);
     const fetchData = async () => {
+      const requestFilters: any = { ...debouncedFilters };
+
+      if (filters.status !== "all") {
+        requestFilters.status = filters.status;
+      }
+
       const response = await getAllOrder({
-        ...debouncedFilters,
-        status: filters.status,
+        ...requestFilters,
         page,
         pageSize,
       });
       if (response?.status === 200) {
         setData(response.data?.data || []);
-        setTotal(response.data?.count || 0);
+        setTotal(response.data?.page_count || 0);
       }
     };
     fetchData();
@@ -131,6 +136,7 @@ const Users = () => {
   const totalPages = Math.ceil(total / pageSize);
 
   const status = [
+    "all",
     "pending",
     "offered",
     "ordered",
@@ -140,6 +146,7 @@ const Users = () => {
   ];
 
   const statusColors: Record<string, string> = {
+    all: "#1D736B",
     pending: "#F5E233",
     offered: "#F5E233",
     ordered: "#1D7321",
@@ -210,21 +217,26 @@ const Users = () => {
       { name: "Status", key: "status" },
     ];
 
-    if (filters.status === "ordered") {
-      baseHeaders.push({ name: "Invoice document", key: "invoice_document" });
-    }
+    if (filters.status !== "all") {
+      if (filters.status === "ordered") {
+        baseHeaders.push({ name: "Invoice document", key: "invoice_document" });
+      }
 
-    if (filters.status === "offered") {
-      baseHeaders.push({ name: "User confirmation", key: "user_confirmation" });
-    }
+      if (filters.status === "offered") {
+        baseHeaders.push({
+          name: "User confirmation",
+          key: "user_confirmation",
+        });
+      }
 
-    if (filters.status === "shipped") {
-      baseHeaders.push({ name: "Clone Order", key: "clone_order" });
-    }
+      if (filters.status === "shipped") {
+        baseHeaders.push({ name: "Clone Order", key: "clone_order" });
+      }
 
-    if (filters.status === "draft") {
-      baseHeaders.push({ name: "Edit Order", key: "edit_order" });
-      baseHeaders.push({ name: "Edit Quotation", key: "edit_quotation" });
+      if (filters.status === "draft") {
+        baseHeaders.push({ name: "Edit Order", key: "edit_order" });
+        baseHeaders.push({ name: "Edit Quotation", key: "edit_quotation" });
+      }
     }
 
     return baseHeaders;
@@ -246,21 +258,23 @@ const Users = () => {
 
     baseFilterCells.push(<td key="status"></td>);
 
-    if (filters.status === "ordered") {
-      baseFilterCells.push(<td key="invoice_document"></td>);
-    }
+    if (filters.status !== "all") {
+      if (filters.status === "ordered") {
+        baseFilterCells.push(<td key="invoice_document"></td>);
+      }
 
-    if (filters.status === "offered") {
-      baseFilterCells.push(<td key="user_confirmation"></td>);
-    }
+      if (filters.status === "offered") {
+        baseFilterCells.push(<td key="user_confirmation"></td>);
+      }
 
-    if (filters.status === "shipped") {
-      baseFilterCells.push(<td key="clone_order"></td>);
-    }
+      if (filters.status === "shipped") {
+        baseFilterCells.push(<td key="clone_order"></td>);
+      }
 
-    if (filters.status === "draft") {
-      baseFilterCells.push(<td key="edit_order"></td>);
-      baseFilterCells.push(<td key="edit_quotation"></td>);
+      if (filters.status === "draft") {
+        baseFilterCells.push(<td key="edit_order"></td>);
+        baseFilterCells.push(<td key="edit_quotation"></td>);
+      }
     }
 
     return baseFilterCells;
@@ -347,107 +361,143 @@ const Users = () => {
               <td>{item.end_date}</td>
               <td>{item.status}</td>
 
-              {filters.status === "ordered" && (
-                <td>
-                  <div
-                    className={styles.icon}
-                    style={{ display: "flex", gap: "8px" }}
-                  >
-                    <div
-                      className={styles.icon__3}
-                      onClick={() => handleOpenInvoice(item.order_id)}
-                      style={{ cursor: "pointer" }}
-                      title="View Invoice PDF"
-                    >
-                      <EyesIcon />
-                    </div>
-                    <div
-                      className={styles.icon__3}
-                      onClick={() => handleApproveInvoice(item.order_id)}
-                      style={{ cursor: "pointer" }}
-                      title="Approve Invoice"
-                    >
-                      <AgreeIcon />
-                    </div>
-                  </div>
-                </td>
-              )}
+              {filters.status !== "all" && (
+                <>
+                  {filters.status === "ordered" && (
+                    <td>
+                      <div
+                        className={styles.icon}
+                        style={{ display: "flex", gap: "8px" }}
+                      >
+                        <div
+                          className={styles.icon__3}
+                          onClick={() => handleOpenInvoice(item.order_id)}
+                          style={{ cursor: "pointer" }}
+                          title="View Invoice PDF"
+                        >
+                          <EyesIcon />
+                        </div>
+                        <div
+                          className={styles.icon__3}
+                          onClick={() => handleApproveInvoice(item.order_id)}
+                          style={{ cursor: "pointer" }}
+                          title="Approve Invoice"
+                        >
+                          <AgreeIcon />
+                        </div>
+                      </div>
+                    </td>
+                  )}
 
-              {filters.status === "offered" && (
-                <td>
-                  <div className={styles.icon}>
-                    <div
-                      className={styles.icon__3}
-                      onClick={() => handleClickEdit(item.order_id)}
-                      title="User Confirmation"
-                    >
-                      <AgreeIcon />
-                    </div>
-                  </div>
-                </td>
-              )}
+                  {filters.status === "offered" && (
+                    <td>
+                      <div className={styles.icon}>
+                        <div
+                          className={styles.icon__3}
+                          onClick={() => handleClickEdit(item.order_id)}
+                          title="User Confirmation"
+                          style={{ cursor: "pointer" }}
+                        >
+                          <AgreeIcon />
+                        </div>
+                      </div>
+                    </td>
+                  )}
 
-              {filters.status === "shipped" && (
-                <td>
-                  <div className={styles.icon}>
-                    <div
-                      className={styles.icon__4}
-                      onClick={() => handleReOrder(item.order_id)}
-                      style={{ cursor: "pointer" }}
-                      title="ReOrder"
-                    >
-                      <CycleIcon />
-                    </div>
-                  </div>
-                </td>
-              )}
+                  {filters.status === "shipped" && (
+                    <td>
+                      <div className={styles.icon}>
+                        <div
+                          className={styles.icon__4}
+                          onClick={() => handleReOrder(item.order_id)}
+                          style={{ cursor: "pointer" }}
+                          title="ReOrder"
+                        >
+                          <CycleIcon />
+                        </div>
+                      </div>
+                    </td>
+                  )}
 
-              {filters.status === "draft" && (
-                <td>
-                  <div className={styles.icon}>
-                    <div
-                      className={styles.icon__2}
-                      onClick={() => handleEditClick(item.order_id)}
-                      title="Edit Quotadtion"
-                    >
-                      <PenIcon />
-                    </div>
-                  </div>
-                </td>
-              )}
+                  {filters.status === "draft" && (
+                    <>
+                      <td>
+                        <div className={styles.icon}>
+                          <div
+                            className={
+                              item.order_type === "RegisterPriceQuotation"
+                                ? styles.icon__1
+                                : styles.icon__2
+                            }
+                            onClick={() => {
+                              if (
+                                item.order_type === "Order" ||
+                                item.order_type === "NoRegisterPriceQuotation"
+                              ) {
+                                handleEditClick(item.order_id);
+                              }
+                            }}
+                            style={{
+                              cursor:
+                                item.order_type === "RegisterPriceQuotation"
+                                  ? "not-allowed"
+                                  : "pointer",
+                              opacity:
+                                item.order_type === "RegisterPriceQuotation"
+                                  ? 1
+                                  : 1,
+                            }}
+                            title={
+                              item.order_type === "RegisterPriceQuotation"
+                                ? "Edit Quotation not available for Register Price Quotation"
+                                : "Edit Quotation"
+                            }
+                          >
+                            {item.order_type === "RegisterPriceQuotation" ? (
+                              <CrossIcon />
+                            ) : (
+                              <PenIcon />
+                            )}
+                          </div>
+                        </div>
+                      </td>
 
-              {filters.status === "draft" && (
-                <td>
-                  <div className={styles.icon}>
-                    <div
-                      className={`${styles.icon__2} ${
-                        !canEditOrder(item.order_type) ? styles.disabled : ""
-                      }`}
-                      onClick={() => {
-                        if (canEditOrder(item.order_type)) {
-                          handleQuotationEdit(item.order_id);
-                        }
-                      }}
-                      style={{
-                        cursor: canEditOrder(item.order_type)
-                          ? "pointer"
-                          : "not-allowed",
-                        opacity: canEditOrder(item.order_type) ? 1 : 1,
-                      }}
-                      title={
-                        canEditOrder(item.order_type)
-                          ? "Edit Order"
-                          : "Edit Order not available for this order type"
-                      }
-                    >
-                      {canEditOrder(item.order_type) ? (
-                        <PenIcon />
-                      ) : (
-                        <CrossIcon />
-                      )}
-                    </div>
-                  </div>
-                </td>
+                      <td>
+                        <div className={styles.icon}>
+                          <div
+                            className={`${styles.icon__2} ${
+                              !canEditOrder(item.order_type)
+                                ? styles.disabled
+                                : ""
+                            }`}
+                            onClick={() => {
+                              if (canEditOrder(item.order_type)) {
+                                handleQuotationEdit(item.order_id);
+                              }
+                            }}
+                            style={{
+                              cursor: canEditOrder(item.order_type)
+                                ? "pointer"
+                                : "not-allowed",
+                              opacity: canEditOrder(item.order_type) ? 1 : 1,
+                            }}
+                            title={
+                              canEditOrder(item.order_type)
+                                ? "Edit Order"
+                                : "Edit Order not available for this order type"
+                            }
+                          >
+                            {canEditOrder(item.order_type) ? (
+                              <PenIcon />
+                            ) : (
+                              <CrossIcon />
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </>
+                  )}
+                </>
               )}
             </tr>
           ))}

@@ -178,7 +178,6 @@ const PriceQuotation = () => {
                 placeholder="Weight"
                 value={totalWeight}
                 onChange={(e) => setTotalWeight(e.target.value)}
-                required
               />
             </div>
           </div>

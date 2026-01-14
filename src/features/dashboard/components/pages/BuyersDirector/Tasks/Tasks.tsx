@@ -2,11 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import styles from "@/features/dashboard/components/pages/Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { SharedIcon } from "@/assets/icons/shared.vectors.tsx";
+import { PenIcon, SharedIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { GetAllBuyers } from "@/features/dashboard/services/BuyersDirector/buyersdirector.service.ts";
 import ChooseManager from "@/features/dashboard/components/shared/Modals/BuyersDirector/ChooseManager.tsx";
+import CreateQuotation from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateQuotation.tsx";
 
 interface Buyers {
   id: number;
@@ -50,10 +51,13 @@ const Tasks = () => {
 
   const [data, setData] = useState<Buyers[]>([]);
   const [total, setTotal] = useState(0);
-  const [modal, setModal] = useState<null | { type: "manager" }>(null);
+  const [modal, setModal] = useState<
+    null | { type: "manager" } | { type: "create" }
+  >(null);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [pageHelper, setPageHelper] = useState({ render: false });
   const [page, setPage] = useState(1);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const pageSize = 10;
 
   useEffect(() => {
@@ -111,6 +115,7 @@ const Tasks = () => {
             { name: "From" },
             { name: "To" },
             { name: "Choose Specialist" },
+            { name: "Add Service" },
           ]}
           filters={
             <>
@@ -124,6 +129,7 @@ const Tasks = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
             </>
           }
@@ -148,6 +154,19 @@ const Tasks = () => {
                   <SharedIcon />
                 </div>
               </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => {
+                      setSelectedId(item.id);
+                      setModal({ type: "create" });
+                    }}
+                  >
+                    <PenIcon />
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </Table>
@@ -168,6 +187,15 @@ const Tasks = () => {
           }}
           id={selectedUserId}
           onSelect={handleManagerSelect}
+        />
+      )}
+      {modal?.type === "create" && (
+        <CreateQuotation
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          selectedId={selectedId}
         />
       )}
     </div>

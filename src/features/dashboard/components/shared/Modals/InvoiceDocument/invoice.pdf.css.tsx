@@ -55,7 +55,7 @@ export const invoiceDetail = StyleSheet.create({
 
 export const invoiceTable = StyleSheet.create({
   table: {
-    margin: "30px 0 0",
+    margin: "20px 0 0",
     width: "100%",
   },
   tableHeader: {
@@ -113,7 +113,6 @@ export const invoiceTable = StyleSheet.create({
 
 export const invoiceFooter = StyleSheet.create({
   footer: {
-    marginTop: 20,
     fontSize: 10,
     textAlign: "center",
     borderTop: "1px solid #000",
@@ -127,7 +126,7 @@ export const invoiceFooter = StyleSheet.create({
 export const invoiceValidateDetail = StyleSheet.create({
   box: {
     width: "100%",
-    margin: "30px 0 20px 0",
+    margin: "25px 0 20px 0",
     flexDirection: "column",
     gap: "5px",
   },

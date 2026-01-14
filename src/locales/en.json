@@ -255,6 +255,7 @@
     },
 
     "status": {
+      "all": "All",
       "pending": "Pending",
       "offered": "Offered",
       "ordered": "Ordered",
