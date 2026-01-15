@@ -95,7 +95,7 @@ const UpdateEmployees = ({
             inputRef={inputsRef.full_name}
             autoComplete="off"
             required
-            value={employee?.full_name}
+            defaultValue={employee?.full_name}
           />
           <Input
             type="email"
@@ -104,7 +104,7 @@ const UpdateEmployees = ({
             inputRef={inputsRef.email}
             autoComplete="off"
             required
-            value={employee?.email}
+            defaultValue={employee?.email}
           />
           <Input
             type="text"
@@ -115,7 +115,7 @@ const UpdateEmployees = ({
             inputRef={inputsRef.phone}
             autoComplete="off"
             required
-            value={employee?.phone}
+            defaultValue={employee?.phone}
           />
           <Input
             type="text"

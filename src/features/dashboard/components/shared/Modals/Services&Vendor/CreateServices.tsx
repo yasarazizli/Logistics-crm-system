@@ -228,6 +228,42 @@ const CreateServices = ({
     null,
   );
 
+  // Yeni: Transport Mode'a göre Type seçenekleri
+  const [railTypes] = useState<OptionType[]>([
+    { value: "Covered Wagons", label: "Covered Wagons" },
+    { value: "Open Wagons", label: "Open Wagons" },
+    { value: "Flat Wagons", label: "Flat Wagons" },
+    { value: "Tank Wagons", label: "Tank Wagons" },
+    { value: "Hopper Wagons", label: "Hopper Wagons" },
+    { value: "Fitting Platform", label: "Fitting Platform" },
+  ]);
+  const [selectedRailType, setSelectedRailType] = useState<OptionType | null>(
+    null,
+  );
+
+  const [roadTypes] = useState<OptionType[]>([
+    { value: "Container Truck", label: "Container Truck" },
+    { value: "Tent Truck", label: "Tent Truck" },
+    { value: "Flatbed Truck", label: "Flatbed Truck" },
+    { value: "Refrigerated Truck", label: "Refrigerated Truck" },
+    { value: "Lowbed Truck", label: "Lowbed Truck" },
+    { value: "Car Carrier Truck", label: "Car Carrier Truck" },
+  ]);
+  const [selectedRoadType, setSelectedRoadType] = useState<OptionType | null>(
+    null,
+  );
+
+  const [seaTypes] = useState<OptionType[]>([
+    { value: "Container Ship", label: "Container Ship" },
+    { value: "General Cargo Ship", label: "General Cargo Ship" },
+    { value: "Tanker Ship", label: "Tanker Ship" },
+    { value: "Roll on/Roll off Ship", label: "Roll on/Roll off Ship" },
+    { value: "Bulk Carrier", label: "Bulk Carrier" },
+  ]);
+  const [selectedSeaType, setSelectedSeaType] = useState<OptionType | null>(
+    null,
+  );
+
   useEffect(() => {
     setLoader(true);
 
@@ -437,6 +473,9 @@ const CreateServices = ({
       { name: "break_bulk_type", data: selectedBreakBulkType?.label || null },
       { name: "bulk_type", data: selectedBulkType?.label || null },
       { name: "ownership", data: selectedOwnership?.label || null },
+      { name: "rail_type", data: selectedRailType?.label || null },
+      { name: "road_type", data: selectedRoadType?.label || null },
+      { name: "sea_type", data: selectedSeaType?.label || null },
     ]);
 
     const { status, data } = await createServices(formData);
@@ -511,6 +550,62 @@ const CreateServices = ({
           </div>
         );
       case "Oversize cargo":
+        return null;
+      default:
+        return null;
+    }
+  };
+
+  const renderTransportModeType = () => {
+    if (!selectedTransportMode) return null;
+
+    switch (selectedTransportMode.label) {
+      case "Rail":
+        return (
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Transport Type</label>
+            <Select
+              options={railTypes}
+              value={selectedRailType}
+              onChange={setSelectedRailType}
+              styles={customStyles}
+              placeholder="Select Rail Type"
+              isSearchable
+              isClearable
+            />
+          </div>
+        );
+      case "Road":
+        return (
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Transport Type</label>
+            <Select
+              options={roadTypes}
+              value={selectedRoadType}
+              onChange={setSelectedRoadType}
+              styles={customStyles}
+              placeholder="Select Road Type"
+              isSearchable
+              isClearable
+            />
+          </div>
+        );
+      case "Sea":
+        return (
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Transport Type</label>
+            <Select
+              options={seaTypes}
+              value={selectedSeaType}
+              onChange={setSelectedSeaType}
+              styles={customStyles}
+              placeholder="Select Sea Type"
+              isSearchable
+              isClearable
+            />
+          </div>
+        );
+      case "Multimodal":
         return null;
       default:
         return null;
@@ -641,6 +736,10 @@ const CreateServices = ({
                   required
                   isClearable
                 />
+              </div>
+
+              <div className={styles.flex__mode}>
+                {renderTransportModeType()}
               </div>
 
               <div className={styles.flex__mode}>
@@ -775,9 +874,7 @@ const CreateServices = ({
                   </div>
                 )}
                 <div className={styles.selectWrapper}>
-                  <label className={styles.label}>
-                    {t("services.modals.create.transport__type")}
-                  </label>
+                  <label className={styles.label}>Packaging Type</label>
                   <Select
                     options={transportTypes}
                     value={selectedTransportType}

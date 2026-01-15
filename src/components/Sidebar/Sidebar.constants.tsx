@@ -136,6 +136,20 @@ export const navigation = [
     roles: ["buyer_directory"],
   },
 
+  {
+    name: "main.title__2",
+    path: "vendors",
+    icon: HumansIcon,
+    roles: ["buyer_directory"],
+  },
+
+  {
+    name: "main.title__4",
+    path: "services",
+    icon: ServiceIcon,
+    roles: ["buyer_directory"],
+  },
+
   // Buyers Manager
 
   {

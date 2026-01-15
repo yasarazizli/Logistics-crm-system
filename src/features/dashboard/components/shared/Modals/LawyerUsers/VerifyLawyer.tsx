@@ -29,6 +29,12 @@ const VerifyLawyer = ({
   const { t } = useTranslation();
 
   const [selectedPaymentType, setSelectedPaymentType] = useState("");
+  const [protocolFileName, setProtocolFileName] = useState<string>("");
+
+  const handleFileChangeProtocol = () => {
+    const file = inputsRef.contract_file.current?.files?.[0];
+    if (file) setProtocolFileName(file.name);
+  };
 
   const inputsRef = {
     contract_number: useRef<HTMLInputElement>(null),
@@ -37,6 +43,7 @@ const VerifyLawyer = ({
     contract_start_time: useRef<HTMLInputElement>(null),
     contract_end_time: useRef<HTMLInputElement>(null),
     payment_type: useRef<HTMLSelectElement>(null),
+    contract_file: useRef<HTMLInputElement>(null),
 
     // post pay
     interest: useRef<HTMLInputElement>(null),
@@ -76,6 +83,11 @@ const VerifyLawyer = ({
           : null,
       },
       { name: "payment_type", data: inputsRef.payment_type.current?.value },
+
+      {
+        name: "contract_file",
+        data: inputsRef.contract_file.current?.files?.[0],
+      },
 
       // post pay
 
@@ -204,6 +216,33 @@ const VerifyLawyer = ({
                 </option>
               ))}
             </select>
+            <div className={styles.dropzone}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 11,
+                }}
+              >
+                <span>Contract File</span>
+                <label
+                  htmlFor="protocol-file-upload"
+                  className={styles.dropzone__label}
+                  style={{ height: "54px" }}
+                >
+                  {protocolFileName ||
+                    t("services.modals.create.file__placeholder")}
+                </label>
+                <input
+                  type="file"
+                  id="protocol-file-upload"
+                  ref={inputsRef.contract_file}
+                  onChange={handleFileChangeProtocol}
+                  className={styles.dropzone__input}
+                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                />
+              </div>
+            </div>
           </div>
           {selectedPaymentType === "postpay" && (
             <>
