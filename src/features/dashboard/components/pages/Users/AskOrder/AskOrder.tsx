@@ -2,7 +2,7 @@ import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotati
 import Header from "@/components/Header/Header.tsx";
 import SelectList from "@/features/dashboard/components/shared/SelectList/SelectList.tsx";
 import Input from "@/components/Input/Input.tsx";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import axios from "axios";
 import PackagingForm, {
   PackagingData,
@@ -27,6 +27,10 @@ const PriceQuotation = () => {
   if (userData) {
     user = JSON.parse(userData);
   }
+
+  const selectListRef = useRef<HTMLDivElement>(null);
+  const packagingFormRef = useRef<HTMLDivElement>(null);
+  const dateSectionRef = useRef<HTMLDivElement>(null);
 
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
@@ -64,6 +68,39 @@ const PriceQuotation = () => {
 
   const [routes, setRoutes] = useState<RouteData[]>([]);
 
+  const scrollToElement = (
+    ref: React.RefObject<HTMLElement>,
+    message: string,
+  ) => {
+    toast.error(message);
+
+    setTimeout(() => {
+      if (ref.current) {
+        ref.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        ref.current.classList.add(styles.highlightError);
+
+        setTimeout(() => {
+          if (ref.current) {
+            ref.current.classList.remove(styles.highlightError);
+          }
+        }, 3000);
+
+        const inputElement = ref.current.querySelector(
+          "input, select, textarea",
+        );
+        if (inputElement) {
+          setTimeout(() => {
+            (inputElement as HTMLElement).focus();
+          }, 500);
+        }
+      }
+    }, 100);
+  };
+
   const handleWagonTypeChange = (type: string) => setWagonType(type);
   const handlePackagingDataChange = (data: PackagingData) =>
     setPackagingData(data);
@@ -76,7 +113,17 @@ const PriceQuotation = () => {
 
   const handleSubmit = async (status: "draft" | "send") => {
     if (!selectedCode || !totalWeight) {
-      alert("Lütfen tüm gerekli alanları doldurun");
+      scrollToElement(selectListRef, "Please select HsCode and CargoName");
+      return;
+    }
+
+    if (!packagingData.package_type || packagingData.package_type === "") {
+      scrollToElement(packagingFormRef, "Please select Packaging type");
+      return;
+    }
+
+    if (!startDate || endDate === "") {
+      scrollToElement(dateSectionRef, "Please select Date");
       return;
     }
 
@@ -157,7 +204,7 @@ const PriceQuotation = () => {
       <div className={styles.price}>
         <div className={styles.input__name}>
           <h1 className={styles.title}>Ask Quotation</h1>
-          <div className={styles.input__list}>
+          <div className={styles.input__list} ref={selectListRef}>
             <SelectList
               selectedCargo={selectedCargo}
               setSelectedCargo={setSelectedCargo}
@@ -189,20 +236,22 @@ const PriceQuotation = () => {
           />
         </div>
 
-        <PackagingForm
-          onDataChange={handlePackagingDataChange}
-          onRoutesChange={handleRoutesChange}
-          onStackableChange={setStackable}
-          onInRowChange={setInRow}
-          onContainerProvisionChange={setRequestContainerProvision}
-          onWagonProvisionChange={setRequestWagonProvision}
-          onTransportationTypeChange={handleTransportationTypeChange}
-          onWagonTypeChange={handleWagonTypeChange}
-        />
+        <div ref={packagingFormRef}>
+          <PackagingForm
+            onDataChange={handlePackagingDataChange}
+            onRoutesChange={handleRoutesChange}
+            onStackableChange={setStackable}
+            onInRowChange={setInRow}
+            onContainerProvisionChange={setRequestContainerProvision}
+            onWagonProvisionChange={setRequestWagonProvision}
+            onTransportationTypeChange={handleTransportationTypeChange}
+            onWagonTypeChange={handleWagonTypeChange}
+          />
+        </div>
 
         <div>
           <h1 className={styles.period}>Transport Period</h1>
-          <div className={styles.date}>
+          <div className={styles.date} ref={dateSectionRef}>
             <Input
               type="date"
               label="Start Date"

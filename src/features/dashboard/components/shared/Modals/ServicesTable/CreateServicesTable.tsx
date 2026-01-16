@@ -132,6 +132,8 @@ const CreateServicesTable = ({
           { name: "Transport Mode" },
           { name: "HS Code" },
           { name: "From" },
+          { name: "Packaging" },
+          { name: "Packaging Type" },
           { name: "To" },
           { name: "Transport Type" },
           { name: "Action" },
@@ -153,6 +155,8 @@ const CreateServicesTable = ({
               </td>
             ))}
             <td></td>
+            <td></td>
+            <td></td>
           </>
         }
       >
@@ -164,6 +168,8 @@ const CreateServicesTable = ({
             <td>{item.service}</td>
             <td>{item.transport_mode}</td>
             <td>{item.hs_code}</td>
+            <td>{item.from}</td>
+            <td>{item.to}</td>
             <td>{item.from}</td>
             <td>{item.to}</td>
             <td>{item.transport_type}</td>

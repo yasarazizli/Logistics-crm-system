@@ -503,6 +503,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
               className={styles.input}
               value={form.shipper}
               onChange={(e) => handleTextChange("shipper", e.target.value)}
+              required
             />
           </div>
 
@@ -516,6 +517,7 @@ const Shipper = forwardRef<DynamicFormRef, DynamicFormProps>(
               className={styles.input}
               value={form.consignee}
               onChange={(e) => handleTextChange("consignee", e.target.value)}
+              required
             />
           </div>
 

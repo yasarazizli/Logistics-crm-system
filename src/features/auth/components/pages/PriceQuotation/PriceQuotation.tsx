@@ -3,7 +3,7 @@ import Header from "@/components/Header/Header.tsx";
 import { useTranslation } from "react-i18next";
 import SelectList from "@/features/dashboard/components/shared/SelectList/SelectList.tsx";
 import Input from "@/components/Input/Input.tsx";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import axios from "axios";
 import PackagingForm, {
   PackagingData,
@@ -28,6 +28,10 @@ const PriceQuotation = () => {
   if (userData) {
     user = JSON.parse(userData);
   }
+
+  const selectListRef = useRef<HTMLDivElement>(null);
+  const packagingFormRef = useRef<HTMLDivElement>(null);
+  const dateSectionRef = useRef<HTMLDivElement>(null);
 
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
@@ -75,19 +79,52 @@ const PriceQuotation = () => {
   const handleTransportationTypeChange = (type: string) =>
     setTransportationType(type);
 
+  const scrollToElement = (
+    ref: React.RefObject<HTMLElement>,
+    message: string,
+  ) => {
+    toast.error(message);
+
+    setTimeout(() => {
+      if (ref.current) {
+        ref.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        ref.current.classList.add(styles.highlightError);
+
+        setTimeout(() => {
+          if (ref.current) {
+            ref.current.classList.remove(styles.highlightError);
+          }
+        }, 3000);
+
+        const inputElement = ref.current.querySelector(
+          "input, select, textarea",
+        );
+        if (inputElement) {
+          setTimeout(() => {
+            (inputElement as HTMLElement).focus();
+          }, 500);
+        }
+      }
+    }, 100);
+  };
+
   const handleSubmit = async (status: "draft" | "send") => {
     if (!selectedCode || !totalWeight) {
-      toast.error("Please select HsCode and CargoName");
+      scrollToElement(selectListRef, "Please select HsCode and CargoName");
       return;
     }
 
     if (!packagingData.package_type || packagingData.package_type === "") {
-      toast.error("Please select Packaging type");
+      scrollToElement(packagingFormRef, "Please select Packaging type");
       return;
     }
 
     if (!startDate || endDate === "") {
-      toast.error("Please select Date");
+      scrollToElement(dateSectionRef, "Please select Date");
       return;
     }
 
@@ -142,19 +179,27 @@ const PriceQuotation = () => {
     if (msDs) formData.append("msds", msDs);
     msDsPictures.forEach((file) => formData.append(`cargo_image`, file));
 
-    const response = await axios.post(
-      `${apiUrl}/commercial/price-quotation/`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
-    );
-    if (response && response.status === 200) {
-      navigate(`/${i18n.language}/auth/login`);
-      toast.success(errorMessageHandler(response.data));
-      setLoader(false);
-    } else {
-      toast.error(errorMessageHandler(response.data));
+    try {
+      const response = await axios.post(
+        `${apiUrl}/commercial/price-quotation/`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+      if (response && response.status === 200) {
+        navigate(`/${i18n.language}/auth/login`);
+        toast.success(errorMessageHandler(response.data));
+        setLoader(false);
+      } else {
+        toast.error(errorMessageHandler(response.data));
+        setLoader(false);
+      }
+    } catch (error: any) {
+      console.error("Error submitting form:", error);
+      toast.error(
+        errorMessageHandler(error.response?.data || "An error occurred"),
+      );
       setLoader(false);
     }
   };
@@ -165,7 +210,7 @@ const PriceQuotation = () => {
       <div className={styles.price}>
         <div className={styles.input__name}>
           <h1 className={styles.title}>{t("price.title")}</h1>
-          <div className={styles.input__list}>
+          <div className={styles.input__list} ref={selectListRef}>
             <SelectList
               selectedCargo={selectedCargo}
               setSelectedCargo={setSelectedCargo}
@@ -196,20 +241,22 @@ const PriceQuotation = () => {
           />
         </div>
 
-        <PackagingForm
-          onDataChange={handlePackagingDataChange}
-          onRoutesChange={handleRoutesChange}
-          onStackableChange={setStackable}
-          onInRowChange={setInRow}
-          onContainerProvisionChange={setRequestContainerProvision}
-          onWagonProvisionChange={setRequestWagonProvision}
-          onTransportationTypeChange={handleTransportationTypeChange}
-          onWagonTypeChange={handleWagonTypeChange}
-        />
+        <div ref={packagingFormRef}>
+          <PackagingForm
+            onDataChange={handlePackagingDataChange}
+            onRoutesChange={handleRoutesChange}
+            onStackableChange={setStackable}
+            onInRowChange={setInRow}
+            onContainerProvisionChange={setRequestContainerProvision}
+            onWagonProvisionChange={setRequestWagonProvision}
+            onTransportationTypeChange={handleTransportationTypeChange}
+            onWagonTypeChange={handleWagonTypeChange}
+          />
+        </div>
 
         <div>
           <h1 className={styles.period}>Transport Period</h1>
-          <div className={styles.date}>
+          <div className={styles.date} ref={dateSectionRef}>
             <Input
               type="date"
               label="Start Date"

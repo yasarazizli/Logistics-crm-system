@@ -31,6 +31,11 @@ const AskQuotation = () => {
   const order = location.state?.order;
   const showShipper = location.state?.showShipper ?? true;
 
+  const selectListRef = useRef<HTMLDivElement>(null);
+  const packagingFormRef = useRef<HTMLDivElement>(null);
+  const dateSectionRef = useRef<HTMLDivElement>(null);
+  const shipperSectionRef = useRef<HTMLDivElement>(null);
+
   const shipperRef = useRef<DynamicFormRef>(null);
 
   const [selectedCargo, setSelectedCargo] = useState<{
@@ -86,10 +91,67 @@ const AskQuotation = () => {
     [],
   );
 
+  const scrollToElement = (
+    ref: React.RefObject<HTMLElement>,
+    message: string,
+  ) => {
+    toast.error(message);
+
+    setTimeout(() => {
+      if (ref.current) {
+        ref.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        ref.current.classList.add(styles.highlightError);
+
+        setTimeout(() => {
+          if (ref.current) {
+            ref.current.classList.remove(styles.highlightError);
+          }
+        }, 3000);
+
+        const inputElement = ref.current.querySelector(
+          "input, select, textarea",
+        );
+        if (inputElement) {
+          setTimeout(() => {
+            (inputElement as HTMLElement).focus();
+          }, 500);
+        }
+      }
+    }, 100);
+  };
+
   const handleSubmit = async (status: "draft" | "send") => {
     if (!selectedCode || !totalWeight) {
-      alert("Lütfen tüm gerekli alanları doldurun");
+      scrollToElement(selectListRef, "Please select HsCode and CargoName");
       return;
+    }
+
+    if (!packagingData.package_type || packagingData.package_type === "") {
+      scrollToElement(packagingFormRef, "Please select Packaging type");
+      return;
+    }
+
+    if (!startDate || endDate === "") {
+      scrollToElement(dateSectionRef, "Please select Date");
+      return;
+    }
+
+    if (showShipper) {
+      const shipperData = shipperRef.current?.getFormData();
+
+      if (!shipperData?.shipper || shipperData.shipper.trim() === "") {
+        scrollToElement(shipperSectionRef, "Please fill Shipper field");
+        return;
+      }
+
+      if (!shipperData?.consignee || shipperData.consignee.trim() === "") {
+        scrollToElement(shipperSectionRef, "Please fill Consignee field");
+        return;
+      }
     }
 
     setLoader(true);
@@ -255,7 +317,7 @@ const AskQuotation = () => {
       <Header />
       <div className={styles.price}>
         <div className={styles.input__name}>
-          <div className={styles.input__list}>
+          <div className={styles.input__list} ref={selectListRef}>
             <GetSelectList
               selectedCargo={selectedCargo}
               setSelectedCargo={setSelectedCargo}
@@ -286,26 +348,28 @@ const AskQuotation = () => {
           />
         </div>
 
-        <GetPackagingForm
-          onDataChange={handlePackagingDataChange}
-          onRoutesChange={handleRoutesChange}
-          onStackableChange={setStackable}
-          onInRowChange={setInRow}
-          onContainerProvisionChange={setRequestContainerProvision}
-          onWagonProvisionChange={setRequestWagonProvision}
-          onTransportationTypeChange={handleTransportationTypeChange}
-          onWagonTypeChange={handleWagonTypeChange}
-        />
+        <div ref={packagingFormRef}>
+          <GetPackagingForm
+            onDataChange={handlePackagingDataChange}
+            onRoutesChange={handleRoutesChange}
+            onStackableChange={setStackable}
+            onInRowChange={setInRow}
+            onContainerProvisionChange={setRequestContainerProvision}
+            onWagonProvisionChange={setRequestWagonProvision}
+            onTransportationTypeChange={handleTransportationTypeChange}
+            onWagonTypeChange={handleWagonTypeChange}
+          />
+        </div>
 
         {showShipper && (
-          <div style={{ marginBottom: "32px" }}>
+          <div style={{ marginBottom: "32px" }} ref={shipperSectionRef}>
             <GetShipper ref={shipperRef} />
           </div>
         )}
 
         <div>
           <h1 className={styles.period}>Transport Period</h1>
-          <div className={styles.date}>
+          <div className={styles.date} ref={dateSectionRef}>
             <Input
               type="date"
               label="Start Date"

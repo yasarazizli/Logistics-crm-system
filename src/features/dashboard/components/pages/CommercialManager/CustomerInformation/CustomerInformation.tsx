@@ -66,6 +66,8 @@ const CustomerInformation = () => {
 
   const dynamicFormRefs = useRef<Map<number, DynamicFormRef>>(new Map());
 
+  const ShipperRef = useRef<HTMLDivElement>(null);
+
   const [selectedCargo, setSelectedCargo] = useState<{
     label: string;
     value: number;
@@ -114,6 +116,39 @@ const CustomerInformation = () => {
     },
     [],
   );
+
+  const scrollToElement = (
+    ref: React.RefObject<HTMLElement>,
+    message: string,
+  ) => {
+    toast.error(message);
+
+    setTimeout(() => {
+      if (ref.current) {
+        ref.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        ref.current.classList.add(styles.highlightError);
+
+        setTimeout(() => {
+          if (ref.current) {
+            ref.current.classList.remove(styles.highlightError);
+          }
+        }, 3000);
+
+        const inputElement = ref.current.querySelector(
+          "input, select, textarea",
+        );
+        if (inputElement) {
+          setTimeout(() => {
+            (inputElement as HTMLElement).focus();
+          }, 500);
+        }
+      }
+    }, 100);
+  };
 
   const handleAddOffer = useCallback(() => {
     const createEmptyRow = (): TableRowData => ({
@@ -195,14 +230,21 @@ const CustomerInformation = () => {
   };
 
   const handleSubmit = async (status: "draft" | "send") => {
-    if (!selectedCode || !totalWeight) {
-      alert("Lütfen tüm gerekli alanları doldurun");
-      return;
-    }
+    for (let i = 0; i < offers.length; i++) {
+      const dynamicFormRef = dynamicFormRefs.current.get(i);
+      if (dynamicFormRef) {
+        const formData = dynamicFormRef.getFormData();
 
-    if (!startDate || endDate === "") {
-      toast.error("Please select Date");
-      return;
+        if (!formData.shipper || formData.shipper.trim() === "") {
+          scrollToElement(ShipperRef, "Please fill Shipper field");
+          return;
+        }
+
+        if (!formData.consignee || formData.consignee.trim() === "") {
+          scrollToElement(ShipperRef, "Please fill Consignee field");
+          return;
+        }
+      }
     }
 
     setLoader(true);
@@ -544,7 +586,7 @@ const CustomerInformation = () => {
               </div>
             </div>
 
-            <div style={{ marginBottom: "32px" }}>
+            <div style={{ marginBottom: "32px" }} ref={ShipperRef}>
               <DynamicForm ref={(ref) => setDynamicFormRef(index, ref)} />
             </div>
           </div>

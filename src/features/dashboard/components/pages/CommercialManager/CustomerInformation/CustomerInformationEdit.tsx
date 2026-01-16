@@ -143,6 +143,11 @@ const CustomerInformationEdit = () => {
   const order = location.state?.order;
   const { t } = useTranslation();
 
+  const selectListRef = useRef<HTMLDivElement>(null);
+  const packagingFormRef = useRef<HTMLDivElement>(null);
+  const dateSectionRef = useRef<HTMLDivElement>(null);
+  const ShipperRef = useRef<HTMLDivElement>(null);
+
   const dynamicFormRefs = useRef<Map<number, DynamicFormRef>>(new Map());
   const [apiData, setApiData] = useState<ApiOfferData[]>([]);
   const [selectedServices, setSelectedServices] = useState<{
@@ -226,6 +231,39 @@ const CustomerInformationEdit = () => {
   const handleExtraChange = useCallback((name: string, value: string) => {
     setExtraInputs((prev) => ({ ...prev, [name]: value }));
   }, []);
+
+  const scrollToElement = (
+    ref: React.RefObject<HTMLElement>,
+    message: string,
+  ) => {
+    toast.error(message);
+
+    setTimeout(() => {
+      if (ref.current) {
+        ref.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        ref.current.classList.add(styles.highlightError);
+
+        setTimeout(() => {
+          if (ref.current) {
+            ref.current.classList.remove(styles.highlightError);
+          }
+        }, 3000);
+
+        const inputElement = ref.current.querySelector(
+          "input, select, textarea",
+        );
+        if (inputElement) {
+          setTimeout(() => {
+            (inputElement as HTMLElement).focus();
+          }, 500);
+        }
+      }
+    }, 100);
+  };
 
   const handleDeleteService = useCallback(
     (offerIndex: number, deletedIds: number[]) => {
@@ -320,18 +358,35 @@ const CustomerInformationEdit = () => {
   const handleSubmit = useCallback(
     async (status: "draft" | "send") => {
       if (!selectedCode || !totalWeight) {
-        alert("Please fill in all required fields");
+        scrollToElement(selectListRef, "Please select HsCode and CargoName");
         return;
       }
 
       if (!packagingData.package_type || packagingData.package_type === "") {
-        toast.error("Please select Packaging type");
+        scrollToElement(packagingFormRef, "Please select Packaging type");
         return;
       }
 
       if (!startDate || endDate === "") {
-        toast.error("Please select Date");
+        scrollToElement(dateSectionRef, "Please select Date");
         return;
+      }
+
+      for (let i = 0; i < offers.length; i++) {
+        const dynamicFormRef = dynamicFormRefs.current.get(i);
+        if (dynamicFormRef) {
+          const formData = dynamicFormRef.getFormData();
+
+          if (!formData.shipper || formData.shipper.trim() === "") {
+            scrollToElement(ShipperRef, "Please fill Shipper field");
+            return;
+          }
+
+          if (!formData.consignee || formData.consignee.trim() === "") {
+            scrollToElement(ShipperRef, "Please fill Consignee field");
+            return;
+          }
+        }
       }
 
       setLoader(true);
@@ -820,7 +875,7 @@ const CustomerInformationEdit = () => {
             ]}
             onChange={handleExtraChange}
           />
-          <div className={styles.input__list}>
+          <div className={styles.input__list} ref={selectListRef}>
             <GetSelectList
               selectedCargo={selectedCargo}
               setSelectedCargo={setSelectedCargo}
@@ -849,10 +904,10 @@ const CustomerInformationEdit = () => {
           setDangerous={setDangerous}
         />
 
-        {memoizedGetPackagingForm}
+        <div ref={packagingFormRef}>{memoizedGetPackagingForm}</div>
 
         <h1 className={styles.period}>Transport Period</h1>
-        <div className={styles.date}>
+        <div className={styles.date} ref={dateSectionRef}>
           <Input
             type="date"
             label="Start Date"
@@ -896,7 +951,7 @@ const CustomerInformationEdit = () => {
               </div>
             </div>
 
-            <div style={{ marginBottom: "32px" }}>
+            <div style={{ marginBottom: "32px" }} ref={ShipperRef}>
               <GetDynamicForm
                 ref={(ref: DynamicFormRef | null) =>
                   setDynamicFormRef(index, ref)

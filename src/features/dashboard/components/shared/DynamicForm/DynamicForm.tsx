@@ -278,6 +278,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
               className={styles.input}
               value={form.shipper}
               onChange={(e) => handleInputChange("shipper", e.target.value)}
+              required
             />
           </div>
           <div className={styles.formGroup}>
@@ -290,6 +291,7 @@ const DynamicForm = forwardRef<DynamicFormRef, DynamicFormProps>(
               className={styles.input}
               value={form.consignee}
               onChange={(e) => handleInputChange("consignee", e.target.value)}
+              required
             />
           </div>
 
