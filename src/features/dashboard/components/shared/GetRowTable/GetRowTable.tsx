@@ -554,6 +554,9 @@ export default function Table({
 
     columns.forEach((_, colIndex) => {
       const payload = parseFloat(textValues[`PayLoad-${colIndex}`] || "0");
+      const totalQuantity = parseFloat(
+        textValues[`Total quantity-${colIndex}`] || "0",
+      );
       const sellingPrice = parseFloat(
         textValues[`Selling price-${colIndex}`] || "0",
       );
@@ -569,20 +572,23 @@ export default function Table({
 
       const unitType = selectedUnit[colIndex]?.value;
 
-      const totalPrice = round(payload * sellingPrice);
+      let totalPrice = 0;
+      let totalPurchase = 0;
+
+      if (unitType === "ton") {
+        totalPrice = round(payload * sellingPrice);
+        totalPurchase = round(payload * purchasePricePerTon);
+      } else if (unitType === "unit") {
+        totalPrice = round(totalQuantity * sellingPrice);
+        totalPurchase = round(totalQuantity * purchasePricePerUnit);
+      }
+
       newCalculatedValues[`Total price-${colIndex}`] = totalPrice;
+      newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
       const isVatChecked = textValues[`VAT 18%-${colIndex}`] === "true";
       const vatAmount = isVatChecked ? round(totalPrice * 0.18) : 0;
       newCalculatedValues[`VAT amount-${colIndex}`] = vatAmount;
-
-      let totalPurchase = 0;
-      if (unitType === "ton")
-        totalPurchase = round(payload * purchasePricePerTon);
-      if (unitType === "unit")
-        totalPurchase = round(payload * purchasePricePerUnit);
-
-      newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
       totalAmount += totalPrice;
       totalVAT += vatAmount;
@@ -602,7 +608,6 @@ export default function Table({
 
     return newCalculatedValues;
   }, [textValues, selectedUnit, columns]);
-
   useEffect(() => {
     setCalculatedValues(calculatedValuesWithMemo);
   }, [calculatedValuesWithMemo]);

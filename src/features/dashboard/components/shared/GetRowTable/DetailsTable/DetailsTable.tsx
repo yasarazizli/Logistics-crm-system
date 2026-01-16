@@ -1,4 +1,11 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useContext,
+} from "react";
 import styles from "./DetailsTable.module.scss";
 import Select, { StylesConfig } from "react-select";
 import { DeleteIcon, SharedIcon } from "@/assets/icons/shared.vectors.tsx";
@@ -6,6 +13,7 @@ import CreateServicesTable from "@/features/dashboard/components/shared/Modals/S
 import PriceTable from "@/features/dashboard/components/shared/Modals/PriceTable/PriceTable.tsx";
 import { QuotationData } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import { useLocation } from "react-router-dom";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 interface OptionType {
   value: string;
@@ -48,6 +56,8 @@ export interface TableRowData {
   estimatedTime: string;
   purchasePricePerTon: string;
   purchasePricePerUnit: string;
+  purchasePricePerTonAlis: string;
+  purchasePricePerUnitAlis: string;
   unit: string;
   totalPurchasePrice: string;
   sellingPrice: string;
@@ -156,7 +166,7 @@ interface TableProps {
 
 export default function Table({
   index,
-  role = "admin",
+  role = "monitoring",
   onLocationClick,
   onTransportModeClick,
   onFromClick,
@@ -170,28 +180,39 @@ export default function Table({
   onServiceSelect,
   subcode = false,
 }: TableProps) {
-  const staticRows = [
-    "Name of Service",
-    "Location",
-    "Transport mode",
-    "From",
-    "To",
-    "Transport type",
-    "Net weight ton",
-    "Gross weight ton",
-    "Width (Meter)",
-    "Length (Meter)",
-    "Height (Meter)",
-    "PayLoad",
-    "Purchase price per ton",
-    "Purchase price per unit",
-    "Total quantity",
-    "Selling price",
-    "Total price",
-    "Vendor",
-    ...(subcode ? ["Sub Code"] : []),
-    "Note",
-  ];
+  const getStaticRows = () => {
+    const { auth } = useContext(AuthContext);
+    const baseRows = [
+      "Name of Service",
+      "Location",
+      "Transport mode",
+      "From",
+      "To",
+      "Transport type",
+      "Net weight ton",
+      "Gross weight ton",
+      "Width (Meter)",
+      "Length (Meter)",
+      "Height (Meter)",
+      "PayLoad",
+      "Purchase price per ton",
+      "Purchase price per unit",
+      ...(auth.role === "monitoring"
+        ? ["Purchase price per ton (alis)", "Purchase price per unit (alis)"]
+        : []),
+      "Total quantity",
+      "Selling price",
+      "Total price",
+      "Vendor",
+      "Profit",
+      ...(subcode ? ["Sub Code"] : []),
+      "Note",
+    ];
+    return baseRows;
+  };
+
+  const staticRows = getStaticRows();
+
   const location = useLocation();
   const order = location.state?.order;
   const [columns, setColumns] = useState<number[]>([]);
@@ -267,6 +288,10 @@ export default function Table({
           textValues[`Purchase price per ton-${colIndex}`] || "",
         purchasePricePerUnit:
           textValues[`Purchase price per unit-${colIndex}`] || "",
+        purchasePricePerTonAlis:
+          textValues[`Purchase price per ton (alis)-${colIndex}`] || "",
+        purchasePricePerUnitAlis:
+          textValues[`Purchase price per unit (alis)-${colIndex}`] || "",
         unit: unitType,
         totalPurchasePrice:
           calculatedValues[`Total purchase price-${colIndex}`]?.toFixed(2) ||
@@ -488,41 +513,34 @@ export default function Table({
           "estimatedTime",
           "purchasePricePerTon",
           "purchasePricePerUnit",
+          "purchasePricePerTonAlis",
+          "purchasePricePerUnitAlis",
           "totalPurchasePrice",
           "sellingPrice",
           "totalPrice",
           "vatAmount",
         ];
 
+        const fieldMappings: Record<string, string> = {
+          estimatedTime: "Estimated Transportation Time",
+          purchasePricePerTon: "Purchase price per ton",
+          purchasePricePerUnit: "Purchase price per unit",
+          purchasePricePerTonAlis: "Purchase price per ton (alis)",
+          purchasePricePerUnitAlis: "Purchase price per unit (alis)",
+          totalPurchasePrice: "Total purchase price",
+          sellingPrice: "Selling price",
+          totalPrice: "Total price",
+          vatAmount: "VAT amount",
+          netWeight: "Net weight ton",
+          grossWeight: "Gross weight ton",
+          width: "Width (Meter)",
+          length: "Length (Meter)",
+          height: "Height (Meter)",
+        };
+
         fields.forEach((field) => {
           if (row[field]) {
-            const displayField =
-              field === "estimatedTime"
-                ? "Estimated Transportation Time"
-                : field === "purchasePricePerTon"
-                  ? "Purchase price per ton"
-                  : field === "purchasePricePerUnit"
-                    ? "Purchase price per unit"
-                    : field === "totalPurchasePrice"
-                      ? "Total purchase price"
-                      : field === "sellingPrice"
-                        ? "Selling price"
-                        : field === "totalPrice"
-                          ? "Total price"
-                          : field === "vatAmount"
-                            ? "VAT amount"
-                            : field === "netWeight"
-                              ? "Net weight ton"
-                              : field === "grossWeight"
-                                ? "Gross weight ton"
-                                : field === "width"
-                                  ? "Width (Meter)"
-                                  : field === "length"
-                                    ? "Length (Meter)"
-                                    : field === "height"
-                                      ? "Height (Meter)"
-                                      : field;
-
+            const displayField = fieldMappings[field] || field;
             newTextValues[`${displayField}-${colIndex}`] = row[field] as string;
           }
         });
@@ -535,7 +553,7 @@ export default function Table({
       setTextValues(newTextValues);
       initialDataLoadedRef.current = true;
     }
-  }, [initialRows]);
+  }, [initialRows, staticRows.length]);
 
   const calculatedValuesWithMemo = useMemo(() => {
     const newCalculatedValues: { [key: string]: number } = {};
@@ -548,6 +566,9 @@ export default function Table({
 
     columns.forEach((_, colIndex) => {
       const payload = parseFloat(textValues[`PayLoad-${colIndex}`] || "0");
+      const totalQuantity = parseFloat(
+        textValues[`Total quantity-${colIndex}`] || "0",
+      );
       const sellingPrice = parseFloat(
         textValues[`Selling price-${colIndex}`] || "0",
       );
@@ -574,7 +595,7 @@ export default function Table({
       if (unitType === "ton")
         totalPurchase = round(payload * purchasePricePerTon);
       if (unitType === "unit")
-        totalPurchase = round(payload * purchasePricePerUnit);
+        totalPurchase = round(totalQuantity * purchasePricePerUnit);
 
       newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
@@ -613,7 +634,9 @@ export default function Table({
           rowName === "PayLoad" ||
           rowName === "Selling price" ||
           rowName === "Purchase price per ton" ||
-          rowName === "Purchase price per unit"
+          rowName === "Purchase price per unit" ||
+          rowName === "Purchase price per ton (alis)" ||
+          rowName === "Purchase price per unit (alis)"
         ) {
           setCalculatedValues((prevCalc) => {
             const newCalc = { ...prevCalc };

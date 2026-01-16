@@ -254,6 +254,10 @@ const Details = () => {
                     service.estimated_transport_time?.toString() || "",
                   purchasePricePerTon:
                     service.purchase_price_per_ton?.toString() || "",
+                  purchasePricePerTonAlis:
+                    service.purchase_price_per_ton?.toString() || "",
+                  purchasePricePerUnitAlis:
+                    service.purchase_price_per_unit?.toString() || "",
                   purchasePricePerUnit:
                     service.purchase_price_per_unit?.toString() || "",
                   unit: service.unit || "",

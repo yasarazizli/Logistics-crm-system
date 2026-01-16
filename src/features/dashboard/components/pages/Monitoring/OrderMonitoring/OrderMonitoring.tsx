@@ -271,6 +271,10 @@ const Details = () => {
                     service.purchase_price_per_ton?.toString() || "",
                   purchasePricePerUnit:
                     service.purchase_price_per_unit?.toString() || "",
+                  purchasePricePerTonAlis:
+                    service.purchase_price_per_ton?.toString() || "",
+                  purchasePricePerUnitAlis:
+                    service.purchase_price_per_unit?.toString() || "",
                   unit: service.unit || "",
                   totalPurchasePrice:
                     service.total_purchase_price?.toString() || "",

@@ -320,7 +320,7 @@ const CustomerInformationEdit = () => {
   const handleSubmit = useCallback(
     async (status: "draft" | "send") => {
       if (!selectedCode || !totalWeight) {
-        alert("Lütfen tüm gerekli alanları doldurun");
+        alert("Please fill in all required fields");
         return;
       }
 
