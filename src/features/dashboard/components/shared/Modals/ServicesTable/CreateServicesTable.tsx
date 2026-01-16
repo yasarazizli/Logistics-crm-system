@@ -18,10 +18,13 @@ interface Service {
   transport_mode: string;
   hs_code: string;
   from: string;
+  packaging_type: string;
+  container_type: string;
   to: string;
   transport_type: string;
   purchase_price_ton: number;
   purchase_price_unit: number;
+  container_size: number;
 }
 
 interface ServiceFilters {
@@ -132,10 +135,11 @@ const CreateServicesTable = ({
           { name: "Transport Mode" },
           { name: "HS Code" },
           { name: "From" },
-          { name: "Packaging" },
-          { name: "Packaging Type" },
           { name: "To" },
           { name: "Transport Type" },
+          { name: "Packaging" },
+          { name: "Packaging Type" },
+          { name: "Container Size" },
           { name: "Action" },
         ]}
         filters={
@@ -157,6 +161,7 @@ const CreateServicesTable = ({
             <td></td>
             <td></td>
             <td></td>
+            <td></td>
           </>
         }
       >
@@ -170,9 +175,10 @@ const CreateServicesTable = ({
             <td>{item.hs_code}</td>
             <td>{item.from}</td>
             <td>{item.to}</td>
-            <td>{item.from}</td>
-            <td>{item.to}</td>
+            <td>{item.packaging_type}</td>
+            <td>{item.container_type}</td>
             <td>{item.transport_type}</td>
+            <td>{item.container_size}</td>
             <td>
               <div
                 className={styles.action}
