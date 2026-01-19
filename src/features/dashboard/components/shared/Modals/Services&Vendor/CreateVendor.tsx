@@ -87,8 +87,8 @@ const CreateVendor = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <Input
               type="text"
-              label="Name"
-              placeholder="Name"
+              label="Contact Person Name"
+              placeholder="Contact Person Name"
               inputRef={inputsRef.person_name}
               autoComplete="off"
               required
@@ -130,7 +130,6 @@ const CreateVendor = ({
             label={t("services.modals.create.ended")}
             inputRef={inputsRef.contract_end_time}
             autoComplete="off"
-            required
           />
           <div className={styles.selectWrapper}>
             <label className={styles.label}>
