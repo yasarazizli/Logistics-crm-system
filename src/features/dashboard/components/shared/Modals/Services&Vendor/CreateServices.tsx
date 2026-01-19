@@ -437,7 +437,7 @@ const CreateServices = ({
         data: selectedToCountry?.value || null,
       },
       { name: "packaging_type", data: selectedTransportType?.label || null },
-      { name: "transport_type", data: selectedTransportMode?.label || null },
+      { name: "transport_mode", data: selectedTransportMode?.label || null },
       {
         name: "contract_experied_date",
         data: inputsRef.contract_experied_date.current?.value
