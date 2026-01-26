@@ -129,7 +129,6 @@ const CreateServices = ({
   const { t } = useTranslation();
 
   const inputsRef = {
-    location: useRef<HTMLInputElement>(null),
     from_id: useRef<HTMLInputElement>(null),
     to_id: useRef<HTMLInputElement>(null),
     purchase_price_unit: useRef<HTMLInputElement>(null),
@@ -427,7 +426,6 @@ const CreateServices = ({
     const formData = formCreator([
       { name: "vendor_id", data: selectedVendor?.value || null },
       { name: "service_name", data: selectedServiceName?.label || null },
-      { name: "location", data: inputsRef.location.current?.value },
       { name: "hs_code_id", data: selectedHsCode?.value || null },
       { name: "country_id", data: selectedCountry?.value || null },
       {
@@ -478,7 +476,7 @@ const CreateServices = ({
       },
       {
         name: "is_protocol_active",
-        data: isContractActive,
+        data: isContractActive ? "true" : "false",
       },
       {
         name: "purchase_price_unit",

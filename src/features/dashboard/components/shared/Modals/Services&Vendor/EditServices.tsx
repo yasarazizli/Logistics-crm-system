@@ -12,14 +12,14 @@ import { formCreator } from "@/libs/form.ts";
 import { errorMessageHandler } from "@/libs/error.ts";
 import {
   allHsCode,
+  EditServices,
   getAllCountry,
   getAllPort,
-  getAllServicesData,
   getAllServicesName,
   getAllStationCode,
   getAllVendors,
+  ServicesData,
 } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
-import { AddCompletedRequest } from "@/features/dashboard/services/BuyersManager/manager.service.ts";
 
 interface OptionType {
   value: number | string;
@@ -27,29 +27,34 @@ interface OptionType {
 }
 
 interface ServicesProps {
-  buyers: string;
-  from: number | string;
-  from_country_id: number | null;
-  hs_code: number;
   id: number;
-  location: string;
-  note: string;
   service: string;
-  to: number | string;
-  to_country_id: number | null;
+  service_name: string;
+  hs_code_id: number;
+  country: string;
+  form: number;
+  to: number;
   transport_mode: string;
   transport_type: string;
-  country_id?: number;
-  purchase_price_unit?: string;
-  purchase_price_ton?: string;
-  container_size?: string;
-  container_type?: string;
-  break_bulk_type?: string;
-  bulk_type?: string;
-  ownership?: string;
-  rail_type?: string;
-  road_type?: string;
-  sea_type?: string;
+  packaging_type: string;
+  contract_expired: string | null;
+  protocol_expired: string | null;
+  purchase_price_unit: string;
+  purchase_price_ton: string;
+  note: string;
+  container_size: number | string;
+  container_type: string;
+  break_bulk_type: number | string;
+  bulk_type: string;
+  ownership: string;
+  rail_type: string;
+  road_type: string;
+  sea_type: string;
+  vendor: string;
+  protocol: string;
+  location?: string;
+  from_country_id?: number;
+  to_country_id?: number;
 }
 
 interface VendorType {
@@ -153,7 +158,7 @@ interface ComplatedProps {
   selectedId: number | null;
 }
 
-const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
+const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
 
@@ -379,17 +384,28 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
 
     const fetchServiceData = async () => {
       try {
-        const { data, status } = await getAllServicesData(selectedId);
+        const { data, status } = await ServicesData(selectedId);
         if (status === 200) {
           const serviceData = Array.isArray(data) ? data[0] : data;
           setServiceData(serviceData);
 
-          if (serviceData.country_id) {
+          if (serviceData.country) {
             const country = countries.find(
-              (c) => c.value === serviceData.country_id,
+              (c) => c.label === serviceData.country,
             );
             if (country) {
               setSelectedCountry(country);
+            }
+          }
+
+          // Vendor name'ine göre vendor seçimi
+          if (serviceData.vendor) {
+            const vendor = vendors.find((v) => v.name === serviceData.vendor);
+            if (vendor) {
+              setSelectedVendor({
+                value: vendor.id,
+                label: vendor.name,
+              });
             }
           }
         } else {
@@ -403,7 +419,7 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
     };
 
     fetchServiceData();
-  }, [selectedId, countries]);
+  }, [selectedId, countries, vendors]);
 
   useEffect(() => {
     if (!serviceData) return;
@@ -427,6 +443,27 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
         serviceData.purchase_price_ton || "";
     }
 
+    // Tarih alanlarını doldur
+    if (
+      inputsRef.contract_experied_date.current &&
+      serviceData.contract_expired
+    ) {
+      const contractDate = new Date(serviceData.contract_expired);
+      inputsRef.contract_experied_date.current.value = contractDate
+        .toISOString()
+        .split("T")[0];
+    }
+
+    if (
+      inputsRef.protocol_experied_date.current &&
+      serviceData.protocol_expired
+    ) {
+      const protocolDate = new Date(serviceData.protocol_expired);
+      inputsRef.protocol_experied_date.current.value = protocolDate
+        .toISOString()
+        .split("T")[0];
+    }
+
     // Select değerlerini doldur
     const transportMode = transportModes.find(
       (mode) =>
@@ -436,53 +473,52 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
       setSelectedTransportMode(transportMode);
     }
 
-    const transportType = transportTypes.find(
-      (type) =>
-        type.label.toLowerCase() === serviceData.transport_type.toLowerCase(),
-    );
-    if (transportType) {
-      setSelectedTransportType(transportType);
+    // Eğer packaging_type varsa onu, yoksa transport_type'ı kullan
+    const transportTypeKey =
+      serviceData.packaging_type || serviceData.transport_type;
+    if (transportTypeKey) {
+      const transportType = transportTypes.find(
+        (type) => type.label.toLowerCase() === transportTypeKey.toLowerCase(),
+      );
+      if (transportType) {
+        setSelectedTransportType(transportType);
+      }
     }
 
-    const serviceName = serviceNames.find(
-      (service) =>
-        service.label.toLowerCase() === serviceData.service.toLowerCase(),
-    );
+    // Önce service_name'e göre ara, yoksa service'e göre
+    let serviceName;
+    if (serviceData.service_name) {
+      serviceName = serviceNames.find(
+        (service) =>
+          service.label.toLowerCase() ===
+          serviceData.service_name.toLowerCase(),
+      );
+    }
+
+    if (!serviceName && serviceData.service) {
+      serviceName = serviceNames.find(
+        (service) =>
+          service.label.toLowerCase() === serviceData.service.toLowerCase(),
+      );
+    }
+
     if (serviceName) {
       setSelectedServiceName(serviceName);
     }
 
-    if (serviceData.hs_code) {
+    if (serviceData.hs_code_id) {
       const hsCodeItem = hscode.find(
-        (item) => item.value === serviceData.hs_code,
+        (item) => item.value === serviceData.hs_code_id,
       );
       if (hsCodeItem) {
         setSelectedHsCode(hsCodeItem);
       }
     }
 
-    if (serviceData.from_country_id) {
-      const fromCountry = countries.find(
-        (country) => country.value === serviceData.from_country_id,
-      );
-      if (fromCountry) {
-        setSelectedFromCountry(fromCountry);
-      }
-    }
-
-    if (serviceData.to_country_id) {
-      const toCountry = countries.find(
-        (country) => country.value === serviceData.to_country_id,
-      );
-      if (toCountry) {
-        setSelectedToCountry(toCountry);
-      }
-    }
-
     // Ek alanları doldur
     if (serviceData.container_size) {
       const containerSize = containerSizes.find(
-        (size) => size.value === serviceData.container_size,
+        (size) => size.value === String(serviceData.container_size),
       );
       if (containerSize) {
         setSelectedContainerSize(containerSize);
@@ -499,11 +535,21 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
     }
 
     if (serviceData.break_bulk_type) {
-      const breakBulkType = breakBulkTypes.find(
-        (type) => type.label === serviceData.break_bulk_type,
-      );
-      if (breakBulkType) {
-        setSelectedBreakBulkType(breakBulkType);
+      // Eğer break_bulk_type ID ise
+      if (typeof serviceData.break_bulk_type === "number") {
+        const breakBulkType = breakBulkTypes.find(
+          (type) => type.value === serviceData.break_bulk_type,
+        );
+        if (breakBulkType) {
+          setSelectedBreakBulkType(breakBulkType);
+        }
+      } else {
+        const breakBulkType = breakBulkTypes.find(
+          (type) => type.label === serviceData.break_bulk_type,
+        );
+        if (breakBulkType) {
+          setSelectedBreakBulkType(breakBulkType);
+        }
       }
     }
 
@@ -562,7 +608,7 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
     ) {
       setTimeout(() => {
         if (inputsRef.from_id.current) {
-          inputsRef.from_id.current.value = String(serviceData.from) || "";
+          inputsRef.from_id.current.value = String(serviceData.form) || "";
         }
         if (inputsRef.to_id.current) {
           inputsRef.to_id.current.value = String(serviceData.to) || "";
@@ -596,14 +642,8 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
             setStationCodes(mapped);
 
             setTimeout(() => {
-              const fromStationId =
-                typeof serviceData.from === "number"
-                  ? serviceData.from
-                  : Number(serviceData.from);
-              const toStationId =
-                typeof serviceData.to === "number"
-                  ? serviceData.to
-                  : Number(serviceData.to);
+              const fromStationId = serviceData.form;
+              const toStationId = serviceData.to;
 
               const fromStation = mapped.find(
                 (station: OptionType) => station.value === fromStationId,
@@ -627,14 +667,8 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
             setPorts(mapped);
 
             setTimeout(() => {
-              const fromPortId =
-                typeof serviceData.from === "number"
-                  ? serviceData.from
-                  : Number(serviceData.from);
-              const toPortId =
-                typeof serviceData.to === "number"
-                  ? serviceData.to
-                  : Number(serviceData.to);
+              const fromPortId = serviceData.form;
+              const toPortId = serviceData.to;
 
               const fromPort = mapped.find(
                 (port: OptionType) => port.value === fromPortId,
@@ -680,7 +714,7 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
     }
   };
 
-  const create = async (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!selectedId) {
       toast.error("ID for the Select is missing");
@@ -764,7 +798,7 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
       { name: "sea_type", data: selectedSeaType?.label || null },
     ]);
 
-    const { status, data } = await AddCompletedRequest(formData, selectedId);
+    const { status, data } = await EditServices(formData, selectedId);
     if (status === 200) {
       toast.success(errorMessageHandler(data));
     } else {
@@ -908,7 +942,7 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
     >
       <form
         className={`${styles.form} ${styles.createServicesGrid}`}
-        onSubmit={create}
+        onSubmit={handleSubmit}
       >
         <div className={styles.form__inputs}>
           <div className={styles.all}>
@@ -1266,4 +1300,4 @@ const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
   );
 };
 
-export default EditServices;
+export default EditServicesModal;

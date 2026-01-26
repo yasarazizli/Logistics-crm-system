@@ -32,7 +32,6 @@ interface Service {
 
 const filterKeys = [
   "country_name",
-  "location",
   "vendor_name",
   "service_name",
   "transport_mode",
@@ -46,7 +45,6 @@ const Services = () => {
   const [filters, setFilters] = useState({
     country_name: "",
     vendor_name: "",
-    location: "",
     service_name: "",
     transport_mode: "",
     from_name: "",
@@ -67,7 +65,6 @@ const Services = () => {
   const debouncedFilters = {
     country_name: useDebounce(filters.country_name, 700),
     vendor_name: useDebounce(filters.vendor_name, 700),
-    location: useDebounce(filters.location, 700),
     service_name: useDebounce(filters.service_name, 700),
     transport_mode: useDebounce(filters.transport_mode, 700),
     from_name: useDebounce(filters.from_name, 700),
@@ -134,7 +131,6 @@ const Services = () => {
         <Table
           headers={[
             { name: "Country" },
-            { name: "Location" },
             { name: "Vendor" },
             { name: "Service" },
             { name: "Transport Mode" },
@@ -173,7 +169,6 @@ const Services = () => {
           {data.map((item) => (
             <tr key={item.id}>
               <td>{item.country}</td>
-              <td>{item.location}</td>
               <td>{item.vendor}</td>
               <td>{item.service}</td>
               <td>{item.transport_mode}</td>
