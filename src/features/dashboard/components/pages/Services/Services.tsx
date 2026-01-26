@@ -3,12 +3,13 @@ import styles from "../Controls/HsCode/HsCode.module.scss";
 import Button from "@/components/Button/Button.tsx";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { FileIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
+import { FileIcon, PenIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAllServices } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import CreateVendor from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateVendor.tsx";
 import CreateServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateServices.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
+import EditServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/EditServices.tsx";
 
 interface Service {
   id: number;
@@ -52,9 +53,10 @@ const Services = () => {
     to_name: "",
     transport_type: "",
   });
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const [modal, setModal] = useState<
-    null | { type: "create" } | { type: "add" }
+    null | { type: "create" } | { type: "add" } | { type: "edit" }
   >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
@@ -145,6 +147,7 @@ const Services = () => {
             { name: "Contract Date" },
             { name: "Protocol" },
             { name: "Protocol Date" },
+            { name: "Edit" },
           ]}
           filters={
             <>
@@ -157,6 +160,7 @@ const Services = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -224,6 +228,19 @@ const Services = () => {
                   ? new Date(item.protocol_expired).toISOString().split("T")[0]
                   : "-"}
               </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => {
+                      setSelectedId(item.id);
+                      setModal({ type: "edit" });
+                    }}
+                  >
+                    <PenIcon />
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </Table>
@@ -249,6 +266,15 @@ const Services = () => {
             setModal(null);
             setPageHelper((prev) => ({ ...prev, render: !prev.render }));
           }}
+        />
+      )}
+      {modal?.type === "edit" && (
+        <EditServices
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          selectedId={selectedId}
         />
       )}
     </div>

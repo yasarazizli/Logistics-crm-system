@@ -30,7 +30,7 @@ interface VendorType {
   contract_end_date: string;
 }
 
-const customStyles: StylesConfig<OptionType, false> = {
+export const customStyles: StylesConfig<OptionType, false> = {
   control: (provided) => ({
     ...provided,
     borderRadius: 6,
@@ -46,37 +46,54 @@ const customStyles: StylesConfig<OptionType, false> = {
       border: "1px solid #E7E7E7",
     },
   }),
+
   valueContainer: (provided) => ({
     ...provided,
-    padding: "10px 10px",
-    overflow: "visible",
+    padding: "10px",
+    overflow: "hidden",
   }),
+
   input: (provided) => ({
     ...provided,
     margin: 0,
     padding: 0,
     color: "#000",
   }),
+
   singleValue: (provided) => ({
     ...provided,
     color: "#000",
-    overflow: "visible",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: "100%",
   }),
-  placeholder: (provided) => ({ ...provided, color: "rgba(0,0,0,0.48)" }),
+
+  placeholder: (provided) => ({
+    ...provided,
+    color: "rgba(0,0,0,0.48)",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  }),
+
   clearIndicator: (provided) => ({
     ...provided,
     cursor: "pointer",
-    color: "#000000",
+    color: "#000",
     ":hover": {
       color: "#000",
     },
   }),
+
   indicatorSeparator: () => ({ display: "none" }),
   dropdownIndicator: () => ({ display: "none" }),
+
   menu: (provided) => ({
     ...provided,
     zIndex: 9999,
   }),
+
   menuPortal: (provided) => ({
     ...provided,
     zIndex: 9999,
@@ -87,12 +104,15 @@ const customStyles: StylesConfig<OptionType, false> = {
     fontSize: "14px",
     fontWeight: 500,
     cursor: "pointer",
+    whiteSpace: "normal",
+    wordBreak: "break-word",
     backgroundColor: state.isSelected
       ? "#1D736B"
       : state.isFocused
         ? "#beeabe"
         : "white",
     color: state.isSelected ? "white" : "#000",
+
     ":active": {
       backgroundColor: "#1D736B",
       color: "white",
@@ -120,6 +140,8 @@ const CreateServices = ({
     protocol_file: useRef<HTMLInputElement>(null),
     note: useRef<HTMLInputElement>(null),
   };
+
+  const [isContractActive, setIsContractActive] = useState(false);
 
   const [vendors, setVendors] = useState<VendorType[]>([]);
   const [selectedVendor, setSelectedVendor] = useState<OptionType | null>(null);
@@ -453,6 +475,10 @@ const CreateServices = ({
               inputsRef.protocol_experied_date.current.value,
             ).toISOString()
           : null,
+      },
+      {
+        name: "is_protocol_active",
+        data: isContractActive,
       },
       {
         name: "purchase_price_unit",
@@ -898,12 +924,55 @@ const CreateServices = ({
                   autoComplete="off"
                 />
 
-                <Input
-                  type="date"
-                  label={t("services.modals.create.protocol__date")}
-                  inputRef={inputsRef.protocol_experied_date}
-                  autoComplete="off"
-                />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    width: "100%",
+                  }}
+                >
+                  <Input
+                    type="date"
+                    label={t("services.modals.create.protocol__date")}
+                    inputRef={inputsRef.protocol_experied_date}
+                    autoComplete="off"
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      marginTop: 20,
+                    }}
+                  >
+                    <div
+                      onClick={() => setIsContractActive(!isContractActive)}
+                      style={{
+                        width: 50,
+                        height: 24,
+                        borderRadius: 12,
+                        backgroundColor: isContractActive ? "#4CAF50" : "#ccc",
+                        position: "relative",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 2,
+                          left: isContractActive ? 28 : 2,
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          backgroundColor: "white",
+                          transition: "all 0.3s ease",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className={styles.flex__mode}>

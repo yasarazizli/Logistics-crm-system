@@ -90,6 +90,7 @@ export default function PrivateRoute() {
       "/commercial/manager/information",
       "/commercial/manager/information/edit",
       "/notification",
+      "/commercial/extra/change",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/manager/order`} />;
@@ -103,6 +104,7 @@ export default function PrivateRoute() {
       "/commercial/manager/information",
       "/commercial/manager/information/edit",
       "/notification",
+      "/commercial/extra/change",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/specialist`} />;

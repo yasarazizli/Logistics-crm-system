@@ -40,6 +40,16 @@ interface ServicesProps {
   transport_mode: string;
   transport_type: string;
   country_id?: number;
+  purchase_price_unit?: string;
+  purchase_price_ton?: string;
+  container_size?: string;
+  container_type?: string;
+  break_bulk_type?: string;
+  bulk_type?: string;
+  ownership?: string;
+  rail_type?: string;
+  road_type?: string;
+  sea_type?: string;
 }
 
 interface VendorType {
@@ -143,7 +153,7 @@ interface ComplatedProps {
   selectedId: number | null;
 }
 
-const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
+const EditServices = ({ modalClose, selectedId }: ComplatedProps) => {
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
 
@@ -159,8 +169,6 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
     protocol_file: useRef<HTMLInputElement>(null),
     note: useRef<HTMLInputElement>(null),
   };
-
-  const [isContractActive, setIsContractActive] = useState(false);
 
   const [vendors, setVendors] = useState<VendorType[]>([]);
   const [selectedVendor, setSelectedVendor] = useState<OptionType | null>(null);
@@ -400,6 +408,7 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
   useEffect(() => {
     if (!serviceData) return;
 
+    // Text input değerlerini doldur
     if (inputsRef.location.current) {
       inputsRef.location.current.value = serviceData.location || "";
     }
@@ -408,6 +417,17 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
       inputsRef.note.current.value = serviceData.note || "";
     }
 
+    if (inputsRef.purchase_price_unit.current) {
+      inputsRef.purchase_price_unit.current.value =
+        serviceData.purchase_price_unit || "";
+    }
+
+    if (inputsRef.purchase_price_ton.current) {
+      inputsRef.purchase_price_ton.current.value =
+        serviceData.purchase_price_ton || "";
+    }
+
+    // Select değerlerini doldur
     const transportMode = transportModes.find(
       (mode) =>
         mode.label.toLowerCase() === serviceData.transport_mode.toLowerCase(),
@@ -458,23 +478,88 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
         setSelectedToCountry(toCountry);
       }
     }
+
+    // Ek alanları doldur
+    if (serviceData.container_size) {
+      const containerSize = containerSizes.find(
+        (size) => size.value === serviceData.container_size,
+      );
+      if (containerSize) {
+        setSelectedContainerSize(containerSize);
+      }
+    }
+
+    if (serviceData.container_type) {
+      const containerType = containerTypes.find(
+        (type) => type.label === serviceData.container_type,
+      );
+      if (containerType) {
+        setSelectedContainerType(containerType);
+      }
+    }
+
+    if (serviceData.break_bulk_type) {
+      const breakBulkType = breakBulkTypes.find(
+        (type) => type.label === serviceData.break_bulk_type,
+      );
+      if (breakBulkType) {
+        setSelectedBreakBulkType(breakBulkType);
+      }
+    }
+
+    if (serviceData.bulk_type) {
+      const bulkType = bulkTypes.find(
+        (type) => type.label === serviceData.bulk_type,
+      );
+      if (bulkType) {
+        setSelectedBulkType(bulkType);
+      }
+    }
+
+    if (serviceData.ownership) {
+      const ownership = ownershipOptions.find(
+        (opt) => opt.label === serviceData.ownership,
+      );
+      if (ownership) {
+        setSelectedOwnership(ownership);
+      }
+    }
+
+    if (serviceData.rail_type) {
+      const railType = railTypes.find(
+        (type) => type.label === serviceData.rail_type,
+      );
+      if (railType) {
+        setSelectedRailType(railType);
+      }
+    }
+
+    if (serviceData.road_type) {
+      const roadType = roadTypes.find(
+        (type) => type.label === serviceData.road_type,
+      );
+      if (roadType) {
+        setSelectedRoadType(roadType);
+      }
+    }
+
+    if (serviceData.sea_type) {
+      const seaType = seaTypes.find(
+        (type) => type.label === serviceData.sea_type,
+      );
+      if (seaType) {
+        setSelectedSeaType(seaType);
+      }
+    }
   }, [serviceData]);
 
   useEffect(() => {
     if (!selectedTransportMode || !serviceData) return;
 
-    if (selectedTransportMode.label === "Road") {
-      setTimeout(() => {
-        if (inputsRef.from_id.current) {
-          inputsRef.from_id.current.value = String(serviceData.from) || "";
-        }
-        if (inputsRef.to_id.current) {
-          inputsRef.to_id.current.value = String(serviceData.to) || "";
-        }
-      }, 100);
-    }
-
-    if (selectedTransportMode.label === "Multimodal") {
+    if (
+      selectedTransportMode.label === "Road" ||
+      selectedTransportMode.label === "Multimodal"
+    ) {
       setTimeout(() => {
         if (inputsRef.from_id.current) {
           inputsRef.from_id.current.value = String(serviceData.from) || "";
@@ -655,10 +740,6 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
               inputsRef.protocol_experied_date.current.value,
             ).toISOString()
           : null,
-      },
-      {
-        name: "is_protocol_active",
-        data: isContractActive,
       },
       {
         name: "purchase_price_unit",
@@ -1101,55 +1182,12 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                   autoComplete="off"
                 />
 
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                  }}
-                >
-                  <Input
-                    type="date"
-                    label={t("services.modals.create.protocol__date")}
-                    inputRef={inputsRef.protocol_experied_date}
-                    autoComplete="off"
-                  />
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      marginTop: 20,
-                    }}
-                  >
-                    <div
-                      onClick={() => setIsContractActive(!isContractActive)}
-                      style={{
-                        width: 50,
-                        height: 24,
-                        borderRadius: 12,
-                        backgroundColor: isContractActive ? "#4CAF50" : "#ccc",
-                        position: "relative",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 2,
-                          left: isContractActive ? 28 : 2,
-                          width: 20,
-                          height: 20,
-                          borderRadius: "50%",
-                          backgroundColor: "white",
-                          transition: "all 0.3s ease",
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
+                <Input
+                  type="date"
+                  label={t("services.modals.create.protocol__date")}
+                  inputRef={inputsRef.protocol_experied_date}
+                  autoComplete="off"
+                />
               </div>
 
               <div className={styles.flex__mode}>
@@ -1168,6 +1206,15 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
                   autoComplete="off"
                 />
               </div>
+
+              <Input
+                type="text"
+                label={t("services.modals.create.location")}
+                placeholder={t("services.modals.create.location")}
+                inputRef={inputsRef.location}
+                autoComplete="off"
+              />
+
               <div className={styles.dropzone}>
                 <div
                   style={{
@@ -1219,4 +1266,4 @@ const CreateQuotation = ({ modalClose, selectedId }: ComplatedProps) => {
   );
 };
 
-export default CreateQuotation;
+export default EditServices;

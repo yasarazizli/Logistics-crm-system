@@ -168,3 +168,27 @@ export const getAllServicesData = async (id: number | null) => {
       return err.response;
     });
 };
+
+export const ServicesData = async (id: number) => {
+  return await axios
+    .get(`${apiUrl}/buyers/get-service/?id=${id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const EditServices = async (formData: FormData, id: number) => {
+  return await axios
+    .post(`${apiUrl}/buyers/update-service/?id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

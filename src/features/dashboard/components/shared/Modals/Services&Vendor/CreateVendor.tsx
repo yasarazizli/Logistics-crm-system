@@ -19,6 +19,7 @@ const CreateVendor = ({
   const { t } = useTranslation();
 
   const [fileName, setFileName] = useState<string>("");
+  const [isContractActive, setIsContractActive] = useState(false);
 
   const handleFileChange = () => {
     const file = inputsRef.file.current?.files?.[0];
@@ -32,6 +33,7 @@ const CreateVendor = ({
     phone: useRef<HTMLInputElement>(null),
     email: useRef<HTMLInputElement>(null),
     name: useRef<HTMLInputElement>(null),
+    contract_number: useRef<HTMLInputElement>(null),
     contract_start_time: useRef<HTMLInputElement>(null),
     contract_end_time: useRef<HTMLInputElement>(null),
     contract_language: useRef<HTMLSelectElement>(null),
@@ -48,6 +50,10 @@ const CreateVendor = ({
       { name: "email", data: inputsRef.email.current?.value },
       { name: "name", data: inputsRef.name.current?.value },
       {
+        name: "contract_number",
+        data: inputsRef.contract_number.current?.value,
+      },
+      {
         name: "contract_start_time",
         data: inputsRef.contract_start_time.current?.value
           ? new Date(inputsRef.contract_start_time.current.value).toISOString()
@@ -55,9 +61,13 @@ const CreateVendor = ({
       },
       {
         name: "contract_end_time",
-        data: inputsRef.contract_start_time.current?.value
-          ? new Date(inputsRef.contract_start_time.current.value).toISOString()
+        data: inputsRef.contract_end_time.current?.value
+          ? new Date(inputsRef.contract_end_time.current.value).toISOString()
           : null,
+      },
+      {
+        name: "is_contract_active",
+        data: isContractActive,
       },
       {
         name: "contract_language",
@@ -85,22 +95,24 @@ const CreateVendor = ({
       <form className={styles.form} onSubmit={create}>
         <div className={styles.form__inputs}>
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <Input
-              type="text"
-              label="Contact Person Name"
-              placeholder="Contact Person Name"
-              inputRef={inputsRef.person_name}
-              autoComplete="off"
-              required
-            />
-            <Input
-              type="tel"
-              label="Phone"
-              placeholder="Phone"
-              inputRef={inputsRef.phone}
-              autoComplete="off"
-              required
-            />
+            <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+              <Input
+                type="text"
+                label="Contact Person Name"
+                placeholder="Contact Person Name"
+                inputRef={inputsRef.person_name}
+                autoComplete="off"
+                required
+              />
+              <Input
+                type="tel"
+                label="Phone"
+                placeholder="Phone"
+                inputRef={inputsRef.phone}
+                autoComplete="off"
+                required
+              />
+            </div>
             <Input
               type="text"
               label="Email"
@@ -118,18 +130,74 @@ const CreateVendor = ({
             autoComplete="off"
             required
           />
+          <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+            <Input
+              type="date"
+              label={t("services.modals.create.started")}
+              inputRef={inputsRef.contract_start_time}
+              autoComplete="off"
+              required
+            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 13,
+                width: "100%",
+              }}
+            >
+              <Input
+                type="date"
+                label={t("services.modals.create.ended")}
+                inputRef={inputsRef.contract_end_time}
+                autoComplete="off"
+              />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginTop: 10,
+                  position: "absolute",
+                  top: 515,
+                  right: 40,
+                }}
+              >
+                <div
+                  onClick={() => setIsContractActive(!isContractActive)}
+                  style={{
+                    width: 50,
+                    height: 24,
+                    borderRadius: 12,
+                    backgroundColor: isContractActive ? "#4CAF50" : "#ccc",
+                    position: "relative",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 2,
+                      left: isContractActive ? 28 : 2,
+                      width: 20,
+                      height: 20,
+                      borderRadius: "50%",
+                      backgroundColor: "white",
+                      transition: "all 0.3s ease",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
           <Input
-            type="date"
-            label={t("services.modals.create.started")}
-            inputRef={inputsRef.contract_start_time}
+            type="text"
+            label="Contract Number"
+            placeholder="Contract Number"
+            inputRef={inputsRef.contract_number}
             autoComplete="off"
             required
-          />
-          <Input
-            type="date"
-            label={t("services.modals.create.ended")}
-            inputRef={inputsRef.contract_end_time}
-            autoComplete="off"
           />
           <div className={styles.selectWrapper}>
             <label className={styles.label}>

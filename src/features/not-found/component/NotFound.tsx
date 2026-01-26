@@ -1,5 +1,4 @@
 import styles from "@/features/not-found/component/NotFound.module.scss";
-import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import AuthLayout from "@/features/auth/components/layout/AuthLayout.tsx";
 import {
@@ -8,8 +7,6 @@ import {
 } from "@/assets/images/auth/auth.vector.tsx";
 
 const NotFound = () => {
-  const { i18n } = useTranslation();
-
   return (
     <AuthLayout>
       <div className={styles.not__found}>
@@ -23,7 +20,7 @@ const NotFound = () => {
       </div>
       <div className={styles.back}>
         <ArrowBackIcon />
-        <Link to={`/${i18n.language}/home`}>Back to Login</Link>
+        <Link to="/en/auth/login">Back to Login</Link>
       </div>
     </AuthLayout>
   );

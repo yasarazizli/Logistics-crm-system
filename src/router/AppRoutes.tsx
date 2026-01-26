@@ -62,6 +62,7 @@ import AdminUsersPage from "@/features/dashboard/pages/Admin/Users/AdminUsersPag
 import VerifyRedirectPage from "@/features/auth/pages/VerifyRedirectPage.tsx";
 import RegisterExpiredPage from "@/features/auth/pages/RegisterExpiredPage.tsx";
 import NotificationPage from "@/features/dashboard/pages/Notification/NotificationPage.tsx";
+import ExtraChangePage from "@/features/dashboard/pages/CommercialManager/ExtraChange/ExtraChangePage.tsx";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -150,6 +151,7 @@ const AppRoutes = () => {
           path="commercial/manager/order"
           element={<CommercialManagerOrderPage />}
         />
+        <Route path="commercial/extra/change" element={<ExtraChangePage />} />
         <Route
           path="commercial/specialist"
           element={<CommercialSpecialistPage />}

@@ -1,6 +1,7 @@
 import {
   BalanceActivitiesIcon,
   ControlsIcon,
+  ExtraChange,
   HomeIcon,
   HumansIcon,
   LawyerIcon,
@@ -120,11 +121,24 @@ export const navigation = [
     roles: ["commercial_manager"],
   },
 
+  {
+    name: "main.title__9",
+    path: "commercial/extra/change",
+    icon: ExtraChange,
+    roles: ["commercial_manager"],
+  },
+
   // Commercial Specialist
   {
     name: "main.title__5",
     path: "commercial/specialist",
     icon: OrdersIcon,
+    roles: ["commercial_specialist"],
+  },
+  {
+    name: "main.title__9",
+    path: "commercial/extra/change",
+    icon: ExtraChange,
     roles: ["commercial_specialist"],
   },
 
