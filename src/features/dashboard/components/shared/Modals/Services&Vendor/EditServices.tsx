@@ -174,6 +174,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
     protocol_file: useRef<HTMLInputElement>(null),
     note: useRef<HTMLInputElement>(null),
   };
+  const [isContractActive, setIsContractActive] = useState(false);
 
   const [vendors, setVendors] = useState<VendorType[]>([]);
   const [selectedVendor, setSelectedVendor] = useState<OptionType | null>(null);
@@ -398,7 +399,6 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
             }
           }
 
-          // Vendor name'ine göre vendor seçimi
           if (serviceData.vendor) {
             const vendor = vendors.find((v) => v.name === serviceData.vendor);
             if (vendor) {
@@ -424,7 +424,6 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
   useEffect(() => {
     if (!serviceData) return;
 
-    // Text input değerlerini doldur
     if (inputsRef.location.current) {
       inputsRef.location.current.value = serviceData.location || "";
     }
@@ -443,7 +442,6 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
         serviceData.purchase_price_ton || "";
     }
 
-    // Tarih alanlarını doldur
     if (
       inputsRef.contract_experied_date.current &&
       serviceData.contract_expired
@@ -464,7 +462,12 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
         .split("T")[0];
     }
 
-    // Select değerlerini doldur
+    if (serviceData.protocol) {
+      const protocolPath = serviceData.protocol;
+      const fileName = protocolPath.split("/").pop() || "";
+      setProtocolFileName(fileName);
+    }
+
     const transportMode = transportModes.find(
       (mode) =>
         mode.label.toLowerCase() === serviceData.transport_mode.toLowerCase(),
@@ -473,7 +476,6 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
       setSelectedTransportMode(transportMode);
     }
 
-    // Eğer packaging_type varsa onu, yoksa transport_type'ı kullan
     const transportTypeKey =
       serviceData.packaging_type || serviceData.transport_type;
     if (transportTypeKey) {
@@ -485,7 +487,6 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
       }
     }
 
-    // Önce service_name'e göre ara, yoksa service'e göre
     let serviceName;
     if (serviceData.service_name) {
       serviceName = serviceNames.find(
@@ -515,7 +516,24 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
       }
     }
 
-    // Ek alanları doldur
+    if (serviceData.from_country_id) {
+      const fromCountry = countries.find(
+        (country) => country.value === serviceData.from_country_id,
+      );
+      if (fromCountry) {
+        setSelectedFromCountry(fromCountry);
+      }
+    }
+
+    if (serviceData.to_country_id) {
+      const toCountry = countries.find(
+        (country) => country.value === serviceData.to_country_id,
+      );
+      if (toCountry) {
+        setSelectedToCountry(toCountry);
+      }
+    }
+
     if (serviceData.container_size) {
       const containerSize = containerSizes.find(
         (size) => size.value === String(serviceData.container_size),
@@ -535,7 +553,6 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
     }
 
     if (serviceData.break_bulk_type) {
-      // Eğer break_bulk_type ID ise
       if (typeof serviceData.break_bulk_type === "number") {
         const breakBulkType = breakBulkTypes.find(
           (type) => type.value === serviceData.break_bulk_type,
@@ -1216,12 +1233,55 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                   autoComplete="off"
                 />
 
-                <Input
-                  type="date"
-                  label={t("services.modals.create.protocol__date")}
-                  inputRef={inputsRef.protocol_experied_date}
-                  autoComplete="off"
-                />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    width: "100%",
+                  }}
+                >
+                  <Input
+                    type="date"
+                    label={t("services.modals.create.protocol__date")}
+                    inputRef={inputsRef.protocol_experied_date}
+                    autoComplete="off"
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      marginTop: 20,
+                    }}
+                  >
+                    <div
+                      onClick={() => setIsContractActive(!isContractActive)}
+                      style={{
+                        width: 50,
+                        height: 24,
+                        borderRadius: 12,
+                        backgroundColor: isContractActive ? "#4CAF50" : "#ccc",
+                        position: "relative",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 2,
+                          left: isContractActive ? 28 : 2,
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          backgroundColor: "white",
+                          transition: "all 0.3s ease",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className={styles.flex__mode}>
@@ -1240,15 +1300,6 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                   autoComplete="off"
                 />
               </div>
-
-              <Input
-                type="text"
-                label={t("services.modals.create.location")}
-                placeholder={t("services.modals.create.location")}
-                inputRef={inputsRef.location}
-                autoComplete="off"
-              />
-
               <div className={styles.dropzone}>
                 <div
                   style={{
