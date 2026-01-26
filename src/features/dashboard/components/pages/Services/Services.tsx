@@ -10,6 +10,9 @@ import CreateVendor from "@/features/dashboard/components/shared/Modals/Services
 import CreateServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateServices.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import EditServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/EditServices.tsx";
+import axios from "axios";
+import { getCookie } from "@/libs/cookie.ts";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 interface Service {
   id: number;
@@ -28,6 +31,7 @@ interface Service {
   contract_expired?: string;
   protocol?: string;
   protocol_expired?: string;
+  is_active: boolean;
 }
 
 const filterKeys = [
@@ -42,6 +46,8 @@ const filterKeys = [
 
 const Services = () => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [filters, setFilters] = useState({
     country_name: "",
     vendor_name: "",
@@ -50,6 +56,7 @@ const Services = () => {
     from_name: "",
     to_name: "",
     transport_type: "",
+    is_active: undefined as boolean | undefined,
   });
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -58,6 +65,40 @@ const Services = () => {
   >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
+
+  const handleToggleStatus = async (user: Service) => {
+    const newStatus = !user.is_active;
+
+    setData((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, is_active: newStatus } : u)),
+    );
+
+    setUpdatingId(user.id);
+
+    try {
+      const formData = new FormData();
+      formData.append("ban", String(newStatus));
+
+      await axios.put(
+        `${apiUrl}/buyers/is-active-service/?id=${user.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: getCookie("allianceToken"),
+          },
+        },
+      );
+    } catch (err) {
+      setData((prev) =>
+        prev.map((u) =>
+          u.id === user.id ? { ...u, is_active: user.is_active } : u,
+        ),
+      );
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -70,6 +111,7 @@ const Services = () => {
     from_name: useDebounce(filters.from_name, 700),
     to_name: useDebounce(filters.to_name, 700),
     transport_type: useDebounce(filters.transport_type, 700),
+    is_active: filters.is_active,
   };
 
   const [data, setData] = useState<Service[]>([]);
@@ -105,6 +147,11 @@ const Services = () => {
     setPage(1);
   };
 
+  const handleStatusFilter = (value: boolean | undefined) => {
+    setFilters((prev) => ({ ...prev, is_active: value }));
+    setPage(1);
+  };
+
   const totalPages = Math.ceil(total / pageSize);
 
   return (
@@ -127,6 +174,39 @@ const Services = () => {
         </div>
       </div>
 
+      {auth.role === "admin" && (
+        <div className={styles.balance}>
+          <div className={styles.rolesWrapper}>
+            <button
+              className={`${styles.roleButton} ${
+                filters.is_active === undefined ? styles.activeRole : ""
+              }`}
+              onClick={() => handleStatusFilter(undefined)}
+            >
+              All
+            </button>
+
+            <button
+              className={`${styles.roleButton} ${
+                filters.is_active === true ? styles.activeRole : ""
+              }`}
+              onClick={() => handleStatusFilter(true)}
+            >
+              Deactive
+            </button>
+
+            <button
+              className={`${styles.roleButton} ${
+                filters.is_active === false ? styles.activeRole : ""
+              }`}
+              onClick={() => handleStatusFilter(false)}
+            >
+              Active
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className={styles.table}>
         <Table
           headers={[
@@ -143,6 +223,7 @@ const Services = () => {
             { name: "Contract Date" },
             { name: "Protocol" },
             { name: "Protocol Date" },
+            ...(auth.role === "admin" ? [{ name: "Services Status" }] : []),
             { name: "Edit" },
           ]}
           filters={
@@ -162,6 +243,7 @@ const Services = () => {
               <td></td>
               <td></td>
               <td></td>
+              {auth.role === "admin" && <td></td>}
               <td></td>
             </>
           }
@@ -223,6 +305,21 @@ const Services = () => {
                   ? new Date(item.protocol_expired).toISOString().split("T")[0]
                   : "-"}
               </td>
+              {auth.role === "admin" && (
+                <td>
+                  <div
+                    className={`${styles.toggle} ${
+                      item.is_active ? styles.inactive : styles.active
+                    } ${updatingId === item.id ? styles.disabled : ""}`}
+                    onClick={() =>
+                      updatingId ? null : handleToggleStatus(item)
+                    }
+                  >
+                    <span />
+                    <p>{item.is_active ? "Inactive" : "Active"}</p>
+                  </div>
+                </td>
+              )}
               <td>
                 <div className={styles.icon}>
                   <div

@@ -793,6 +793,10 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
           : null,
       },
       {
+        name: "is_protocol_active",
+        data: isContractActive ? "true" : "false",
+      },
+      {
         name: "purchase_price_unit",
         data: inputsRef.purchase_price_unit.current?.value,
       },

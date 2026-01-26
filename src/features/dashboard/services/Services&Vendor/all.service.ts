@@ -16,6 +16,7 @@ export const getAllServices = async (params: {
   purchase_price_unit?: string;
   page?: number;
   pageSize?: number;
+  is_active?: boolean;
 }) => {
   return await axios
     .get(`${apiUrl}/buyers/get-all-service/`, {
@@ -183,7 +184,7 @@ export const ServicesData = async (id: number) => {
 
 export const EditServices = async (formData: FormData, id: number) => {
   return await axios
-    .post(`${apiUrl}/buyers/update-service/?id=${id}`, formData, {
+    .put(`${apiUrl}/buyers/update-service/?service_id=${id}`, formData, {
       headers: {
         Authorization: getCookie("allianceToken"),
       },
