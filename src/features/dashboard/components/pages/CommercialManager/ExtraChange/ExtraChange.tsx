@@ -2,14 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import styles from "../../Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { FileIcon, PenIcon } from "@/assets/icons/shared.vectors.tsx";
+import { FileIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import CreateStation from "@/features/dashboard/components/shared/Modals/Station/CreateStation.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
-import i18n from "@/locales/i18n.ts";
-import { useNavigate } from "react-router-dom";
-import { AddIconTable, CrossIcon } from "@/assets/icons/order.vectors.tsx";
+import Button from "@/components/Button/Button.tsx";
 
 const filterKeys = [
   "order_code",
@@ -23,7 +21,7 @@ const filterKeys = [
   "status",
 ] as const;
 
-interface Order {
+interface ExtraChangeProps {
   order_id: number;
   chose_member: string;
   country_destination: string;
@@ -41,7 +39,6 @@ interface Order {
 }
 
 const ExtraChange = () => {
-  const navigate = useNavigate();
   const { setLoader } = useContext(LoaderContext);
 
   const [filters, setFilters] = useState({
@@ -57,7 +54,7 @@ const ExtraChange = () => {
   });
 
   const [modal, setModal] = useState<null | "create" | "accountant">(null);
-  const [data, setData] = useState<Order[]>([]);
+  const [data, setData] = useState<ExtraChangeProps[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -106,49 +103,28 @@ const ExtraChange = () => {
 
   const totalPages = Math.ceil(total / pageSize);
 
-  const handleClickEdit = (orderId: number) => {
-    const selectedOrder = data.find((item) => item.order_id === orderId);
-    navigate(`/${i18n.language}/commercial/manager/information`, {
-      state: { order: selectedOrder },
-    });
-  };
-
-  const handleClickEdit_2 = (orderId: number) => {
-    const selectedOrder = data.find((item) => item.order_id === orderId);
-    navigate(`/${i18n.language}/commercial/manager/information/edit`, {
-      state: { order: selectedOrder },
-    });
-  };
-
-  const canAddOffer = (orderType: string) => {
-    return (
-      orderType === "NoRegisterPriceQuotation" ||
-      orderType === "RegisterPriceQuotation"
-    );
-  };
-
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
         <h1>Extra Change</h1>
+        <Button text="Extra cost" viewType="green__light" icon={PlusIcon} />
       </div>
 
       <div className={styles.table}>
         <Table
           headers={[
-            { name: "Order Code" },
-            { name: "Customer" },
-            { name: "Phone number" },
-            { name: "Email address" },
-            { name: "Country of loading" },
-            { name: "Country of destination" },
-            { name: "Start Date" },
-            { name: "End Date" },
-            { name: "Status" },
-            { name: "Invoice document" },
-            { name: "Instruction document" },
-            { name: "Add Offer" },
-            { name: "Edit" },
+            { name: "Service" },
+            { name: "Total quantity" },
+            { name: "Purchase Price per Ton" },
+            { name: "Purchase Price per Unit" },
+            { name: "Unit" },
+            { name: "Total Purchase Price" },
+            { name: "Selling price" },
+            { name: "Total Selling Price" },
+            { name: "VAT 18%" },
+            { name: "Profit" },
+            { name: "Vendor" },
+            { name: "Description" },
           ]}
           filters={
             <>
@@ -162,7 +138,6 @@ const ExtraChange = () => {
                   />
                 </td>
               ))}
-              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -211,48 +186,7 @@ const ExtraChange = () => {
                 )}
               </td>
 
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={`${styles.icon__2} ${
-                      !canAddOffer(item.order_type) ? styles.disabled : ""
-                    }`}
-                    onClick={() => {
-                      if (canAddOffer(item.order_type)) {
-                        handleClickEdit(item.order_id);
-                      }
-                    }}
-                    style={{
-                      cursor: canAddOffer(item.order_type)
-                        ? "pointer"
-                        : "not-allowed",
-                      opacity: canAddOffer(item.order_type) ? 1 : 0.6,
-                    }}
-                    title={
-                      canAddOffer(item.order_type)
-                        ? "Add Offer"
-                        : "Add Offer not available for this order type"
-                    }
-                  >
-                    {canAddOffer(item.order_type) ? (
-                      <AddIconTable />
-                    ) : (
-                      <CrossIcon />
-                    )}
-                  </div>
-                </div>
-              </td>
-
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={styles.icon__2}
-                    onClick={() => handleClickEdit_2(item.order_id)}
-                  >
-                    <PenIcon />
-                  </div>
-                </div>
-              </td>
+              <td></td>
             </tr>
           ))}
         </Table>

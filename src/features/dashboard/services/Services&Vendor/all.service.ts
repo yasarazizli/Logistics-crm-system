@@ -193,3 +193,33 @@ export const EditServices = async (formData: FormData, id: number) => {
       return err.response;
     });
 };
+
+export const AttachServicesApi = async (
+  id: number | null,
+  service_id: number,
+) => {
+  return await axios
+    .put(
+      `${apiUrl}/commercial/service/attach/?task_id=${id}&service_id=${service_id}`,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
+      },
+    )
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const DeleteServicesApi = async (id: number | null) => {
+  return await axios
+    .delete(`${apiUrl}/commercial/delete-task/?id=${id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

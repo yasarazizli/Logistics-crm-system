@@ -2,12 +2,20 @@ import { useContext, useEffect, useState } from "react";
 import styles from "@/features/dashboard/components/pages/Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { PenIcon, SharedIcon } from "@/assets/icons/shared.vectors.tsx";
+import {
+  DeleteIcon,
+  PenIcon,
+  SharedIcon,
+} from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { GetAllBuyers } from "@/features/dashboard/services/BuyersDirector/buyersdirector.service.ts";
 import ChooseManager from "@/features/dashboard/components/shared/Modals/BuyersDirector/ChooseManager.tsx";
 import CreateQuotation from "@/features/dashboard/components/shared/Modals/Services&Vendor/CreateQuotation.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
+import { AddIcon } from "@/assets/icons/order.vectors.tsx";
+import AttachServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/AttachServices.tsx";
+import DeleteServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/DeleteServices.tsx";
 
 interface Buyers {
   id: number;
@@ -31,6 +39,7 @@ const filterKeys = [
 
 const Tasks = () => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
   const [filters, setFilters] = useState({
     service_name: "",
     location: "",
@@ -52,7 +61,11 @@ const Tasks = () => {
   const [data, setData] = useState<Buyers[]>([]);
   const [total, setTotal] = useState(0);
   const [modal, setModal] = useState<
-    null | { type: "manager" } | { type: "create" }
+    | null
+    | { type: "manager" }
+    | { type: "create" }
+    | { type: "attach" }
+    | { type: "delete" }
   >(null);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [pageHelper, setPageHelper] = useState({ render: false });
@@ -116,6 +129,8 @@ const Tasks = () => {
             { name: "To" },
             { name: "Choose Specialist" },
             { name: "Add Service" },
+            { name: "Attach Services" },
+            ...(auth.role === "admin" ? [{ name: "Delete Tasks" }] : []),
           ]}
           filters={
             <>
@@ -131,6 +146,8 @@ const Tasks = () => {
               ))}
               <td></td>
               <td></td>
+              <td></td>
+              {["admin"].includes(auth.role) && <td></td>}
             </>
           }
         >
@@ -167,6 +184,34 @@ const Tasks = () => {
                   </div>
                 </div>
               </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__5}
+                    onClick={() => {
+                      setModal({ type: "attach" });
+                      setSelectedId(item.id);
+                    }}
+                  >
+                    <AddIcon />
+                  </div>
+                </div>
+              </td>
+              {["admin"].includes(auth.role) && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__1}
+                      onClick={() => {
+                        setModal({ type: "delete" });
+                        setSelectedId(item.id);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </div>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </Table>
@@ -191,6 +236,26 @@ const Tasks = () => {
       )}
       {modal?.type === "create" && (
         <CreateQuotation
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          selectedId={selectedId}
+        />
+      )}
+
+      {modal?.type === "attach" && (
+        <AttachServices
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          selectedId={selectedId}
+        />
+      )}
+
+      {modal?.type === "delete" && (
+        <DeleteServices
           modalClose={() => {
             setModal(null);
             setPageHelper((prev) => ({ ...prev, render: !prev.render }));

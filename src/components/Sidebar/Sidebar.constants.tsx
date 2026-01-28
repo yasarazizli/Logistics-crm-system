@@ -151,6 +151,13 @@ export const navigation = [
   },
 
   {
+    name: "main.title__7",
+    path: "buyers/director/tasks",
+    icon: TasksIcon,
+    roles: ["admin"],
+  },
+
+  {
     name: "main.title__2",
     path: "vendors",
     icon: HumansIcon,
@@ -170,7 +177,7 @@ export const navigation = [
     name: "main.title__7",
     path: "buyers/manager/tasks",
     icon: TasksIcon,
-    roles: ["buyer_manager", "admin"],
+    roles: ["buyer_manager"],
   },
 
   // Monitoring

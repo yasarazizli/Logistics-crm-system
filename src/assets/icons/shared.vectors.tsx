@@ -1,4 +1,3 @@
-// Flags
 export const BritishFlagIcon = () => {
   return (
     <svg
@@ -118,7 +117,6 @@ export const AzerbaijanFlagIcon = () => {
   );
 };
 
-// Single Color Icons
 export const MailIcon = () => {
   return (
     <svg
@@ -365,7 +363,6 @@ export const InfoIcon = () => {
   );
 };
 
-// Dark
 export const SelectOptionsArrowIcon = () => {
   return (
     <svg
@@ -401,8 +398,6 @@ export const SelectOptionsArrowIcon = () => {
     </svg>
   );
 };
-
-// Color Icons
 
 export const MoreIcon = () => {
   return (

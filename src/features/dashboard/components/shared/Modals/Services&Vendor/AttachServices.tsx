@@ -5,9 +5,14 @@ import Modal from "@/components/Modal/Modal.tsx";
 import Button from "@/components/Button/Button.tsx";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
-import { getAllServices } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
+import {
+  AttachServicesApi,
+  getAllServices,
+} from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { SharedIcon } from "@/assets/icons/shared.vectors.tsx";
+import { toast } from "react-toastify";
+import { errorMessageHandler } from "@/libs/error.ts";
 
 interface Service {
   id: number;
@@ -38,12 +43,12 @@ interface ServiceFilters {
   transport_type: string;
 }
 
-const CreateServicesTable = ({
+const AttachServices = ({
   modalClose,
-  onServiceSelect,
+  selectedId,
 }: {
   modalClose: (isRender: boolean) => void;
-  onServiceSelect: (service: Service) => void;
+  selectedId: number | null;
 }) => {
   const { setLoader } = useContext(LoaderContext);
 
@@ -90,11 +95,6 @@ const CreateServicesTable = ({
     setPage(1);
   };
 
-  const handleServiceSelect = (service: Service) => {
-    onServiceSelect(service);
-    modalClose(false);
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       setLoader(true);
@@ -116,12 +116,30 @@ const CreateServicesTable = ({
         setLoader(false);
       }
     };
-
     fetchData();
   }, [page, pageSize, ...Object.values(debouncedFilters)]);
 
+  const handleAttachService = async (serviceId: number) => {
+    try {
+      setLoader(true);
+
+      const { status, data } = await AttachServicesApi(selectedId, serviceId);
+
+      if (status === 200) {
+        toast.success(errorMessageHandler(data));
+        modalClose(false);
+      } else {
+        toast.error(errorMessageHandler(data));
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setLoader(false);
+    }
+  };
+
   return (
-    <Modal title="Services Table" modalClose={() => modalClose(false)}>
+    <Modal title="Attach Serivces" modalClose={() => modalClose(false)}>
       <Table
         headers={[
           { name: "Country" },
@@ -176,9 +194,9 @@ const CreateServicesTable = ({
             <td>
               <div
                 className={styles.action}
-                onClick={() => handleServiceSelect(item)}
+                onClick={() => handleAttachService(item.id)}
               >
-                <p>Select offer</p>
+                <p>Attach Service</p>
                 <SharedIcon />
               </div>
             </td>
@@ -199,4 +217,4 @@ const CreateServicesTable = ({
   );
 };
 
-export default CreateServicesTable;
+export default AttachServices;
