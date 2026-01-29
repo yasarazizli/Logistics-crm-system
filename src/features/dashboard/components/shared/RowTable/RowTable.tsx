@@ -23,6 +23,8 @@ interface Service {
   from: string;
   to: string;
   transport_type: string;
+  purchase_price_ton: number;
+  purchase_price_unit: number;
 }
 
 export interface TableRowData {
@@ -668,6 +670,16 @@ export default function Table({
       };
       return newSelectedVendor;
     });
+    handleTextChange(
+      "Purchase price per ton",
+      colIndex,
+      service.purchase_price_ton.toString() || "0",
+    );
+    handleTextChange(
+      "Purchase price per unit",
+      colIndex,
+      service.purchase_price_unit.toString() || "0",
+    );
     setModal(null);
   };
 

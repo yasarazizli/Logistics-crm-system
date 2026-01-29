@@ -131,6 +131,8 @@ interface Service {
   from: string;
   to: string;
   transport_type: string;
+  purchase_price_ton: number;
+  purchase_price_unit: number;
 }
 
 const CustomerInformationEdit = () => {

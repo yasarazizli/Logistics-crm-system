@@ -43,14 +43,15 @@ const customStyles: StylesConfig<Option, false> = {
     fontSize: "14px",
     fontWeight: 500,
     boxShadow: "none",
-    minWidth: "370px",
+    minWidth: "240px",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
     color: "#7b7979",
     "&:hover": { border: "1px solid #F5F5F5" },
   }),
   valueContainer: (provided) => ({
     ...provided,
     padding: "18px 10px",
-    overflow: "visible",
   }),
   input: (provided) => ({ ...provided, margin: 0, padding: 0, color: "#000" }),
   singleValue: (provided) => ({
