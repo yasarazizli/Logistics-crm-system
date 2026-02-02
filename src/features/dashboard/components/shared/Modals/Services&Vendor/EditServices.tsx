@@ -55,6 +55,7 @@ interface ServicesProps {
   location?: string;
   from_country_id?: number;
   to_country_id?: number;
+  is_protocol_active: boolean;
 }
 
 interface VendorType {
@@ -441,6 +442,8 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
       inputsRef.purchase_price_ton.current.value =
         serviceData.purchase_price_ton || "";
     }
+
+    setIsContractActive(serviceData.is_protocol_active || false);
 
     if (
       inputsRef.contract_experied_date.current &&
@@ -957,10 +960,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
   };
 
   return (
-    <Modal
-      title={t("services.modals.title_services")}
-      modalClose={() => modalClose(false)}
-    >
+    <Modal title="Edit Services" modalClose={() => modalClose(false)}>
       <form
         className={`${styles.form} ${styles.createServicesGrid}`}
         onSubmit={handleSubmit}

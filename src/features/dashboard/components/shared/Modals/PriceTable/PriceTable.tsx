@@ -23,7 +23,6 @@ interface Service {
   service_name: string;
   note: string;
   time: string;
-  location: string;
   transport_mode: string;
   from_id: string;
   to_id: string;
@@ -103,7 +102,6 @@ const PriceTable = ({
     service_name: "",
     time: "",
     note: "",
-    location: "",
     transport_mode: "",
     from_id: "",
     to_id: "",
@@ -230,7 +228,6 @@ const PriceTable = ({
     const formData = new FormData();
 
     formData.append("service_name", service.service_name);
-    formData.append("location", service.location);
     formData.append("transport_mode", service.transport_mode);
     formData.append("from_id", service.from_id);
     formData.append("to_id", service.to_id);
@@ -255,154 +252,156 @@ const PriceTable = ({
 
   return (
     <Modal title="Price quotation by sale" modalClose={() => modalClose(false)}>
-      <Table
-        headers={[
-          { name: "Service" },
-          { name: "Location" },
-          { name: "Transport mode" },
-          { name: "From" },
-          { name: "To" },
-          { name: "From Country" },
-          { name: "To Country" },
-          { name: "Transport type" },
-          { name: "PayLoad" },
-          { name: "Total quantity" },
-          { name: "Estimated Transportation Time" },
-          { name: "Note" },
-        ]}
-      >
-        <tr>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.service_name,
-              (opt) => handleInputChange("service_name", opt?.value || ""),
-              serviceNames,
-              "Select Service",
-              true,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.location}
-              onChange={(e) => handleInputChange("location", e.target.value)}
-            />
-          </td>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.transport_mode,
-              (opt) => handleInputChange("transport_mode", opt?.value || ""),
-              [
-                { value: "road", label: "Road" },
-                { value: "rail", label: "Rail" },
-                { value: "sea", label: "Sea" },
-              ],
-              "Select...",
-              true,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            {service.transport_mode === "sea" ? (
-              renderSelect(
-                service.from_id,
-                (opt) => handleInputChange("from_id", opt?.value || ""),
-                ports,
-                "Select Port",
-                true,
-              )
-            ) : service.transport_mode === "rail" ? (
-              renderSelect(
-                service.from_id,
-                (opt) => handleInputChange("from_id", opt?.value || ""),
-                stations,
-                "Select Station",
-                true,
-              )
-            ) : (
-              <input
-                value={service.from_id}
-                onChange={(e) => handleInputChange("from_id", e.target.value)}
-              />
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            {service.transport_mode === "sea" ? (
-              renderSelect(
-                service.to_id,
-                (opt) => handleInputChange("to_id", opt?.value || ""),
-                ports,
-                "Select Port",
-                true,
-              )
-            ) : service.transport_mode === "rail" ? (
-              renderSelect(
-                service.to_id,
-                (opt) => handleInputChange("to_id", opt?.value || ""),
-                stations,
-                "Select Station",
-                true,
-              )
-            ) : (
-              <input
-                value={service.to_id}
-                onChange={(e) => handleInputChange("to_id", e.target.value)}
-              />
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.from_country_id,
-              (opt) => handleInputChange("from_country_id", opt?.value || ""),
-              countries,
-              "From Country",
-              false,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.to_country_id,
-              (opt) => handleInputChange("to_country_id", opt?.value || ""),
-              countries,
-              "To Country",
-              false,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.transport_type,
-              (opt) => handleInputChange("transport_type", opt?.value || ""),
-              transportTypeOptions,
-              "Select Transport Type",
-              true,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.payload}
-              onChange={(e) => handleInputChange("payload", e.target.value)}
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.total_quantity}
-              onChange={(e) =>
-                handleInputChange("total_quantity", e.target.value)
-              }
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.time}
-              onChange={(e) => handleInputChange("time", e.target.value)}
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.note}
-              onChange={(e) => handleInputChange("note", e.target.value)}
-            />
-          </td>
-        </tr>
-      </Table>
+      <form className={styles.form}>
+        <div className={styles.form__inputs}>
+          <Table
+            headers={[
+              { name: "Service" },
+              { name: "Transport mode" },
+              { name: "From" },
+              { name: "To" },
+              { name: "From Country" },
+              { name: "To Country" },
+              { name: "Transport type" },
+              { name: "PayLoad" },
+              { name: "Total quantity" },
+              { name: "Estimated Transportation Time" },
+              { name: "Note" },
+            ]}
+          >
+            <tr>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.service_name,
+                  (opt) => handleInputChange("service_name", opt?.value || ""),
+                  serviceNames,
+                  "Select Service",
+                  true,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.transport_mode,
+                  (opt) =>
+                    handleInputChange("transport_mode", opt?.value || ""),
+                  [
+                    { value: "road", label: "Road" },
+                    { value: "rail", label: "Rail" },
+                    { value: "sea", label: "Sea" },
+                  ],
+                  "Select...",
+                  true,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                {service.transport_mode === "sea" ? (
+                  renderSelect(
+                    service.from_id,
+                    (opt) => handleInputChange("from_id", opt?.value || ""),
+                    ports,
+                    "Select Port",
+                    true,
+                  )
+                ) : service.transport_mode === "rail" ? (
+                  renderSelect(
+                    service.from_id,
+                    (opt) => handleInputChange("from_id", opt?.value || ""),
+                    stations,
+                    "Select Station",
+                    true,
+                  )
+                ) : (
+                  <input
+                    value={service.from_id}
+                    onChange={(e) =>
+                      handleInputChange("from_id", e.target.value)
+                    }
+                  />
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                {service.transport_mode === "sea" ? (
+                  renderSelect(
+                    service.to_id,
+                    (opt) => handleInputChange("to_id", opt?.value || ""),
+                    ports,
+                    "Select Port",
+                    true,
+                  )
+                ) : service.transport_mode === "rail" ? (
+                  renderSelect(
+                    service.to_id,
+                    (opt) => handleInputChange("to_id", opt?.value || ""),
+                    stations,
+                    "Select Station",
+                    true,
+                  )
+                ) : (
+                  <input
+                    value={service.to_id}
+                    onChange={(e) => handleInputChange("to_id", e.target.value)}
+                  />
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.from_country_id,
+                  (opt) =>
+                    handleInputChange("from_country_id", opt?.value || ""),
+                  countries,
+                  "From Country",
+                  false,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.to_country_id,
+                  (opt) => handleInputChange("to_country_id", opt?.value || ""),
+                  countries,
+                  "To Country",
+                  false,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.transport_type,
+                  (opt) =>
+                    handleInputChange("transport_type", opt?.value || ""),
+                  transportTypeOptions,
+                  "Select Transport Type",
+                  true,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.payload}
+                  onChange={(e) => handleInputChange("payload", e.target.value)}
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.total_quantity}
+                  onChange={(e) =>
+                    handleInputChange("total_quantity", e.target.value)
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.time}
+                  onChange={(e) => handleInputChange("time", e.target.value)}
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.note}
+                  onChange={(e) => handleInputChange("note", e.target.value)}
+                />
+              </td>
+            </tr>
+          </Table>
+        </div>
+      </form>
 
       <div className={styles.form__buttons}>
         <Button text="Cancel" type="button" onClick={() => modalClose(false)} />

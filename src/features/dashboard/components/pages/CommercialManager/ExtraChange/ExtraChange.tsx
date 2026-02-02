@@ -8,6 +8,7 @@ import CreateStation from "@/features/dashboard/components/shared/Modals/Station
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import Button from "@/components/Button/Button.tsx";
+import ExtraChangeModal from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeModal.tsx";
 
 const filterKeys = [
   "order_code",
@@ -53,7 +54,9 @@ const ExtraChange = () => {
     status: "",
   });
 
-  const [modal, setModal] = useState<null | "create" | "accountant">(null);
+  const [modal, setModal] = useState<
+    null | "create" | "accountant" | "extra_change"
+  >(null);
   const [data, setData] = useState<ExtraChangeProps[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -107,7 +110,12 @@ const ExtraChange = () => {
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
         <h1>Extra Change</h1>
-        <Button text="Extra cost" viewType="green__light" icon={PlusIcon} />
+        <Button
+          text="Extra cost"
+          viewType="green__light"
+          icon={PlusIcon}
+          onClick={() => setModal("extra_change")}
+        />
       </div>
 
       <div className={styles.table}>
@@ -200,6 +208,15 @@ const ExtraChange = () => {
 
       {modal === "create" && (
         <CreateStation
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+        />
+      )}
+
+      {modal === "extra_change" && (
+        <ExtraChangeModal
           modalClose={() => {
             setModal(null);
             setPageHelper((prev) => ({ ...prev, render: !prev.render }));
