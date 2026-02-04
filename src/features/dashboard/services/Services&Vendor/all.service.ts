@@ -11,6 +11,8 @@ export const getAllServices = async (params: {
   hs_code_name?: string;
   from_name?: string;
   to_name?: string;
+  from_country?: string;
+  to_country?: string;
   transport_type?: string;
   purchase_price_ton?: string;
   purchase_price_unit?: string;

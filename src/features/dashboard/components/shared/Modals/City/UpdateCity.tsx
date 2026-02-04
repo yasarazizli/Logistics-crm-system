@@ -209,6 +209,7 @@ const UpdateCity = ({
           <Button
             text={t("shared.buttons.cancel")}
             type="button"
+            viewType="red"
             onClick={() => modalClose(false)}
           />
           <Button text={t("shared.buttons.save")} type="submit" />

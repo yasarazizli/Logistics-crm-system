@@ -155,3 +155,15 @@ export const ApproveDocumentCm = async (formData: FormData, id: number) => {
       return err.response;
     });
 };
+
+export const OrderIdNo = async () => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-all-orderNo/`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

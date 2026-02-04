@@ -23,6 +23,8 @@ interface Service {
   transport_mode: string;
   from: string;
   to: string;
+  from_country: string;
+  to_country: string;
   transport_type: string;
   purchase_price_ton: number;
   purchase_price_unit: number;
@@ -41,6 +43,8 @@ const filterKeys = [
   "transport_mode",
   "from_name",
   "to_name",
+  "from_country",
+  "to_country",
   "transport_type",
 ] as const;
 
@@ -55,6 +59,8 @@ const Services = () => {
     transport_mode: "",
     from_name: "",
     to_name: "",
+    from_country: "",
+    to_country: "",
     transport_type: "",
     is_active: undefined as boolean | undefined,
   });
@@ -110,6 +116,8 @@ const Services = () => {
     transport_mode: useDebounce(filters.transport_mode, 700),
     from_name: useDebounce(filters.from_name, 700),
     to_name: useDebounce(filters.to_name, 700),
+    from_country: useDebounce(filters.from_country, 700),
+    to_country: useDebounce(filters.to_country, 700),
     transport_type: useDebounce(filters.transport_type, 700),
     is_active: filters.is_active,
   };
@@ -216,6 +224,8 @@ const Services = () => {
             { name: "Transport Mode" },
             { name: "From" },
             { name: "To" },
+            { name: "From Country" },
+            { name: "To Country" },
             { name: "Transport Type" },
             { name: "Purchase Price Per Unity" },
             { name: "Purchase Price Per Ton" },
@@ -256,6 +266,8 @@ const Services = () => {
               <td>{item.transport_mode}</td>
               <td>{item.from}</td>
               <td>{item.to}</td>
+              <td>{item.from_country}</td>
+              <td>{item.to_country}</td>
               <td>{item.transport_type}</td>
               <td>{item.purchase_price_ton}</td>
               <td>{item.purchase_price_unit}</td>

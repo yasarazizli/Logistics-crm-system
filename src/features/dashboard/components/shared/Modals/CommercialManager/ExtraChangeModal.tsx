@@ -6,15 +6,25 @@ import Button from "@/components/Button/Button.tsx";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
-import { createPrice } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import {
+  createPrice,
+  OrderIdNo,
+} from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import {
   getAllServicesName,
   getAllVendors,
 } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
+import { DeleteIcon, FileIcon } from "@/assets/icons/shared.vectors.tsx";
+import Input from "@/components/Input/Input.tsx";
 
 interface Option {
   value: string;
+  label: string;
+}
+
+interface OptionType {
+  value: number | string;
   label: string;
 }
 
@@ -24,6 +34,7 @@ interface VendorType {
 }
 
 interface Service {
+  index: number;
   id: number;
   service_name: string;
   total_quantity: string;
@@ -38,6 +49,15 @@ interface Service {
   profit: string;
   vendor: string;
   description: string;
+  file: File | null;
+  fileName: string;
+}
+
+interface OrderData {
+  client: string;
+  client_id: number;
+  contract: string;
+  order_no: number;
 }
 
 const customStyles: StylesConfig<Option, false> = {
@@ -90,34 +110,215 @@ const customStyles: StylesConfig<Option, false> = {
   }),
 };
 
+export const customStyle: StylesConfig<OptionType, false> = {
+  control: (provided) => ({
+    ...provided,
+    borderRadius: 6,
+    border: "1px solid #E7E7E7",
+    backgroundColor: "#F5F5F5",
+    height: "53px",
+    fontFamily: "Manrope",
+    fontSize: "14px",
+    fontWeight: 500,
+    boxShadow: "none",
+    color: "#7b7979",
+    "&:hover": {
+      border: "1px solid #E7E7E7",
+    },
+  }),
+
+  valueContainer: (provided) => ({
+    ...provided,
+    padding: "10px",
+    overflow: "hidden",
+  }),
+
+  input: (provided) => ({
+    ...provided,
+    margin: 0,
+    padding: 0,
+    color: "#000",
+  }),
+
+  singleValue: (provided) => ({
+    ...provided,
+    color: "#000",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: "100%",
+  }),
+
+  placeholder: (provided) => ({
+    ...provided,
+    color: "rgba(0,0,0,0.48)",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  }),
+
+  clearIndicator: (provided) => ({
+    ...provided,
+    cursor: "pointer",
+    color: "#000",
+    ":hover": {
+      color: "#000",
+    },
+  }),
+
+  indicatorSeparator: () => ({ display: "none" }),
+  dropdownIndicator: () => ({ display: "none" }),
+
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    fontFamily: "Manrope",
+    fontSize: "14px",
+    fontWeight: 500,
+    cursor: "pointer",
+    whiteSpace: "normal",
+    wordBreak: "break-word",
+    backgroundColor: state.isSelected
+      ? "#1D736B"
+      : state.isFocused
+        ? "#beeabe"
+        : "white",
+    color: state.isSelected ? "white" : "#000",
+
+    ":active": {
+      backgroundColor: "#1D736B",
+      color: "white",
+    },
+  }),
+};
+
 const ExtraChangeModal = ({
   modalClose,
 }: {
   modalClose: (isRender: boolean) => void;
 }) => {
   const { setLoader } = useContext(LoaderContext);
-  const [service, setService] = useState<Service>({
-    id: Date.now(),
-    service_name: "",
-    total_quantity: "",
-    purchase_price_per_ton: "",
-    purchase_price_per_unit: "",
-    unit: "",
-    total_purchase_price: "",
-    selling_price: "",
-    total_selling_price: "",
-    vat: "",
-    vat_18: false,
-    profit: "",
-    vendor: "",
-    description: "",
-  });
+  const [services, setServices] = useState<Service[]>([
+    {
+      index: 0,
+      id: 0,
+      service_name: "",
+      total_quantity: "",
+      purchase_price_per_ton: "",
+      purchase_price_per_unit: "",
+      unit: "",
+      total_purchase_price: "",
+      selling_price: "",
+      total_selling_price: "",
+      vat: "",
+      vat_18: false,
+      profit: "",
+      vendor: "",
+      description: "",
+      file: null,
+      fileName: "",
+    },
+  ]);
 
   const [serviceNames, setServiceNames] = useState<Option[]>([]);
   const [vendors, setVendors] = useState<VendorType[]>([]);
+  const [orderData, setOrderData] = useState<OrderData[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<OrderData | null>(null);
+  const [selectedBank, setSelectedBank] = useState<OptionType | null>(null);
 
-  const handleInputChange = (field: keyof Service, value: string) => {
-    setService((prev) => ({ ...prev, [field]: value }));
+  const [formData, setFormData] = useState({
+    date: "",
+    client: "",
+    contract: "",
+  });
+
+  const handleServiceInputChange = (
+    id: number,
+    field: keyof Service,
+    value: string | boolean | File,
+  ) => {
+    setServices((prev) =>
+      prev.map((service) =>
+        service.id === id ? { ...service, [field]: value } : service,
+      ),
+    );
+  };
+
+  const handleFileChange = (
+    id: number,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setServices((prev) =>
+        prev.map((service) =>
+          service.id === id
+            ? {
+                ...service,
+                file: file,
+                fileName: file.name,
+              }
+            : service,
+        ),
+      );
+    }
+  };
+
+  const removeFile = (id: number) => {
+    setServices((prev) =>
+      prev.map((service) =>
+        service.id === id
+          ? {
+              ...service,
+              file: null,
+              fileName: "",
+            }
+          : service,
+      ),
+    );
+  };
+
+  const addNewRow = () => {
+    const newId =
+      services.length > 0 ? Math.max(...services.map((s) => s.id)) + 1 : 1;
+    setServices([
+      ...services,
+      {
+        index: 0,
+        id: newId,
+        service_name: "",
+        total_quantity: "",
+        purchase_price_per_ton: "",
+        purchase_price_per_unit: "",
+        unit: "",
+        total_purchase_price: "",
+        selling_price: "",
+        total_selling_price: "",
+        vat: "",
+        vat_18: false,
+        profit: "",
+        vendor: "",
+        description: "",
+        file: null,
+        fileName: "",
+      },
+    ]);
+  };
+
+  const deleteRow = (id: number) => {
+    if (services.length > 1) {
+      setServices(services.filter((service) => service.id !== id));
+    } else {
+      toast.warning("At least one row must remain");
+    }
   };
 
   useEffect(() => {
@@ -154,12 +355,58 @@ const ExtraChangeModal = ({
       }
     };
     fetchVendors();
+
+    const fetchOrderData = async () => {
+      const { data, status } = await OrderIdNo();
+      if (status === 200) {
+        setOrderData(data);
+      }
+    };
+    fetchOrderData();
   }, []);
 
   const vendorOptions: Option[] = vendors.map((vendor) => ({
     value: vendor.id.toString(),
     label: vendor.name,
   }));
+
+  const orderOptions: OptionType[] = orderData.map((order) => ({
+    value: order.order_no,
+    label: `Order ${order.order_no}`,
+  }));
+
+  const handleOrderSelect = (selectedOption: SingleValue<OptionType>) => {
+    if (selectedOption) {
+      const order = orderData.find(
+        (o) => o.order_no.toString() === selectedOption.value.toString(),
+      );
+      if (order) {
+        setSelectedOrder(order);
+        setFormData({
+          ...formData,
+          client: order.client,
+          contract: order.contract || "",
+        });
+      }
+    } else {
+      setSelectedOrder(null);
+      setFormData({
+        ...formData,
+        client: "",
+        contract: "",
+      });
+    }
+  };
+
+  const handleFormInputChange = (
+    field: keyof typeof formData,
+    value: string,
+  ) => {
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
+  };
 
   const renderSelect = (
     value: string,
@@ -185,166 +432,432 @@ const ExtraChangeModal = ({
   const handleSend = async () => {
     setLoader(true);
 
-    const formData = new FormData();
+    try {
+      const formDataToSend = new FormData();
 
-    formData.append("service_name", service.service_name);
-    formData.append("total_quantity", service.total_quantity);
-    formData.append("purchase_price_per_ton", service.purchase_price_per_ton);
-    formData.append("purchase_price_per_unit", service.purchase_price_per_unit);
-    formData.append("unit", service.unit);
-    formData.append("total_purchase_price", service.total_purchase_price);
-    formData.append("selling_price", service.selling_price);
-    formData.append("total_selling_price", service.total_selling_price);
-    formData.append("vat", service.vat);
-    formData.append("vat_18", service.vat_18.toString());
-    formData.append("profit", service.profit);
-    formData.append("vendor", service.vendor);
-    formData.append("description", service.description);
+      formDataToSend.append("date", formData.date);
+      formDataToSend.append(
+        "order_id",
+        selectedOrder?.order_no?.toString() || "",
+      );
+      formDataToSend.append("client", formData.client);
+      formDataToSend.append("contract", formData.contract);
+      formDataToSend.append("bank", selectedBank?.value?.toString() || "");
 
-    const { status, data } = await createPrice(formData, 2);
+      const servicesData = services.map((service) => ({
+        index: service.id + 1,
+        service_name: service.service_name,
+        total_quantity: service.total_quantity,
+        purchase_price_per_ton: service.purchase_price_per_ton,
+        purchase_price_per_unit: service.purchase_price_per_unit,
+        unit: service.unit,
+        total_purchase_price: service.total_purchase_price,
+        selling_price: service.selling_price,
+        total_selling_price: service.total_selling_price,
+        vat: service.vat,
+        vat_18: service.vat_18,
+        profit: service.profit,
+        vendor: service.vendor,
+        description: service.description,
+        fileName: service.fileName,
+      }));
 
-    if (status === 200) {
-      toast.success("Quotation sent successfully");
-      modalClose(true);
-    } else {
-      toast.error(errorMessageHandler(data));
+      formDataToSend.append("services", JSON.stringify(servicesData));
+
+      services.forEach((service, index) => {
+        if (service.file) {
+          formDataToSend.append(`file_${index + 1}`, service.file);
+        }
+      });
+
+      const { status, data } = await createPrice(formDataToSend, 2);
+
+      if (status === 200) {
+        toast.success("Quotation sent successfully");
+        modalClose(true);
+      } else {
+        toast.error(errorMessageHandler(data));
+      }
+    } catch (error) {
+      toast.error("Error sending quotation");
+      console.error(error);
     }
+
     setLoader(false);
   };
 
+  const bank = [
+    "ABB (RUB)",
+    "ABB (USD)",
+    "ABB (AZN)",
+    "Pasha Bank (USD)",
+    "Pasha Bank (RUB)",
+    "Pasha Bank (EUR)",
+    "Pasha Bank (AZN)",
+  ];
+
+  const bankOptions = bank.map((b) => ({
+    value: b,
+    label: b,
+  }));
+
   return (
-    <Modal title="Price quotation by sale" modalClose={() => modalClose(false)}>
-      <Table
-        headers={[
-          { name: "Service" },
-          { name: "Total Quantity" },
-          { name: "Purchase price per ton" },
-          { name: "Purchase price per unit" },
-          { name: "Unit" },
-          { name: "Total Purchase Price" },
-          { name: "Selling price" },
-          { name: "Total Selling Price" },
-          { name: "VAT" },
-          { name: "VAT (18%)" },
-          { name: "Profit" },
-          { name: "Vendor" },
-          { name: "Description" },
-        ]}
-      >
-        <tr>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.service_name,
-              (opt) => handleInputChange("service_name", opt?.value || ""),
-              serviceNames,
-              "Select Service",
-              true,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.total_quantity}
-              onChange={(e) =>
-                handleInputChange("total_quantity", e.target.value)
-              }
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.purchase_price_per_ton}
-              onChange={(e) =>
-                handleInputChange("purchase_price_per_ton", e.target.value)
-              }
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.purchase_price_per_unit}
-              onChange={(e) =>
-                handleInputChange("purchase_price_per_unit", e.target.value)
-              }
-            />
-          </td>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.unit,
-              (opt) => handleInputChange("unit", opt?.value || ""),
-              [
-                { value: "unit", label: "Unit" },
-                { value: "ton", label: "Ton" },
-              ],
-              "Select Unit",
-              true,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.total_purchase_price}
-              onChange={(e) =>
-                handleInputChange("total_purchase_price", e.target.value)
-              }
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.selling_price}
-              onChange={(e) =>
-                handleInputChange("selling_price", e.target.value)
-              }
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.total_selling_price}
-              onChange={(e) =>
-                handleInputChange("total_selling_price", e.target.value)
-              }
-            />
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.vat}
-              onChange={(e) => handleInputChange("vat", e.target.value)}
-            />
-          </td>
+    <Modal title="Extra Cost" modalClose={() => modalClose(false)}>
+      <div className={styles.form}>
+        <div className={styles.form__inputs}>
+          <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+            <div className={styles.selectWrapper}>
+              <label className={styles.label}>Date</label>
+              <Input
+                type="date"
+                value={formData.date}
+                onChange={(e) => handleFormInputChange("date", e.target.value)}
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <label className={styles.label}>Order ID</label>
+              <Select
+                styles={customStyle}
+                options={orderOptions}
+                onChange={handleOrderSelect}
+                placeholder="Order ID"
+                isSearchable
+                isClearable
+              />
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 13,
+              marginBottom: 20,
+            }}
+          >
+            <div className={styles.selectWrapper}>
+              <label className={styles.label}>Client</label>
+              <Input
+                type="text"
+                value={formData.client}
+                onChange={(e) =>
+                  handleFormInputChange("client", e.target.value)
+                }
+                className={styles.input}
+                placeholder="Client"
+                readOnly={!!selectedOrder}
+                style={{
+                  backgroundColor: selectedOrder ? "#f0f0f0" : "#F5F5F5",
+                  cursor: selectedOrder ? "not-allowed" : "text",
+                }}
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <label className={styles.label}>Bank rekviziti</label>
+              <Select
+                styles={customStyle}
+                options={bankOptions}
+                value={selectedBank}
+                onChange={setSelectedBank}
+                placeholder="Bank rekviziti"
+                isSearchable
+                isClearable
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <label className={styles.label}>Contract</label>
+              <Input
+                type="text"
+                value={formData.contract}
+                onChange={(e) =>
+                  handleFormInputChange("contract", e.target.value)
+                }
+                className={styles.input}
+                placeholder="Contract"
+                readOnly={!!selectedOrder}
+                style={{
+                  backgroundColor: selectedOrder ? "#f0f0f0" : "#F5F5F5",
+                  cursor: selectedOrder ? "not-allowed" : "text",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        <Table
+          headers={[
+            { name: "Service" },
+            { name: "Total Quantity" },
+            { name: "Purchase price per ton" },
+            { name: "Purchase price per unit" },
+            { name: "Unit" },
+            { name: "Total Purchase Price" },
+            { name: "Selling price" },
+            { name: "Total Selling Price" },
+            { name: "VAT" },
+            { name: "VAT (18%)" },
+            { name: "Profit" },
+            { name: "Vendor" },
+            { name: "Description" },
+            { name: "File" },
+            { name: "Actions" },
+          ]}
+        >
+          {services.map((service) => (
+            <tr key={service.id}>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.service_name,
+                  (opt) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "service_name",
+                      opt?.value || "",
+                    ),
+                  serviceNames,
+                  "Select Service",
+                  true,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.total_quantity}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "total_quantity",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.purchase_price_per_ton}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "purchase_price_per_ton",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.purchase_price_per_unit}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "purchase_price_per_unit",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.unit,
+                  (opt) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "unit",
+                      opt?.value || "",
+                    ),
+                  [
+                    { value: "unit", label: "Unit" },
+                    { value: "ton", label: "Ton" },
+                  ],
+                  "Select Unit",
+                  true,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.total_purchase_price}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "total_purchase_price",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.selling_price}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "selling_price",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.total_selling_price}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "total_selling_price",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.vat}
+                  onChange={(e) =>
+                    handleServiceInputChange(service.id, "vat", e.target.value)
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  type="checkbox"
+                  checked={service.vat_18}
+                  style={{ cursor: "pointer" }}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "vat_18",
+                      e.target.checked,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.profit}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "profit",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                {renderSelect(
+                  service.vendor,
+                  (opt) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "vendor",
+                      opt?.value || "",
+                    ),
+                  vendorOptions,
+                  "Select Vendor",
+                  true,
+                )}
+              </td>
+              <td className={styles.cellInput}>
+                <input
+                  value={service.description}
+                  onChange={(e) =>
+                    handleServiceInputChange(
+                      service.id,
+                      "description",
+                      e.target.value,
+                    )
+                  }
+                />
+              </td>
+              <td className={styles.cellInput}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <label
+                    htmlFor={`file-upload-${service.id}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      cursor: "pointer",
+                      padding: "8px 12px",
+                      backgroundColor: "#f0f0f0",
+                      borderRadius: "4px",
+                      fontSize: "14px",
+                    }}
+                  >
+                    <FileIcon />
+                    Upload
+                  </label>
+                  <input
+                    id={`file-upload-${service.id}`}
+                    type="file"
+                    onChange={(e) => handleFileChange(service.id, e)}
+                    style={{ display: "none" }}
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                  />
+                  {service.fileName && (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                      }}
+                    >
+                      <span style={{ fontSize: "12px" }}>
+                        {service.fileName}
+                      </span>
+                      <button
+                        onClick={() => removeFile(service.id)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#ff0000",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </td>
+              <td className={styles.cellInput}>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__1}
+                    onClick={() => deleteRow(service.id)}
+                  >
+                    <DeleteIcon />
+                  </div>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </Table>
 
-          <td className={styles.cellInput}>
-            <input
-              type="checkbox"
-              checked={service.vat_18}
-              onChange={(e) =>
-                setService((prev) => ({ ...prev, vat_18: e.target.checked }))
-              }
-            />
-          </td>
+        <div style={{ marginTop: "10px", position: "absolute" }}>
+          <Button
+            text="Add Column"
+            type="button"
+            onClick={addNewRow}
+            viewType="green__light"
+          />
+        </div>
 
-          <td className={styles.cellInput}>
-            <input
-              value={service.profit}
-              onChange={(e) => handleInputChange("profit", e.target.value)}
-            />
-          </td>
-          <td className={styles.cellInput}>
-            {renderSelect(
-              service.vendor,
-              (opt) => handleInputChange("vendor", opt?.value || ""),
-              vendorOptions,
-              "Select Vendor",
-              true,
-            )}
-          </td>
-          <td className={styles.cellInput}>
-            <input
-              value={service.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
-            />
-          </td>
-        </tr>
-      </Table>
-
-      <div className={styles.form__buttons}>
-        <Button text="Cancel" type="button" onClick={() => modalClose(false)} />
-        <Button text="Send" type="button" onClick={handleSend} />
+        <div className={styles.form__buttons}>
+          <Button
+            text="Cancel"
+            type="button"
+            onClick={() => modalClose(false)}
+            viewType="red"
+          />
+          <Button text="Send" type="button" onClick={handleSend} />
+        </div>
       </div>
     </Modal>
   );

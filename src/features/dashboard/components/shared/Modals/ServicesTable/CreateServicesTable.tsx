@@ -21,6 +21,8 @@ interface Service {
   packaging_type: string;
   container_type: string;
   to: string;
+  from_country: string;
+  to_country: string;
   transport_type: string;
   purchase_price_ton: number;
   purchase_price_unit: number;
@@ -35,6 +37,8 @@ interface ServiceFilters {
   hs_code_name: string;
   from_name: string;
   to_name: string;
+  from_country: string;
+  to_country: string;
   transport_type: string;
 }
 
@@ -56,6 +60,8 @@ const CreateServicesTable = ({
     hs_code_name: "",
     from_name: "",
     to_name: "",
+    from_country: "",
+    to_country: "",
     transport_type: "",
   });
 
@@ -70,6 +76,8 @@ const CreateServicesTable = ({
     transport_mode: useDebounce(filters.transport_mode, 500),
     hs_code_name: useDebounce(filters.hs_code_name, 500),
     from_name: useDebounce(filters.from_name, 500),
+    from_country: useDebounce(filters.from_country, 500),
+    to_country: useDebounce(filters.to_country, 500),
     to_name: useDebounce(filters.to_name, 500),
     transport_type: useDebounce(filters.transport_type, 500),
   };
@@ -82,6 +90,8 @@ const CreateServicesTable = ({
     hs_code_name: "HS Code",
     from_name: "From",
     to_name: "To",
+    from_country: "From Country",
+    to_country: "To Country",
     transport_type: "Transport Type",
   };
 
@@ -131,6 +141,8 @@ const CreateServicesTable = ({
           { name: "HS Code" },
           { name: "From" },
           { name: "To" },
+          { name: "From Country" },
+          { name: "To Country" },
           { name: "Transport Type" },
           { name: "Packaging" },
           { name: "Packaging Type" },
@@ -169,6 +181,8 @@ const CreateServicesTable = ({
             <td>{item.hs_code}</td>
             <td>{item.from}</td>
             <td>{item.to}</td>
+            <td>{item.from_country}</td>
+            <td>{item.to_country}</td>
             <td>{item.packaging_type}</td>
             <td>{item.container_type}</td>
             <td>{item.transport_type}</td>

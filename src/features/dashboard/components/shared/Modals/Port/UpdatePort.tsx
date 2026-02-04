@@ -207,6 +207,7 @@ const UpdatePort = ({
         <div className={styles.form__buttons}>
           <Button
             text={t("shared.buttons.cancel")}
+            viewType="red"
             type="button"
             onClick={() => modalClose(false)}
           />

@@ -89,6 +89,7 @@ const SelectBank = ({ modalClose, id, onSelect }: SelectBankProps) => {
           <Button
             text={t("shared.buttons.cancel")}
             type="button"
+            viewType="red"
             onClick={modalClose}
           />
           <Button text={t("shared.buttons.save")} type="submit" />

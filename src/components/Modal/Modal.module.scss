@@ -705,6 +705,24 @@
 .cellInput {
   padding: 0 !important;
 
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    .icon__1 {
+      border-radius: 16px;
+      background: rgba(247, 65, 86, 0.20);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+  }
+
   input,
   select {
     width: 100%;
