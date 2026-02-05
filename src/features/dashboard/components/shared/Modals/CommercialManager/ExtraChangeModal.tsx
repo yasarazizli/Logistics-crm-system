@@ -211,16 +211,16 @@ const ExtraChangeModal = ({
       index: 0,
       id: 0,
       service_name: "",
-      total_quantity: "",
-      purchase_price_per_ton: "",
-      purchase_price_per_unit: "",
+      total_quantity: "0",
+      purchase_price_per_ton: "0",
+      purchase_price_per_unit: "0",
       unit: "",
-      total_purchase_price: "",
-      selling_price: "",
-      total_selling_price: "",
-      vat: "",
+      total_purchase_price: "0",
+      selling_price: "0",
+      total_selling_price: "0",
+      vat: "0",
       vat_18: false,
-      profit: "",
+      profit: "0",
       vendor: "",
       description: "",
       file: null,
@@ -352,16 +352,16 @@ const ExtraChangeModal = ({
         index: services.length,
         id: newId,
         service_name: "",
-        total_quantity: "",
-        purchase_price_per_ton: "",
-        purchase_price_per_unit: "",
+        total_quantity: "0",
+        purchase_price_per_ton: "0",
+        purchase_price_per_unit: "0",
         unit: "",
-        total_purchase_price: "",
-        selling_price: "",
-        total_selling_price: "",
-        vat: "",
+        total_purchase_price: "0",
+        selling_price: "0",
+        total_selling_price: "0",
+        vat: "0",
         vat_18: false,
-        profit: "",
+        profit: "0",
         vendor: "",
         description: "",
         file: null,
@@ -501,22 +501,38 @@ const ExtraChangeModal = ({
       formDataToSend.append("contract", formData.contract);
       formDataToSend.append("bank", selectedBank?.value?.toString() || "");
 
-      const servicesData = services.map((service) => ({
-        index: service.id + 1,
-        service_name: service.service_name,
-        total_quantity: service.total_quantity,
-        purchase_price_per_ton: service.purchase_price_per_ton,
-        purchase_price_per_unit: service.purchase_price_per_unit,
-        unit: service.unit,
-        total_purchase_price: service.total_purchase_price,
-        selling_price: service.selling_price,
-        total_selling_price: service.total_selling_price,
-        vat: service.vat,
-        vat_18: service.vat_18,
-        profit: service.profit,
-        vendor: service.vendor,
-        description: service.description,
-      }));
+      // calculatedValues.services istifadə edin
+      const servicesData = calculatedValues.services.map((service) => {
+        const parseOrZero = (value: string | undefined | null): number => {
+          if (!value || value.trim() === "") return 0;
+          const parsed = parseFloat(value);
+          return isNaN(parsed) ? 0 : parsed;
+        };
+
+        const parseVendorId = (vendorValue: string): number => {
+          if (!vendorValue || vendorValue.trim() === "") return 0;
+          const parsed = parseFloat(vendorValue);
+          return isNaN(parsed) ? 0 : parsed;
+        };
+
+        return {
+          index: service.id + 1,
+          service_name: service.service_name,
+          total_quantity: parseOrZero(service.total_quantity),
+          purchase_price_per_ton: parseOrZero(service.purchase_price_per_ton),
+          purchase_price_per_unit: parseOrZero(service.purchase_price_per_unit),
+          unit: service.unit,
+          total_purchase_price: parseOrZero(service.total_purchase_price),
+          selling_price: parseOrZero(service.selling_price),
+          total_selling_price: parseOrZero(service.total_selling_price),
+          vat: parseOrZero(service.vat),
+          vat_18: service.vat_18,
+          profit: parseOrZero(service.profit),
+          // Vendor ID-ni number-a çeviririk
+          vendor: parseVendorId(service.vendor),
+          description: service.description,
+        };
+      });
 
       formDataToSend.append("services", JSON.stringify(servicesData));
 
@@ -525,6 +541,8 @@ const ExtraChangeModal = ({
           formDataToSend.append(`file_${index + 1}`, service.file);
         }
       });
+
+      console.log("Sending data:", servicesData);
 
       const { status, data } = await ExtraChangeApi(formDataToSend);
 
