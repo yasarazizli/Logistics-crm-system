@@ -167,3 +167,15 @@ export const OrderIdNo = async () => {
       return err.response;
     });
 };
+
+export const ExtraChangeApi = async (formData: FormData) => {
+  return await axios
+    .post(`${apiUrl}/commercial/extra-cost/`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

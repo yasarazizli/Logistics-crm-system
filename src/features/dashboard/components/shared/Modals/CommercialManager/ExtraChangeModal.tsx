@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import Select, { StylesConfig, SingleValue } from "react-select";
 import styles from "@/components/Modal/Modal.module.scss";
 import Modal from "@/components/Modal/Modal.tsx";
@@ -7,7 +7,7 @@ import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { toast } from "react-toastify";
 import { errorMessageHandler } from "@/libs/error.ts";
 import {
-  createPrice,
+  ExtraChangeApi,
   OrderIdNo,
 } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import {
@@ -116,7 +116,7 @@ export const customStyle: StylesConfig<OptionType, false> = {
     borderRadius: 6,
     border: "1px solid #E7E7E7",
     backgroundColor: "#F5F5F5",
-    height: "53px",
+    height: "55px",
     fontFamily: "Manrope",
     fontSize: "14px",
     fontWeight: 500,
@@ -240,6 +240,63 @@ const ExtraChangeModal = ({
     contract: "",
   });
 
+  const calculatedValues = useMemo(() => {
+    const round = (num: number, decimals = 2) => Number(num.toFixed(decimals));
+    let totalPurchasePrice = 0;
+    let totalSellingPrice = 0;
+    let totalVAT = 0;
+
+    const calculatedServices = services.map((service) => {
+      const totalQuantity = parseFloat(service.total_quantity) || 0;
+      const purchasePricePerTon =
+        parseFloat(service.purchase_price_per_ton) || 0;
+      const purchasePricePerUnit =
+        parseFloat(service.purchase_price_per_unit) || 0;
+      const sellingPrice = parseFloat(service.selling_price) || 0;
+      const unitType = service.unit;
+
+      let totalPurchase = 0;
+      let totalSelling = 0;
+
+      if (unitType === "ton") {
+        totalPurchase = round(totalQuantity * purchasePricePerTon);
+      } else if (unitType === "unit") {
+        totalPurchase = round(totalQuantity * purchasePricePerUnit);
+      }
+
+      if (unitType === "ton" || unitType === "unit") {
+        totalSelling = round(totalQuantity * sellingPrice);
+      }
+
+      const vatAmount = service.vat_18 ? round(totalSelling * 0.18) : 0;
+
+      totalPurchasePrice += totalPurchase;
+      totalSellingPrice += totalSelling;
+      totalVAT += vatAmount;
+
+      return {
+        ...service,
+        total_purchase_price: totalPurchase.toFixed(2),
+        total_selling_price: totalSelling.toFixed(2),
+        vat: vatAmount.toFixed(2),
+      };
+    });
+
+    const totalAmount = totalSellingPrice + totalVAT;
+
+    return {
+      services: calculatedServices,
+      summary: {
+        totalPurchase: round(totalPurchasePrice),
+        totalSelling: round(totalSellingPrice),
+        totalVAT: round(totalVAT),
+        totalAmount: round(totalAmount),
+      },
+    };
+  }, [services]);
+
+  const displayServices = calculatedValues.services;
+
   const handleServiceInputChange = (
     id: number,
     field: keyof Service,
@@ -292,7 +349,7 @@ const ExtraChangeModal = ({
     setServices([
       ...services,
       {
-        index: 0,
+        index: services.length,
         id: newId,
         service_name: "",
         total_quantity: "",
@@ -459,7 +516,6 @@ const ExtraChangeModal = ({
         profit: service.profit,
         vendor: service.vendor,
         description: service.description,
-        fileName: service.fileName,
       }));
 
       formDataToSend.append("services", JSON.stringify(servicesData));
@@ -470,7 +526,7 @@ const ExtraChangeModal = ({
         }
       });
 
-      const { status, data } = await createPrice(formDataToSend, 2);
+      const { status, data } = await ExtraChangeApi(formDataToSend);
 
       if (status === 200) {
         toast.success("Quotation sent successfully");
@@ -507,8 +563,8 @@ const ExtraChangeModal = ({
         <div className={styles.form__inputs}>
           <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
             <div className={styles.selectWrapper}>
-              <label className={styles.label}>Date</label>
               <Input
+                label="Date"
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleFormInputChange("date", e.target.value)}
@@ -536,9 +592,9 @@ const ExtraChangeModal = ({
             }}
           >
             <div className={styles.selectWrapper}>
-              <label className={styles.label}>Client</label>
               <Input
                 type="text"
+                label="Client"
                 value={formData.client}
                 onChange={(e) =>
                   handleFormInputChange("client", e.target.value)
@@ -565,10 +621,10 @@ const ExtraChangeModal = ({
               />
             </div>
             <div className={styles.selectWrapper}>
-              <label className={styles.label}>Contract</label>
               <Input
                 type="text"
                 value={formData.contract}
+                label="Contract"
                 onChange={(e) =>
                   handleFormInputChange("contract", e.target.value)
                 }
@@ -583,6 +639,7 @@ const ExtraChangeModal = ({
             </div>
           </div>
         </div>
+
         <Table
           headers={[
             { name: "Service" },
@@ -602,7 +659,7 @@ const ExtraChangeModal = ({
             { name: "Actions" },
           ]}
         >
-          {services.map((service) => (
+          {displayServices.map((service) => (
             <tr key={service.id}>
               <td className={styles.cellInput}>
                 {renderSelect(
@@ -672,16 +729,7 @@ const ExtraChangeModal = ({
                 )}
               </td>
               <td className={styles.cellInput}>
-                <input
-                  value={service.total_purchase_price}
-                  onChange={(e) =>
-                    handleServiceInputChange(
-                      service.id,
-                      "total_purchase_price",
-                      e.target.value,
-                    )
-                  }
-                />
+                <input value={service.total_purchase_price} readOnly />
               </td>
               <td className={styles.cellInput}>
                 <input
@@ -696,24 +744,10 @@ const ExtraChangeModal = ({
                 />
               </td>
               <td className={styles.cellInput}>
-                <input
-                  value={service.total_selling_price}
-                  onChange={(e) =>
-                    handleServiceInputChange(
-                      service.id,
-                      "total_selling_price",
-                      e.target.value,
-                    )
-                  }
-                />
+                <input value={service.total_selling_price} readOnly />
               </td>
               <td className={styles.cellInput}>
-                <input
-                  value={service.vat}
-                  onChange={(e) =>
-                    handleServiceInputChange(service.id, "vat", e.target.value)
-                  }
-                />
+                <input value={service.vat} readOnly />
               </td>
               <td className={styles.cellInput}>
                 <input
@@ -799,7 +833,7 @@ const ExtraChangeModal = ({
                     style={{ display: "none" }}
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                   />
-                  {service.fileName && (
+                  {service.file && (
                     <div
                       style={{
                         display: "flex",

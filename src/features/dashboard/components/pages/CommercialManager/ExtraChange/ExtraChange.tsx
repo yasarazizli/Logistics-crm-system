@@ -111,7 +111,7 @@ const ExtraChange = () => {
       <div className={styles.title__btn}>
         <h1>Extra Change</h1>
         <Button
-          text="Extra cost"
+          text="Extra Change"
           viewType="green__light"
           icon={PlusIcon}
           onClick={() => setModal("extra_change")}
