@@ -501,7 +501,6 @@ const ExtraChangeModal = ({
       formDataToSend.append("contract", formData.contract);
       formDataToSend.append("bank", selectedBank?.value?.toString() || "");
 
-      // calculatedValues.services istifadə edin
       const servicesData = calculatedValues.services.map((service) => {
         const parseOrZero = (value: string | undefined | null): number => {
           if (!value || value.trim() === "") return 0;
@@ -528,7 +527,6 @@ const ExtraChangeModal = ({
           vat: parseOrZero(service.vat),
           vat_18: service.vat_18,
           profit: parseOrZero(service.profit),
-          // Vendor ID-ni number-a çeviririk
           vendor: parseVendorId(service.vendor),
           description: service.description,
         };

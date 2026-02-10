@@ -179,3 +179,44 @@ export const ExtraChangeApi = async (formData: FormData) => {
       return err.response;
     });
 };
+
+export const getAllExtraChange = async (params: {
+  order_no: string;
+  service: string;
+  total_quantity: string;
+  purchase_price_per_ton: string;
+  purchase_price_per_unit: string;
+  unit: string;
+  total_purchase_price: string;
+  selling_price: string;
+  total_selling_price: string;
+  vat: string;
+  profit: string;
+  vendor: string;
+  description: string;
+  page?: number;
+  pageSize?: number;
+}) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-all-extra-cost/`, {
+      params,
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const getExtraChange = async (id: number) => {
+  return await axios
+    .get(`${apiUrl}/commercial/get-extra-cost/?service_id=${id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

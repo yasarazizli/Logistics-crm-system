@@ -2,60 +2,72 @@ import { useContext, useEffect, useState } from "react";
 import styles from "../../Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { FileIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
+import { PenIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import CreateStation from "@/features/dashboard/components/shared/Modals/Station/CreateStation.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
-import { getAllOrder } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
+import { getAllExtraChange } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import Button from "@/components/Button/Button.tsx";
 import ExtraChangeModal from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeModal.tsx";
+// import ExtraChangeUpdate from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeUpdate.tsx";
 
 const filterKeys = [
-  "order_code",
-  "customer",
-  "phone_number",
-  "email",
-  "country_loading",
-  "country_destination",
-  "start_date",
-  "end_date",
-  "status",
+  "order_no",
+  "service",
+  "total_quantity",
+  "purchase_price_per_ton",
+  "purchase_price_per_unit",
+  "unit",
+  "total_purchase_price",
+  "selling_price",
+  "total_selling_price",
+  "vat",
+  "profit",
+  "vendor",
+  "description",
 ] as const;
 
 interface ExtraChangeProps {
   order_id: number;
-  chose_member: string;
-  country_destination: string;
-  country_loading: string;
-  customer: string;
-  start_date: string;
-  end_date: string;
-  email: string;
-  order_type: string;
-  instructions: string;
-  invoice: string;
-  phone_number: string;
-  status: string;
-  price?: string | number;
+  order_no: number;
+  service: string;
+  total_quantity: string;
+  purchase_price_per_ton: string;
+  purchase_price_per_unit: string;
+  unit: string;
+  total_purchase_price: string;
+  selling_price: string;
+  total_selling_price: string;
+  vat: string;
+  vat_18: boolean;
+  profit: string;
+  vendor: string;
+  description: string;
+  file: File | null;
+  fileName: string;
 }
 
 const ExtraChange = () => {
   const { setLoader } = useContext(LoaderContext);
 
   const [filters, setFilters] = useState({
-    order_code: "",
-    customer: "",
-    phone_number: "",
-    email: "",
-    country_loading: "",
-    country_destination: "",
-    start_date: "",
-    end_date: "",
-    status: "",
+    order_no: "",
+    service: "",
+    total_quantity: "",
+    purchase_price_per_ton: "",
+    purchase_price_per_unit: "",
+    unit: "",
+    total_purchase_price: "",
+    selling_price: "",
+    total_selling_price: "",
+    vat: "",
+    profit: "",
+    vendor: "",
+    description: "",
   });
 
   const [modal, setModal] = useState<
-    null | "create" | "accountant" | "extra_change"
+    null | "create" | "accountant" | "extra_change" | "update"
   >(null);
   const [data, setData] = useState<ExtraChangeProps[]>([]);
   const [total, setTotal] = useState(0);
@@ -63,15 +75,19 @@ const ExtraChange = () => {
   const pageSize = 10;
 
   const debouncedFilters = {
-    order_code: useDebounce(filters.order_code, 700),
-    customer: useDebounce(filters.customer, 700),
-    phone_number: useDebounce(filters.phone_number, 700),
-    email: useDebounce(filters.email, 700),
-    country_loading: useDebounce(filters.country_loading, 700),
-    country_destination: useDebounce(filters.country_destination, 700),
-    status: useDebounce(filters.status, 700),
-    start_date: useDebounce(filters.start_date, 700),
-    end_date: useDebounce(filters.end_date, 700),
+    order_no: useDebounce(filters.order_no, 700),
+    service: useDebounce(filters.service, 700),
+    total_quantity: useDebounce(filters.total_quantity, 700),
+    purchase_price_per_ton: useDebounce(filters.purchase_price_per_ton, 700),
+    purchase_price_per_unit: useDebounce(filters.purchase_price_per_unit, 700),
+    unit: useDebounce(filters.unit, 700),
+    total_purchase_price: useDebounce(filters.total_purchase_price, 700),
+    selling_price: useDebounce(filters.selling_price, 700),
+    total_selling_price: useDebounce(filters.total_selling_price, 700),
+    vat: useDebounce(filters.vat, 700),
+    profit: useDebounce(filters.profit, 700),
+    vendor: useDebounce(filters.vendor, 700),
+    description: useDebounce(filters.description, 700),
   };
 
   const [pageHelper, setPageHelper] = useState({ render: false });
@@ -79,13 +95,14 @@ const ExtraChange = () => {
   useEffect(() => {
     setLoader(true);
     const fetchData = async () => {
-      const response = await getAllOrder({
+      const response = await getAllExtraChange({
         ...debouncedFilters,
         page,
         pageSize,
       });
       if (response?.status === 200) {
-        setData(response.data?.data || []);
+        console.log(response?.data || []);
+        setData(response.data || []);
         setTotal(response.data?.page_count || 0);
       }
     };
@@ -106,6 +123,9 @@ const ExtraChange = () => {
 
   const totalPages = Math.ceil(total / pageSize);
 
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  console.log(selectedId);
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -121,6 +141,7 @@ const ExtraChange = () => {
       <div className={styles.table}>
         <Table
           headers={[
+            { name: "Order No" },
             { name: "Service" },
             { name: "Total quantity" },
             { name: "Purchase Price per Ton" },
@@ -129,10 +150,12 @@ const ExtraChange = () => {
             { name: "Total Purchase Price" },
             { name: "Selling price" },
             { name: "Total Selling Price" },
-            { name: "VAT 18%" },
+            { name: "Vat" },
             { name: "Profit" },
             { name: "Vendor" },
             { name: "Description" },
+            { name: "VAT 18%" },
+            { name: "Action" },
           ]}
           filters={
             <>
@@ -148,53 +171,37 @@ const ExtraChange = () => {
               ))}
               <td></td>
               <td></td>
-              <td></td>
             </>
           }
         >
           {data.map((item) => (
             <tr key={item.order_id}>
-              <td>{item.order_id}</td>
-              <td>{item.customer}</td>
-              <td>{item.phone_number}</td>
-              <td>{item.email}</td>
-              <td>{item.country_loading}</td>
-              <td>{item.country_destination}</td>
-              <td>{item.start_date}</td>
-              <td>{item.end_date}</td>
-              <td>{item.status}</td>
+              <td>{item.order_no}</td>
+              <td>{item.service}</td>
+              <td>{item.total_quantity}</td>
+              <td>{item.purchase_price_per_ton}</td>
+              <td>{item.purchase_price_per_unit}</td>
+              <td>{item.unit}</td>
+              <td>{item.total_purchase_price}</td>
+              <td>{item.selling_price}</td>
+              <td>{item.total_selling_price}</td>
+              <td>{item.vat}</td>
+              <td>{item.profit}</td>
+              <td>{item.vendor}</td>
+              <td>{item.description}</td>
               <td>
-                {item.invoice ? (
-                  <a
-                    href={item.invoice}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div className={styles.file__icon}>
-                      <FileIcon />
-                    </div>
-                  </a>
-                ) : (
-                  " - "
-                )}
+                <input type="checkbox" checked={item.vat_18} readOnly />
               </td>
               <td>
-                {item.instructions ? (
-                  <a
-                    href={item.instructions}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => setSelectedId(item.order_id)}
                   >
-                    <div className={styles.file__icon}>
-                      <FileIcon />
-                    </div>
-                  </a>
-                ) : (
-                  " - "
-                )}
+                    <PenIcon />
+                  </div>
+                </div>
               </td>
-
-              <td></td>
             </tr>
           ))}
         </Table>
@@ -223,6 +230,16 @@ const ExtraChange = () => {
           }}
         />
       )}
+
+      {/*{modal === "update" && (*/}
+      {/*  <ExtraChangeUpdate*/}
+      {/*    modalClose={() => {*/}
+      {/*      setModal(null);*/}
+      {/*      setPageHelper((prev) => ({ ...prev, render: !prev.render }));*/}
+      {/*    }}*/}
+      {/*    extraChangeId={selectedId}*/}
+      {/*  />*/}
+      {/*)}*/}
     </div>
   );
 };
