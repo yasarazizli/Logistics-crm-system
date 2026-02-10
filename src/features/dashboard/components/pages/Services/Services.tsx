@@ -269,8 +269,8 @@ const Services = () => {
               <td>{item.from_country}</td>
               <td>{item.to_country}</td>
               <td>{item.transport_type}</td>
-              <td>{item.purchase_price_ton}</td>
               <td>{item.purchase_price_unit}</td>
+              <td>{item.purchase_price_ton}</td>
               <td>
                 <div className={styles.document}>
                   File
