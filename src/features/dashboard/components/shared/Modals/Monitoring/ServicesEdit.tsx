@@ -21,7 +21,9 @@ const ServicesEdit = ({
 }) => {
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
-  const noteRef = useRef<HTMLInputElement>(null);
+  const inputsRef = {
+    note: useRef<HTMLInputElement>(null),
+  };
 
   const create = async (event: FormEvent) => {
     event.preventDefault();
@@ -33,7 +35,8 @@ const ServicesEdit = ({
       { name: "approved", data: isApproved },
       {
         name: "note",
-        data: actionType === "reject" ? noteRef.current?.value || "" : "",
+        data:
+          actionType === "reject" ? inputsRef.note.current?.value || "" : "",
       },
     ]);
 
@@ -55,6 +58,7 @@ const ServicesEdit = ({
         <div className={styles.modal_content}>
           {actionType === "reject" && (
             <Input
+              inputRef={inputsRef.note}
               label="Note"
               placeholder="Enter rejection reason"
               type="text"
