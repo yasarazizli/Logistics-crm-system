@@ -4,7 +4,6 @@ import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PenIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
-import CreateStation from "@/features/dashboard/components/shared/Modals/Station/CreateStation.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { getAllExtraChange } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import Button from "@/components/Button/Button.tsx";
@@ -67,7 +66,7 @@ const ExtraChange = () => {
   });
 
   const [modal, setModal] = useState<
-    null | "create" | "accountant" | "extra_change" | "update"
+    null | "accountant" | "extra_change" | "update"
   >(null);
   const [data, setData] = useState<ExtraChangeProps[]>([]);
   const [total, setTotal] = useState(0);
@@ -212,15 +211,6 @@ const ExtraChange = () => {
           onPageChange={(pg) => setPage(pg)}
         />
       </div>
-
-      {modal === "create" && (
-        <CreateStation
-          modalClose={() => {
-            setModal(null);
-            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
-          }}
-        />
-      )}
 
       {modal === "extra_change" && (
         <ExtraChangeModal

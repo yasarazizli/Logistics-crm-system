@@ -190,7 +190,7 @@ const ExpandableSection = ({
               <input
                 id="msds-upload"
                 type="file"
-                accept="application/pdf,image/*"
+                accept="*/*"
                 onChange={handleMsdsChange}
                 style={{ display: "none" }}
               />
@@ -281,7 +281,7 @@ const ExpandableSection = ({
             <input
               id="cargo-image-upload"
               type="file"
-              accept="image/*"
+              accept="*/*"
               multiple
               onChange={handleImageChange}
               style={{ display: "none" }}

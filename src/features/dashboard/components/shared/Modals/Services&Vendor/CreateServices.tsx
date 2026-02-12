@@ -1013,7 +1013,7 @@ const CreateServices = ({
                     ref={inputsRef.protocol_file}
                     onChange={handleFileChangeProtocol}
                     className={styles.dropzone__input}
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                    accept="*/*"
                   />
                 </div>
               </div>

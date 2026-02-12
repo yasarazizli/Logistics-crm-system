@@ -134,7 +134,7 @@ const AddBalance = ({
               ref={inputsRef.file}
               onChange={handleFileChange}
               className={styles.dropzone__input}
-              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+              accept="*/*"
             />
           </div>
         </div>

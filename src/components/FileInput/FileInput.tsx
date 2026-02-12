@@ -37,7 +37,7 @@ const FileInput = ({
         ref={inputRef}
         type="file"
         onChange={handleChange}
-        accept=".xlsx,.xls,image/*,.doc, .docx,.ppt, .pptx,.txt,.pdf"
+        accept="*/*"
         {...props}
       />
     </label>

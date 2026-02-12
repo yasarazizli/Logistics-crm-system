@@ -847,7 +847,7 @@ const ExtraChangeModal = ({
                     type="file"
                     onChange={(e) => handleFileChange(service.id, e)}
                     style={{ display: "none" }}
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                    accept="*/*"
                   />
                   {service.file && (
                     <div
