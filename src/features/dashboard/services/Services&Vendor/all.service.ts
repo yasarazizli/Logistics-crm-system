@@ -138,11 +138,14 @@ export const getAllStationCode = async () => {
 
 export const getAllPort = async () => {
   return await axios
-    .get(`${apiUrl}/geography/get-all-port/?country=&name=&page=&pageSize=`, {
-      headers: {
-        Authorization: getCookie("allianceToken"),
+    .get(
+      `${apiUrl}/geography/get-all-port/?country=&name=&page=1&pageSize=999`,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
       },
-    })
+    )
     .catch((err) => {
       return err.response;
     });
