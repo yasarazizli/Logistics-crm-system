@@ -32,7 +32,7 @@ interface ServicesProps {
   service_name: string;
   hs_code_id: number;
   country: string;
-  form: number;
+  from: number;
   to: number;
   transport_mode: string;
   transport_type: string;
@@ -249,6 +249,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
     { value: "Open Top", label: "Open Top" },
     { value: "Flatrack", label: "Flatrack" },
     { value: "Bulk", label: "Bulk" },
+    { value: "Swap Body", label: "Swap Body" },
     { value: "Flexi Tank", label: "Flexi Tank" },
     { value: "Other", label: "Other" },
   ]);
@@ -628,7 +629,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
     ) {
       setTimeout(() => {
         if (inputsRef.from_id.current) {
-          inputsRef.from_id.current.value = String(serviceData.form) || "";
+          inputsRef.from_id.current.value = String(serviceData.from) || "";
         }
         if (inputsRef.to_id.current) {
           inputsRef.to_id.current.value = String(serviceData.to) || "";
@@ -662,7 +663,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
             setStationCodes(mapped);
 
             setTimeout(() => {
-              const fromStationId = serviceData.form;
+              const fromStationId = serviceData.from;
               const toStationId = serviceData.to;
 
               const fromStation = mapped.find(
@@ -687,7 +688,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
             setPorts(mapped);
 
             setTimeout(() => {
-              const fromPortId = serviceData.form;
+              const fromPortId = serviceData.from;
               const toPortId = serviceData.to;
 
               const fromPort = mapped.find(

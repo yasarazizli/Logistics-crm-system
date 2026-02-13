@@ -214,6 +214,7 @@ const CreateServices = ({
     { value: "Open Top", label: "Open Top" },
     { value: "Flatrack", label: "Flatrack" },
     { value: "Bulk", label: "Bulk" },
+    { value: "Swap Body", label: "Swap Body" },
     { value: "Flexi Tank", label: "Flexi Tank" },
     { value: "Other", label: "Other" },
   ]);
