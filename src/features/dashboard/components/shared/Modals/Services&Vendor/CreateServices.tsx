@@ -36,12 +36,14 @@ export const customStyles: StylesConfig<OptionType, false> = {
     borderRadius: 6,
     border: "1px solid #E7E7E7",
     backgroundColor: "#F5F5F5",
-    height: "53px",
+    minHeight: "53px",
+    height: "auto",
     fontFamily: "Manrope",
     fontSize: "14px",
     fontWeight: 500,
     boxShadow: "none",
     color: "#7b7979",
+    alignItems: "center",
     "&:hover": {
       border: "1px solid #E7E7E7",
     },
@@ -49,8 +51,8 @@ export const customStyles: StylesConfig<OptionType, false> = {
 
   valueContainer: (provided) => ({
     ...provided,
-    padding: "10px",
-    overflow: "hidden",
+    padding: "0 8px",
+    overflow: "visible",
   }),
 
   input: (provided) => ({
@@ -58,65 +60,46 @@ export const customStyles: StylesConfig<OptionType, false> = {
     margin: 0,
     padding: 0,
     color: "#000",
+    lineHeight: "10px",
   }),
 
   singleValue: (provided) => ({
     ...provided,
     color: "#000",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxWidth: "100%",
+    lineHeight: "20px",
+    paddingBottom: "2px",
   }),
 
   placeholder: (provided) => ({
     ...provided,
     color: "rgba(0,0,0,0.48)",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    lineHeight: "20px",
   }),
 
-  clearIndicator: (provided) => ({
-    ...provided,
+  clearIndicator: (p) => ({
+    ...p,
     cursor: "pointer",
     color: "#000",
-    ":hover": {
-      color: "#000",
-    },
   }),
 
   indicatorSeparator: () => ({ display: "none" }),
   dropdownIndicator: () => ({ display: "none" }),
 
-  menu: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-  }),
+  menu: (p) => ({ ...p, zIndex: 9999 }),
+  menuPortal: (p) => ({ ...p, zIndex: 9999 }),
 
-  menuPortal: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-  }),
-  option: (provided, state) => ({
-    ...provided,
+  option: (p, state) => ({
+    ...p,
     fontFamily: "Manrope",
     fontSize: "14px",
     fontWeight: 500,
     cursor: "pointer",
-    whiteSpace: "normal",
-    wordBreak: "break-word",
     backgroundColor: state.isSelected
       ? "#1D736B"
       : state.isFocused
         ? "#beeabe"
         : "white",
     color: state.isSelected ? "white" : "#000",
-
-    ":active": {
-      backgroundColor: "#1D736B",
-      color: "white",
-    },
   }),
 };
 

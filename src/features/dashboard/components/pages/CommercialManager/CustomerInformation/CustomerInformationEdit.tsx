@@ -459,7 +459,7 @@ const CustomerInformationEdit = () => {
           const apiOffer = apiData[offerIndex];
           const apiService = apiOffer?.service?.[rowIndex];
 
-          let serviceId = apiService?.service_id || 0;
+          let serviceId = row.service_id || apiService?.service_id || 0;
 
           const serviceKey = `${offerIndex}-${rowIndex}`;
           if (serviceId === 0 && selectedServices[serviceKey]) {
@@ -469,6 +469,8 @@ const CustomerInformationEdit = () => {
           return {
             id: apiService?.id || 0,
             service_id: serviceId,
+            name_of_service: row.serviceName || "",
+
             packing: {
               id: apiService?.packing?.id || 0,
               package_type: row.packagingPackage || "",

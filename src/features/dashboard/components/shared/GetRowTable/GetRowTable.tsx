@@ -30,6 +30,7 @@ interface Service {
 
 export interface TableRowData {
   id?: number;
+  service_id?: number;
   serviceName?: string;
   location: string;
   transportMode: string;
@@ -211,6 +212,9 @@ export default function Table({
   const [selectedService, setSelectedService] = useState<(OptionType | null)[]>(
     [],
   );
+  const [selectedServiceId, setSelectedServiceId] = useState<(number | null)[]>(
+    [],
+  );
   const [selectedVendor, setSelectedVendor] = useState<(OptionType | null)[]>(
     [],
   );
@@ -252,7 +256,8 @@ export default function Table({
 
       return {
         id: initialRows[colIndex]?.id || 0,
-        serviceName: selectedService[colIndex]?.value || "",
+        service_id: selectedServiceId[colIndex] || 0,
+        serviceName: selectedService[colIndex]?.label || "",
         location: textValues[`Location-${colIndex}`] || "",
         transportMode: selectedTransportMode[colIndex]?.label || "",
         from: selectedFrom[colIndex]?.label || "",
@@ -298,6 +303,7 @@ export default function Table({
     columns,
     selectedUnit,
     selectedService,
+    selectedServiceId,
     textValues,
     selectedTransportMode,
     selectedFrom,
@@ -344,6 +350,7 @@ export default function Table({
       setSelectedTransportType(Array(serviceCount).fill(null));
       setSelectedTransportMode(Array(serviceCount).fill(null));
       setSelectedService(Array(serviceCount).fill(null));
+      setSelectedServiceId(Array(serviceCount).fill(null));
       setSelectedVendor(Array(serviceCount).fill(null));
       setSelectedFrom(Array(serviceCount).fill(null));
       setSelectedTo(Array(serviceCount).fill(null));
@@ -368,6 +375,14 @@ export default function Table({
               value: row.serviceName as string,
               label: row.serviceName as string,
             };
+            return newArr;
+          });
+        }
+
+        if (row.service_id) {
+          setSelectedServiceId((prev) => {
+            const newArr = [...prev];
+            newArr[colIndex] = row.service_id as number;
             return newArr;
           });
         }
@@ -608,6 +623,7 @@ export default function Table({
 
     return newCalculatedValues;
   }, [textValues, selectedUnit, columns]);
+
   useEffect(() => {
     setCalculatedValues(calculatedValuesWithMemo);
   }, [calculatedValuesWithMemo]);
@@ -691,6 +707,7 @@ export default function Table({
     setSelectedTransportType((prev) => [...prev, null]);
     setSelectedTransportMode((prev) => [...prev, null]);
     setSelectedService((prev) => [...prev, null]);
+    setSelectedServiceId((prev) => [...prev, null]);
     setSelectedVendor((prev) => [...prev, null]);
     setSelectedFrom((prev) => [...prev, null]);
     setSelectedTo((prev) => [...prev, null]);
@@ -712,6 +729,7 @@ export default function Table({
       setSelectedTransportType((prev) => prev.filter((_, i) => i !== colIndex));
       setSelectedTransportMode((prev) => prev.filter((_, i) => i !== colIndex));
       setSelectedService((prev) => prev.filter((_, i) => i !== colIndex));
+      setSelectedServiceId((prev) => prev.filter((_, i) => i !== colIndex));
       setSelectedVendor((prev) => prev.filter((_, i) => i !== colIndex));
       setSelectedFrom((prev) => prev.filter((_, i) => i !== colIndex));
       setSelectedTo((prev) => prev.filter((_, i) => i !== colIndex));
@@ -858,15 +876,24 @@ export default function Table({
 
   const handleServiceSelect = useCallback(
     (service: Service, colIndex: number) => {
+      setSelectedServiceId((prev) => {
+        const newArr = [...prev];
+        newArr[colIndex] = service.id;
+        return newArr;
+      });
+
       setSelectedService((prev) => {
         const newSelectedService = [...prev];
         newSelectedService[colIndex] = {
-          value: service.id.toString(),
+          value: service.service,
           label: service.service,
         };
-        onServiceSelect?.(service, colIndex);
         return newSelectedService;
       });
+
+      setTimeout(() => {
+        onServiceSelect?.(service, colIndex);
+      }, 0);
 
       handleTextChange("Location", colIndex, service.location);
       setSelectedTransportMode((prev) => {
