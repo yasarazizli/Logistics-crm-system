@@ -340,6 +340,10 @@ export default function Table({
       }
       newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
+      const rawProfit = totalPrice - totalPurchase;
+      const profit = rawProfit > 0 ? round(rawProfit) : 0;
+      newCalculatedValues[`Profit-${colIndex}`] = profit;
+
       totalAmount += totalPrice;
       totalVAT += vatAmount;
       totalPurchasePrice += totalPurchase;
@@ -399,7 +403,7 @@ export default function Table({
         vat18: textValues[`VAT 18%-${colIndex}`] === "true",
         vendor: selectedVendor[colIndex]?.label || "",
         note: textValues[`Note-${colIndex}`] || "",
-        profit: textValues[`Profit-${colIndex}`] || "0",
+        profit: calculatedValues[`Profit-${colIndex}`]?.toFixed(2) || "0",
       };
     });
 
@@ -421,7 +425,6 @@ export default function Table({
 
   const tableData = useMemo(() => convertTableToJSON(), [convertTableToJSON]);
 
-  // onTableDataChange üçün useEffect - tableData dəyişdikdə çağır
   useEffect(() => {
     if (onTableDataChange) {
       onTableDataChange(index, tableData);
@@ -448,7 +451,6 @@ export default function Table({
     setSelectedPackaging((prev) => {
       const newPackaging = [...prev];
 
-      // Əgər row mövcud deyilsə, yarat
       if (!newPackaging[rowIndex]) {
         newPackaging[rowIndex] = Array(columnsLength).fill(Array(3).fill(null));
       }
@@ -984,19 +986,28 @@ export default function Table({
                       case "Total purchase price":
                       case "Total price":
                       case "VAT amount":
-                      case "Profit":
                         return (
                           <td key={colIndex} className={styles.td_dollar}>
                             <input
                               type="text"
                               value={displayValue}
-                              onChange={(e) =>
-                                handleTextChange(
-                                  "Profit",
-                                  colIndex,
-                                  e.target.value,
-                                )
+                              readOnly
+                              className={styles.clickable_text}
+                            />
+                          </td>
+                        );
+
+                      case "Profit":
+                        return (
+                          <td key={colIndex} className={styles.td_dollar}>
+                            <input
+                              type="text"
+                              value={
+                                calculatedValues[`Profit-${colIndex}`]?.toFixed(
+                                  2,
+                                ) || "0"
                               }
+                              readOnly
                               className={styles.clickable_text}
                             />
                           </td>

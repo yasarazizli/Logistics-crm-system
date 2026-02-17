@@ -268,6 +268,9 @@ const ExtraChangeModal = ({
         totalSelling = round(totalQuantity * sellingPrice);
       }
 
+      const rawProfit = totalSelling - totalPurchase;
+      const profit = rawProfit > 0 ? round(rawProfit) : 0;
+
       const vatAmount = service.vat_18 ? round(totalSelling * 0.18) : 0;
 
       totalPurchasePrice += totalPurchase;
@@ -279,6 +282,7 @@ const ExtraChangeModal = ({
         total_purchase_price: totalPurchase.toFixed(2),
         total_selling_price: totalSelling.toFixed(2),
         vat: vatAmount.toFixed(2),
+        profit: profit.toFixed(2),
       };
     });
 
@@ -665,7 +669,7 @@ const ExtraChangeModal = ({
             { name: "Unit" },
             { name: "Total Purchase Price" },
             { name: "Selling price" },
-            { name: "Total Selling Price" },
+            { name: "Total Price" },
             { name: "VAT" },
             { name: "VAT (18%)" },
             { name: "Profit" },
@@ -780,16 +784,7 @@ const ExtraChangeModal = ({
                 />
               </td>
               <td className={styles.cellInput}>
-                <input
-                  value={service.profit}
-                  onChange={(e) =>
-                    handleServiceInputChange(
-                      service.id,
-                      "profit",
-                      e.target.value,
-                    )
-                  }
-                />
+                <input value={service.profit} readOnly />
               </td>
               <td className={styles.cellInput}>
                 {renderSelect(

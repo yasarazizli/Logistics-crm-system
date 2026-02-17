@@ -291,7 +291,7 @@ export default function Table({
         vat18: textValues[`VAT 18%-${colIndex}`] === "true",
         vendor: selectedVendor[colIndex]?.label || "",
         note: textValues[`Note-${colIndex}`] || "",
-        profit: textValues[`Profit-${colIndex}`] || "0",
+        profit: calculatedValues[`Profit-${colIndex}`]?.toFixed(2) || "0",
       };
     });
 
@@ -601,6 +601,10 @@ export default function Table({
       newCalculatedValues[`Total price-${colIndex}`] = totalPrice;
       newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
+      const rawProfit = totalPrice - totalPurchase;
+      const profit = rawProfit > 0 ? round(rawProfit) : 0;
+      newCalculatedValues[`Profit-${colIndex}`] = profit;
+
       const isVatChecked = textValues[`VAT 18%-${colIndex}`] === "true";
       const vatAmount = isVatChecked ? round(totalPrice * 0.18) : 0;
       newCalculatedValues[`VAT amount-${colIndex}`] = vatAmount;
@@ -623,7 +627,6 @@ export default function Table({
 
     return newCalculatedValues;
   }, [textValues, selectedUnit, columns]);
-
   useEffect(() => {
     setCalculatedValues(calculatedValuesWithMemo);
   }, [calculatedValuesWithMemo]);
@@ -1269,7 +1272,11 @@ export default function Table({
                           >
                             <input
                               type="text"
-                              value={textValues[`Profit-${colIndex}`] || ""}
+                              value={
+                                calculatedValues[`Profit-${colIndex}`]?.toFixed(
+                                  2,
+                                ) || 0
+                              }
                               onChange={(e) =>
                                 handleTextChange(
                                   "Profit",
