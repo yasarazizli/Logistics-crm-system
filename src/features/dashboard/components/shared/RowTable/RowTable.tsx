@@ -341,7 +341,7 @@ export default function Table({
       newCalculatedValues[`Total purchase price-${colIndex}`] = totalPurchase;
 
       const rawProfit = totalPrice - totalPurchase;
-      const profit = rawProfit > 0 ? round(rawProfit) : 0;
+      const profit = round(rawProfit);
       newCalculatedValues[`Profit-${colIndex}`] = profit;
 
       totalAmount += totalPrice;

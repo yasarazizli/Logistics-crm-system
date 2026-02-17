@@ -268,8 +268,7 @@ const ExtraChangeModal = ({
         totalSelling = round(totalQuantity * sellingPrice);
       }
 
-      const rawProfit = totalSelling - totalPurchase;
-      const profit = rawProfit > 0 ? round(rawProfit) : 0;
+      const profit = round(totalSelling - totalPurchase);
 
       const vatAmount = service.vat_18 ? round(totalSelling * 0.18) : 0;
 
