@@ -300,6 +300,8 @@ const ExtraChangeUpdate = ({
 
       const vatAmount = service.vat_18 ? round(totalSelling * 0.18) : 0;
 
+      const profit = round(totalSelling - totalPurchase);
+
       totalPurchasePrice += totalPurchase;
       totalSellingPrice += totalSelling;
       totalVAT += vatAmount;
@@ -309,6 +311,7 @@ const ExtraChangeUpdate = ({
         total_purchase_price: totalPurchase.toFixed(2),
         total_selling_price: totalSelling.toFixed(2),
         vat: vatAmount.toFixed(2),
+        profit: profit.toFixed(2),
       };
     });
 
@@ -406,8 +409,9 @@ const ExtraChangeUpdate = ({
   const deleteRow = (id: number) => {
     const serviceToDelete = services.find((service) => service.id === id);
 
-    if (serviceToDelete?.row_id) {
-      setDeletedRowIds((prev) => [...prev, serviceToDelete.row_id!]);
+    if (serviceToDelete?.service_id) {
+      setDeletedRowIds((prev) => [...prev, serviceToDelete.service_id!]);
+      console.log("Silinən service_id:", serviceToDelete.service_id);
     }
 
     if (services.length > 1) {
@@ -674,7 +678,6 @@ const ExtraChangeUpdate = ({
         };
       });
 
-      // SİLİNƏN ROWLARI GÖNDƏR - JSON.stringify ilə array kimi
       if (deletedRowIds.length > 0) {
         formDataToSend.append("delete_service", JSON.stringify(deletedRowIds));
       }
