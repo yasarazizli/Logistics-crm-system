@@ -8,7 +8,7 @@ import Pagination from "@/features/dashboard/components/shared/Pagination/Pagina
 import { getAllExtraChange } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import Button from "@/components/Button/Button.tsx";
 import ExtraChangeModal from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeModal.tsx";
-// import ExtraChangeUpdate from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeUpdate.tsx";
+import ExtraChangeUpdate from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeUpdate.tsx";
 
 const filterKeys = [
   "order_no",
@@ -30,6 +30,7 @@ interface ExtraChangeProps {
   order_id: number;
   order_no: number;
   service: string;
+  service_id: number;
   total_quantity: string;
   purchase_price_per_ton: string;
   purchase_price_per_unit: string;
@@ -124,7 +125,6 @@ const ExtraChange = () => {
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  console.log(selectedId);
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -174,7 +174,7 @@ const ExtraChange = () => {
           }
         >
           {data.map((item) => (
-            <tr key={item.order_id}>
+            <tr key={item.order_no}>
               <td>{item.order_no}</td>
               <td>{item.service}</td>
               <td>{item.total_quantity}</td>
@@ -195,7 +195,10 @@ const ExtraChange = () => {
                 <div className={styles.icon}>
                   <div
                     className={styles.icon__2}
-                    onClick={() => setSelectedId(item.order_id)}
+                    onClick={() => {
+                      setSelectedId(item.service_id);
+                      setModal("update");
+                    }}
                   >
                     <PenIcon />
                   </div>
@@ -221,15 +224,15 @@ const ExtraChange = () => {
         />
       )}
 
-      {/*{modal === "update" && (*/}
-      {/*  <ExtraChangeUpdate*/}
-      {/*    modalClose={() => {*/}
-      {/*      setModal(null);*/}
-      {/*      setPageHelper((prev) => ({ ...prev, render: !prev.render }));*/}
-      {/*    }}*/}
-      {/*    extraChangeId={selectedId}*/}
-      {/*  />*/}
-      {/*)}*/}
+      {modal === "update" && selectedId && (
+        <ExtraChangeUpdate
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          extraChangeId={selectedId}
+        />
+      )}
     </div>
   );
 };

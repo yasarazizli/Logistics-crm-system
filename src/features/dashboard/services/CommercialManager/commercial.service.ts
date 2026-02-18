@@ -209,9 +209,24 @@ export const getAllExtraChange = async (params: {
     });
 };
 
-export const getExtraChange = async (id: number) => {
+export const getExtraChange = async (id: number | null) => {
   return await axios
     .get(`${apiUrl}/commercial/get-extra-cost/?service_id=${id}`, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const updateExtraChange = async (
+  formData: FormData,
+  id: number | null,
+) => {
+  return await axios
+    .put(`${apiUrl}/commercial/update-extra-cost/?service_id=${id}`, formData, {
       headers: {
         Authorization: getCookie("allianceToken"),
       },
