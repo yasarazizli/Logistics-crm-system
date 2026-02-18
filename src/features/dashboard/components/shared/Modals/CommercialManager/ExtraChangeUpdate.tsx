@@ -674,6 +674,7 @@ const ExtraChangeUpdate = ({
         };
       });
 
+      // SİLİNƏN ROWLARI GÖNDƏR - JSON.stringify ilə array kimi
       if (deletedRowIds.length > 0) {
         formDataToSend.append("delete_service", JSON.stringify(deletedRowIds));
       }
@@ -684,6 +685,16 @@ const ExtraChangeUpdate = ({
         if (service.file) {
           formDataToSend.append(`file_${index + 1}`, service.file);
         }
+      });
+
+      console.log("Göndərilən məlumatlar:", {
+        date: formData.date,
+        order_no: selectedOrder?.order_no,
+        client: formData.client,
+        contract: formData.contract,
+        bank: selectedBank?.value,
+        delete_service: deletedRowIds,
+        services: servicesData,
       });
 
       const response = await updateExtraChange(formDataToSend, extraChangeId);
@@ -702,6 +713,7 @@ const ExtraChangeUpdate = ({
       setLoader(false);
     }
   };
+
   const bank = [
     "ABB (RUB)",
     "ABB (USD)",
