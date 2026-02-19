@@ -17,7 +17,7 @@ const ServicesEdit = ({
 }: {
   modalClose: (isRender: boolean) => void;
   id: number;
-  actionType: "agree" | "reject";
+  actionType: "agree" | "reject" | "detail";
 }) => {
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();

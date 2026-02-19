@@ -9,6 +9,7 @@ import { getAllExtraChange } from "@/features/dashboard/services/CommercialManag
 import Button from "@/components/Button/Button.tsx";
 import ExtraChangeModal from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeModal.tsx";
 import ExtraChangeUpdate from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeUpdate.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 const filterKeys = [
   "order_no",
@@ -49,6 +50,7 @@ interface ExtraChangeProps {
 
 const ExtraChange = () => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
 
   const [filters, setFilters] = useState({
     order_no: "",
@@ -129,12 +131,14 @@ const ExtraChange = () => {
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
         <h1>Extra Change</h1>
-        <Button
-          text="Extra Change"
-          viewType="green__light"
-          icon={PlusIcon}
-          onClick={() => setModal("extra_change")}
-        />
+        {auth.role === "commercial_manager" && (
+          <Button
+            text="Extra Change"
+            viewType="green__light"
+            icon={PlusIcon}
+            onClick={() => setModal("extra_change")}
+          />
+        )}
       </div>
 
       <div className={styles.table}>
@@ -154,7 +158,7 @@ const ExtraChange = () => {
             { name: "Vendor" },
             { name: "Description" },
             { name: "VAT 18%" },
-            { name: "Action" },
+            ...(auth.role === "commercial_manager" ? [{ name: "Action" }] : []),
           ]}
           filters={
             <>
@@ -169,7 +173,7 @@ const ExtraChange = () => {
                 </td>
               ))}
               <td></td>
-              <td></td>
+              {auth.role === "commercial_manager" && <td></td>}
             </>
           }
         >
@@ -191,19 +195,21 @@ const ExtraChange = () => {
               <td>
                 <input type="checkbox" checked={item.vat_18} readOnly />
               </td>
-              <td>
-                <div className={styles.icon}>
-                  <div
-                    className={styles.icon__2}
-                    onClick={() => {
-                      setSelectedId(item.service_id);
-                      setModal("update");
-                    }}
-                  >
-                    <PenIcon />
+              {auth.role === "commercial_manager" && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__2}
+                      onClick={() => {
+                        setSelectedId(item.service_id);
+                        setModal("update");
+                      }}
+                    >
+                      <PenIcon />
+                    </div>
                   </div>
-                </div>
-              </td>
+                </td>
+              )}
             </tr>
           ))}
         </Table>

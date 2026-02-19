@@ -139,7 +139,7 @@ export const navigation = [
     name: "main.title__9",
     path: "commercial/extra/change",
     icon: ExtraChange,
-    roles: ["commercial_specialist"],
+    roles: ["commercial_specialist", "buyer_manager"],
   },
 
   // Buyers Directory

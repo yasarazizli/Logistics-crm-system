@@ -140,11 +140,17 @@ export const customStyles: StylesConfig<OptionType, false> = {
 interface ComplatedProps {
   modalClose: (isRender: boolean) => void;
   selectedId: number | null;
+  role: string;
 }
 
-const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
+const EditServicesModal = ({
+  modalClose,
+  selectedId,
+  role,
+}: ComplatedProps) => {
   const { setLoader } = useContext(LoaderContext);
   const { t } = useTranslation();
+  const isEditable = role === "buyer_manager" || role === "admin";
 
   const inputsRef = {
     location: useRef<HTMLInputElement>(null),
@@ -834,6 +840,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                 placeholder="Select Container Size"
                 isSearchable
                 isClearable
+                isDisabled={!isEditable}
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -846,6 +853,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                 placeholder="Select Container Type"
                 isSearchable
                 isClearable
+                isDisabled={!isEditable}
               />
             </div>
           </>
@@ -862,6 +870,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
               placeholder="Select Break Bulk Type"
               isSearchable
               isClearable
+              isDisabled={!isEditable}
             />
           </div>
         );
@@ -877,6 +886,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
               placeholder="Select Bulk Type"
               isSearchable
               isClearable
+              isDisabled={!isEditable}
             />
           </div>
         );
@@ -903,6 +913,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
               placeholder="Select Rail Type"
               isSearchable
               isClearable
+              isDisabled={!isEditable}
             />
           </div>
         );
@@ -918,6 +929,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
               placeholder="Select Road Type"
               isSearchable
               isClearable
+              isDisabled={!isEditable}
             />
           </div>
         );
@@ -933,6 +945,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
               placeholder="Select Sea Type"
               isSearchable
               isClearable
+              isDisabled={!isEditable}
             />
           </div>
         );
@@ -968,6 +981,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     isSearchable
                     required
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
 
@@ -984,6 +998,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     isSearchable
                     required
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
               </div>
@@ -1003,6 +1018,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     )}
                     isSearchable
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
 
@@ -1019,6 +1035,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     isSearchable
                     required
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
                 <div className={styles.selectWrapper}>
@@ -1031,6 +1048,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     placeholder="Select Ownership"
                     isSearchable
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
               </div>
@@ -1048,6 +1066,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                   isSearchable
                   required
                   isClearable
+                  isDisabled={!isEditable}
                 />
               </div>
 
@@ -1073,6 +1092,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                             ? "From address"
                             : "From location"
                         }
+                        disabled={!isEditable}
                       />
                     </div>
                     <div className={styles.selectWrapper}>
@@ -1089,6 +1109,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                             ? "To address"
                             : "To location"
                         }
+                        disabled={!isEditable}
                       />
                     </div>
                   </>
@@ -1107,6 +1128,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                         menuPortalTarget={document.body}
                         menuPosition="fixed"
                         menuShouldScrollIntoView={false}
+                        isDisabled={!isEditable}
                       />
                     </div>
                     <div className={styles.selectWrapper}>
@@ -1122,6 +1144,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                         menuPortalTarget={document.body}
                         menuPosition="fixed"
                         menuShouldScrollIntoView={false}
+                        isDisabled={!isEditable}
                       />
                     </div>
                   </>
@@ -1140,6 +1163,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                         menuPortalTarget={document.body}
                         menuPosition="fixed"
                         menuShouldScrollIntoView={false}
+                        isDisabled={!isEditable}
                       />
                     </div>
                     <div className={styles.selectWrapper}>
@@ -1155,6 +1179,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                         menuPortalTarget={document.body}
                         menuPosition="fixed"
                         menuShouldScrollIntoView={false}
+                        isDisabled={!isEditable}
                       />
                     </div>
                   </>
@@ -1174,6 +1199,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     placeholder="Select from country"
                     isSearchable
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
 
@@ -1187,6 +1213,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     placeholder="Select to country"
                     isSearchable
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
               </div>
@@ -1205,6 +1232,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     isSearchable
                     required
                     isClearable
+                    isDisabled={!isEditable}
                   />
                 </div>
               </div>
@@ -1219,6 +1247,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                   label={t("services.modals.create.contract__date")}
                   inputRef={inputsRef.contract_experied_date}
                   autoComplete="off"
+                  disabled={!isEditable}
                 />
 
                 <div
@@ -1234,6 +1263,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     label={t("services.modals.create.protocol__date")}
                     inputRef={inputsRef.protocol_experied_date}
                     autoComplete="off"
+                    disabled={!isEditable}
                   />
                   <div
                     style={{
@@ -1279,6 +1309,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                   placeholder={t("services.modals.create.value")}
                   inputRef={inputsRef.purchase_price_unit}
                   autoComplete="off"
+                  disabled={!isEditable}
                 />
                 <Input
                   type="text"
@@ -1286,6 +1317,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                   placeholder={t("services.modals.create.value")}
                   inputRef={inputsRef.purchase_price_ton}
                   autoComplete="off"
+                  disabled={!isEditable}
                 />
               </div>
               <div className={styles.dropzone}>
@@ -1312,6 +1344,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                     onChange={handleFileChangeProtocol}
                     className={styles.dropzone__input}
                     accept="*/*"
+                    disabled={!isEditable}
                   />
                 </div>
               </div>
@@ -1321,6 +1354,7 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
                 placeholder="Note"
                 inputRef={inputsRef.note}
                 autoComplete="off"
+                disabled={!isEditable}
               />
             </div>
           </div>
@@ -1333,7 +1367,9 @@ const EditServicesModal = ({ modalClose, selectedId }: ComplatedProps) => {
             viewType="red"
             onClick={() => modalClose(false)}
           />
-          <Button text={t("shared.buttons.save")} type="submit" />
+          {isEditable && (
+            <Button text={t("shared.buttons.save")} type="submit" />
+          )}
         </div>
       </form>
     </Modal>

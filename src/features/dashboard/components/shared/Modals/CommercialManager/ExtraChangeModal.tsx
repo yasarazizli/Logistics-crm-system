@@ -489,7 +489,7 @@ const ExtraChangeModal = ({
     />
   );
 
-  const handleSend = async () => {
+  const handleSend = async (status: "send" | "draft") => {
     setLoader(true);
 
     try {
@@ -503,6 +503,7 @@ const ExtraChangeModal = ({
       formDataToSend.append("client", formData.client);
       formDataToSend.append("contract", formData.contract);
       formDataToSend.append("bank", selectedBank?.value?.toString() || "");
+      formDataToSend.append("btn_status", status);
 
       const servicesData = calculatedValues.services.map((service) => {
         const parseOrZero = (value: string | undefined | null): number => {
@@ -545,9 +546,10 @@ const ExtraChangeModal = ({
 
       console.log("Sending data:", servicesData);
 
-      const { status, data } = await ExtraChangeApi(formDataToSend);
+      const { status: ResponseStatus, data } =
+        await ExtraChangeApi(formDataToSend);
 
-      if (status === 200) {
+      if (ResponseStatus === 200) {
         toast.success("Quotation sent successfully");
         modalClose(true);
       } else {
@@ -900,7 +902,16 @@ const ExtraChangeModal = ({
             onClick={() => modalClose(false)}
             viewType="red"
           />
-          <Button text="Send" type="button" onClick={handleSend} />
+          <Button
+            text="Draft"
+            type="button"
+            onClick={() => handleSend("draft")}
+          />
+          <Button
+            text="Send"
+            type="button"
+            onClick={() => handleSend("send")}
+          />
         </div>
       </div>
     </Modal>

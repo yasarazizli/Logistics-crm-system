@@ -632,7 +632,7 @@ const ExtraChangeUpdate = ({
     />
   );
 
-  const handleSend = async () => {
+  const handleSend = async (status: "draft" | "update" | "send") => {
     if (!extraChangeId) {
       toast.error("Update ID is missing");
       return;
@@ -651,6 +651,7 @@ const ExtraChangeUpdate = ({
       formDataToSend.append("client", formData.client);
       formDataToSend.append("contract", formData.contract);
       formDataToSend.append("bank", selectedBank?.value?.toString() || "");
+      formDataToSend.append("btn_status", status);
 
       const servicesData = calculatedValues.services.map((service) => {
         const parseOrZero = (value: string | undefined | null): number => {
@@ -701,9 +702,9 @@ const ExtraChangeUpdate = ({
       });
 
       const response = await updateExtraChange(formDataToSend, extraChangeId);
-      const { status, data } = response;
+      const { status: responseStatus, data } = response;
 
-      if (status === 200) {
+      if (responseStatus === 200) {
         toast.success(errorMessageHandler(data));
         modalClose(true);
       } else {
@@ -1075,7 +1076,21 @@ const ExtraChangeUpdate = ({
             onClick={() => modalClose(false)}
             viewType="red"
           />
-          <Button text="Update" type="button" onClick={handleSend} />
+          <Button
+            text="Draft"
+            type="button"
+            onClick={() => handleSend("draft")}
+          />
+          <Button
+            text="Update"
+            type="button"
+            onClick={() => handleSend("update")}
+          />
+          <Button
+            text="Send"
+            type="button"
+            onClick={() => handleSend("send")}
+          />
         </div>
       </div>
     </Modal>

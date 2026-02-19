@@ -379,6 +379,7 @@ const Services = () => {
             setPageHelper((prev) => ({ ...prev, render: !prev.render }));
           }}
           selectedId={selectedId}
+          role={auth.role}
         />
       )}
     </div>

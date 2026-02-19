@@ -3,6 +3,7 @@ import styles from "@/features/dashboard/components/pages/Controls/HsCode/HsCode
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
+  EyesIcon,
   FileIcon,
   PenIcon,
   VectorIcon,
@@ -12,6 +13,8 @@ import { getAllServices } from "@/features/dashboard/services/Services&Vendor/al
 import AddPrice from "@/features/dashboard/components/shared/Modals/CommericalDirectory/AddPrice.tsx";
 import ApprovePrice from "@/features/dashboard/components/shared/Modals/CommericalDirectory/ApprovePrice.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
+import EditServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/EditServices.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 interface Service {
   id: number;
@@ -47,6 +50,7 @@ const filterKeys = [
 
 const Services = () => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
   const [filters, setFilters] = useState({
     vendor_name: "",
     service_name: "",
@@ -59,7 +63,10 @@ const Services = () => {
   });
 
   const [modal, setModal] = useState<
-    null | { type: "create"; id: number } | { type: "confirm"; id: number }
+    | null
+    | { type: "create"; id: number }
+    | { type: "confirm"; id: number }
+    | { type: "detail"; id: number }
   >(null);
 
   const [pageHelper, setPageHelper] = useState({ render: false });
@@ -133,6 +140,7 @@ const Services = () => {
             { name: "Contract document" },
             { name: "Contract document Language" },
             { name: "Price Edit" },
+            { name: "Detail" },
           ]}
           filters={
             <>
@@ -146,6 +154,7 @@ const Services = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -205,6 +214,16 @@ const Services = () => {
                   </div>
                 </div>
               </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => setModal({ type: "detail", id: item.id })}
+                  >
+                    <EyesIcon />
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </Table>
@@ -232,6 +251,16 @@ const Services = () => {
             setModal(null);
             setPageHelper((prev) => ({ ...prev, render: !prev.render }));
           }}
+        />
+      )}
+      {modal?.type === "detail" && (
+        <EditServices
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          selectedId={modal.id}
+          role={auth.role}
         />
       )}
     </div>

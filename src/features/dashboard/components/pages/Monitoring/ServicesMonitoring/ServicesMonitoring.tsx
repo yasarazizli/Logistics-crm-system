@@ -2,12 +2,14 @@ import { useContext, useEffect, useState } from "react";
 import styles from "../../Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { FileIcon } from "@/assets/icons/shared.vectors.tsx";
+import { EyesIcon, FileIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { getAllServices } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { AddIconTable, CrossIcon } from "@/assets/icons/order.vectors.tsx";
 import ServicesEdit from "@/features/dashboard/components/shared/Modals/Monitoring/ServicesEdit.tsx";
+import EditServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/EditServices.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 interface Service {
   id: number;
@@ -40,6 +42,7 @@ const filterKeys = [
 
 const ServicesMonitoring = () => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
   const [filters, setFilters] = useState({
     country_name: "",
     vendor_name: "",
@@ -51,7 +54,7 @@ const ServicesMonitoring = () => {
   });
 
   const [modal, setModal] = useState<null | {
-    type: "agree" | "reject";
+    type: "agree" | "reject" | "detail";
     id: number;
   }>(null);
 
@@ -132,6 +135,7 @@ const ServicesMonitoring = () => {
             { name: "Protocol" },
             { name: "Protocol Date" },
             { name: "Edit" },
+            { name: "Detail" },
           ]}
           filters={
             <>
@@ -144,6 +148,7 @@ const ServicesMonitoring = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -240,6 +245,16 @@ const ServicesMonitoring = () => {
                   </div>
                 </div>
               </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => setModal({ type: "detail", id: item.id })}
+                  >
+                    <EyesIcon />
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </Table>
@@ -250,7 +265,7 @@ const ServicesMonitoring = () => {
           onPageChange={(pg) => setPage(pg)}
         />
 
-        {modal && (
+        {modal?.type && (
           <ServicesEdit
             modalClose={(isRender) => {
               setModal(null);
@@ -260,6 +275,16 @@ const ServicesMonitoring = () => {
             }}
             id={modal.id}
             actionType={modal.type}
+          />
+        )}
+        {modal?.type === "detail" && (
+          <EditServices
+            modalClose={() => {
+              setModal(null);
+              setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+            }}
+            selectedId={modal.id}
+            role={auth.role}
           />
         )}
       </div>
