@@ -463,10 +463,13 @@ const SubCode = () => {
       } else {
         toast.error(errorMessageHandler(response.data));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting offer:", error);
-      toast.error("An error occurred while submitting the offer");
+      if (error.response?.data) {
+        toast.error(errorMessageHandler(error.response.data));
+      }
     }
+
     setLoader(false);
   };
 
