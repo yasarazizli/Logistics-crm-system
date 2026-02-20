@@ -116,7 +116,7 @@ const AskQuotation = () => {
   };
 
   const handleSubmit = async (status: "draft" | "send") => {
-    if (!selectedCode || !totalWeight) {
+    if (!selectedCode) {
       scrollToElement(selectListRef, "Please select HsCode and CargoName");
       return;
     }
