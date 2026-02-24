@@ -131,7 +131,7 @@ const ExtraChange = () => {
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
         <h1>Extra Change</h1>
-        {auth.role === "commercial_manager" && (
+        {auth.role === "buyer_manager" && (
           <Button
             text="Extra Change"
             viewType="green__light"
@@ -158,7 +158,7 @@ const ExtraChange = () => {
             { name: "Vendor" },
             { name: "Description" },
             { name: "VAT 18%" },
-            ...(auth.role === "commercial_manager" ? [{ name: "Action" }] : []),
+            { name: "Action" },
           ]}
           filters={
             <>
@@ -173,7 +173,7 @@ const ExtraChange = () => {
                 </td>
               ))}
               <td></td>
-              {auth.role === "commercial_manager" && <td></td>}
+              <td></td>
             </>
           }
         >
@@ -195,21 +195,19 @@ const ExtraChange = () => {
               <td>
                 <input type="checkbox" checked={item.vat_18} readOnly />
               </td>
-              {auth.role === "commercial_manager" && (
-                <td>
-                  <div className={styles.icon}>
-                    <div
-                      className={styles.icon__2}
-                      onClick={() => {
-                        setSelectedId(item.service_id);
-                        setModal("update");
-                      }}
-                    >
-                      <PenIcon />
-                    </div>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__2}
+                    onClick={() => {
+                      setSelectedId(item.service_id);
+                      setModal("update");
+                    }}
+                  >
+                    <PenIcon />
                   </div>
-                </td>
-              )}
+                </div>
+              </td>
             </tr>
           ))}
         </Table>

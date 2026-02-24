@@ -126,9 +126,27 @@ const AskQuotation = () => {
       return;
     }
 
-    if (!startDate || endDate === "") {
-      scrollToElement(dateSectionRef, "Please select Date");
-      return;
+    const requestedRoute = routes[1];
+    if (requestedRoute) {
+      const hasFromData =
+        requestedRoute.start_country_id ||
+        requestedRoute.start_address ||
+        requestedRoute.start_station_id ||
+        requestedRoute.start_port_id;
+
+      const hasToData =
+        requestedRoute.end_country_id ||
+        requestedRoute.end_address ||
+        requestedRoute.end_station_id ||
+        requestedRoute.end_port_id;
+
+      if (!hasFromData || !hasToData) {
+        scrollToElement(
+          packagingFormRef,
+          "Please fill Requested route fields (From and To)",
+        );
+        return;
+      }
     }
 
     if (showShipper) {
@@ -143,6 +161,11 @@ const AskQuotation = () => {
         scrollToElement(shipperSectionRef, "Please fill Consignee field");
         return;
       }
+    }
+
+    if (!startDate || endDate === "") {
+      scrollToElement(dateSectionRef, "Please select Date");
+      return;
     }
 
     setLoader(true);

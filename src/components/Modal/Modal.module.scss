@@ -364,6 +364,20 @@
       display: flex;
       flex-direction: column;
       gap: 11px;
+
+      .checkbox__bar {
+        margin-top: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 6px;
+        border: 1px solid #DEDEDE;
+        background: #F8F8F8;
+        width: 100%;
+        height: 56px;
+        padding: 0 20px;
+      }
+
     }
 
   .label {

@@ -18,6 +18,7 @@ import {
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { DeleteIcon, FileIcon } from "@/assets/icons/shared.vectors.tsx";
 import Input from "@/components/Input/Input.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 interface Option {
   value: string;
@@ -232,6 +233,8 @@ const ExtraChangeUpdate = ({
   extraChangeId: number | null;
 }) => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
+  const isCommercialManager = auth.role === "commercial_manager";
   const [services, setServices] = useState<Service[]>([
     {
       index: 0,
@@ -268,6 +271,7 @@ const ExtraChangeUpdate = ({
     date: "",
     client: "",
     contract: "",
+    checkbox: "",
   });
 
   const calculatedValues = useMemo(() => {
@@ -475,6 +479,7 @@ const ExtraChangeUpdate = ({
             date: formatDateForInput(data.date || ""),
             client: data.client || "",
             contract: data.contract_no || "",
+            checkbox: data.checkbox || "",
           });
 
           if (data.bank) {
@@ -604,6 +609,7 @@ const ExtraChangeUpdate = ({
       menuPosition="fixed"
       menuShouldBlockScroll
       required={required}
+      isDisabled={isCommercialManager}
     />
   );
 
@@ -651,6 +657,7 @@ const ExtraChangeUpdate = ({
       formDataToSend.append("client", formData.client);
       formDataToSend.append("contract", formData.contract);
       formDataToSend.append("bank", selectedBank?.value?.toString() || "");
+      formDataToSend.append("checkbox", formData.checkbox);
       formDataToSend.append("btn_status", status);
 
       const servicesData = calculatedValues.services.map((service) => {
@@ -689,16 +696,6 @@ const ExtraChangeUpdate = ({
         if (service.file) {
           formDataToSend.append(`file_${index + 1}`, service.file);
         }
-      });
-
-      console.log("Göndərilən məlumatlar:", {
-        date: formData.date,
-        order_no: selectedOrder?.order_no,
-        client: formData.client,
-        contract: formData.contract,
-        bank: selectedBank?.value,
-        delete_service: deletedRowIds,
-        services: servicesData,
       });
 
       const response = await updateExtraChange(formDataToSend, extraChangeId);
@@ -745,6 +742,7 @@ const ExtraChangeUpdate = ({
                 value={formData.date}
                 onChange={(e) => handleFormInputChange("date", e.target.value)}
                 className={styles.input}
+                disabled={isCommercialManager}
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -764,6 +762,7 @@ const ExtraChangeUpdate = ({
                 placeholder="Order ID"
                 isSearchable
                 isClearable
+                isDisabled={isCommercialManager}
               />
             </div>
           </div>
@@ -772,7 +771,6 @@ const ExtraChangeUpdate = ({
               display: "flex",
               alignItems: "center",
               gap: 13,
-              marginBottom: 20,
             }}
           >
             <div className={styles.selectWrapper}>
@@ -790,18 +788,7 @@ const ExtraChangeUpdate = ({
                   backgroundColor: selectedOrder ? "#f0f0f0" : "#F5F5F5",
                   cursor: selectedOrder ? "not-allowed" : "text",
                 }}
-              />
-            </div>
-            <div className={styles.selectWrapper}>
-              <label className={styles.label}>Bank rekviziti</label>
-              <Select
-                styles={customStyle}
-                options={bankOptions}
-                value={selectedBank}
-                onChange={setSelectedBank}
-                placeholder="Bank rekviziti"
-                isSearchable
-                isClearable
+                disabled={isCommercialManager}
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -819,8 +806,48 @@ const ExtraChangeUpdate = ({
                   backgroundColor: selectedOrder ? "#f0f0f0" : "#F5F5F5",
                   cursor: selectedOrder ? "not-allowed" : "text",
                 }}
+                disabled={isCommercialManager}
               />
             </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 13,
+              marginBottom: 20,
+            }}
+          >
+            {auth.role === "commercial_manager" && (
+              <div className={styles.selectWrapper}>
+                <label className={styles.label}>Bank rekviziti</label>
+                <Select
+                  styles={customStyle}
+                  options={bankOptions}
+                  value={selectedBank}
+                  onChange={setSelectedBank}
+                  placeholder="Bank rekviziti"
+                  isSearchable
+                  isClearable
+                />
+              </div>
+            )}
+            {auth.role === "commercial_manager" && (
+              <div className={styles.selectWrapper}>
+                <div className={styles.checkbox__bar}>
+                  <label className={styles.label}>
+                    Sale to Client and And Create Invoice
+                  </label>
+                  <input
+                    type="checkbox"
+                    value={formData.checkbox}
+                    onChange={(e) =>
+                      handleFormInputChange("checkbox", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -869,6 +896,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
+                  disabled={isCommercialManager}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -881,6 +909,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
+                  disabled={isCommercialManager}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -893,6 +922,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
+                  disabled={isCommercialManager}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -925,6 +955,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
+                  disabled={isCommercialManager}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -945,6 +976,7 @@ const ExtraChangeUpdate = ({
                       e.target.checked,
                     )
                   }
+                  disabled={isCommercialManager}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -957,6 +989,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
+                  disabled={isCommercialManager}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -983,6 +1016,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
+                  disabled={isCommercialManager}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -1016,6 +1050,7 @@ const ExtraChangeUpdate = ({
                     onChange={(e) => handleFileChange(service.id, e)}
                     style={{ display: "none" }}
                     accept="*/*"
+                    disabled={isCommercialManager}
                   />
                   {(service.file || service.existing_file) && (
                     <div
@@ -1070,22 +1105,20 @@ const ExtraChangeUpdate = ({
         </div>
 
         <div className={styles.form__buttons}>
-          <Button
-            text="Cancel"
-            type="button"
-            onClick={() => modalClose(false)}
-            viewType="red"
-          />
-          <Button
-            text="Draft"
-            type="button"
-            onClick={() => handleSend("draft")}
-          />
-          <Button
-            text="Update"
-            type="button"
-            onClick={() => handleSend("update")}
-          />
+          {!isCommercialManager && (
+            <Button
+              text="Draft"
+              type="button"
+              onClick={() => handleSend("draft")}
+            />
+          )}
+          {!isCommercialManager && (
+            <Button
+              text="Update"
+              type="button"
+              onClick={() => handleSend("update")}
+            />
+          )}
           <Button
             text="Send"
             type="button"

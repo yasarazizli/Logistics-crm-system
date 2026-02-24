@@ -167,12 +167,6 @@ interface TableProps {
 export default function Table({
   index,
   role = "monitoring",
-  onLocationClick,
-  onTransportModeClick,
-  onFromClick,
-  onToClick,
-  onTransportTypeClick,
-  onVendorClick,
   rows: initialRows,
   summary: initialSummary,
   onTableDataChange,
@@ -180,10 +174,10 @@ export default function Table({
   onServiceSelect,
   subcode = false,
 }: TableProps) {
+  const { auth } = useContext(AuthContext);
+
   const getStaticRows = () => {
-    const { auth } = useContext(AuthContext);
     const baseRows = [
-      "Name of Service",
       "Location",
       "Transport mode",
       "From",
@@ -197,7 +191,7 @@ export default function Table({
       "PayLoad",
       "Purchase price per ton",
       "Purchase price per unit",
-      ...(auth.role === "monitoring"
+      ...(auth?.role === "monitoring"
         ? ["Purchase price per ton (alis)", "Purchase price per unit (alis)"]
         : []),
       "Total quantity",
@@ -205,12 +199,15 @@ export default function Table({
       "Total price",
       "Vendor",
       "Profit",
-      ...(subcode ? ["Sub Code"] : []),
       "Note",
     ];
-    return baseRows;
-  };
 
+    if (subcode) {
+      return ["Name of Service", ...baseRows, "Sub Code"];
+    }
+
+    return ["Name of Service", ...baseRows];
+  };
   const staticRows = getStaticRows();
 
   const location = useLocation();
@@ -950,7 +947,7 @@ export default function Table({
   useEffect(() => {
     const fetchRequest = async () => {
       try {
-        const response = await QuotationData(order.order_id);
+        const response = await QuotationData(order?.order_id);
         if (response?.status === 200) {
           const apiData = response?.data;
           setOrderId(apiData.order_id);
@@ -960,7 +957,9 @@ export default function Table({
       }
     };
 
-    fetchRequest();
+    if (order?.order_id) {
+      fetchRequest();
+    }
   }, [order]);
 
   return (
@@ -981,9 +980,12 @@ export default function Table({
                   <td className={styles.static_col}>{rowName}</td>
 
                   {columns.map((colId, colIndex) => {
+                    const isReadOnly = subcode && rowName !== "Sub Code";
+
                     const isDisabled =
-                      role !== "admin" &&
-                      disabledCells.includes(`${rowIndex}-${colIndex}`);
+                      (role !== "admin" &&
+                        disabledCells.includes(`${rowIndex}-${colIndex}`)) ||
+                      isReadOnly;
 
                     const calculatedValue =
                       calculatedValues[`${rowName}-${colIndex}`];
@@ -997,17 +999,23 @@ export default function Table({
                       case "Name of Service":
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
-                            <div
-                              className={styles.clickable_text}
-                              style={{ cursor: "pointer" }}
-                              onClick={() => openModalForColumn(colIndex)}
-                            >
-                              <p>
-                                {selectedService[colIndex]?.label ||
-                                  "Select Service"}
-                              </p>
-                              <SharedIcon />
-                            </div>
+                            {isReadOnly ? (
+                              <div className={styles.readonly_text}>
+                                {selectedService[colIndex]?.label || ""}
+                              </div>
+                            ) : (
+                              <div
+                                className={styles.clickable_text}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => openModalForColumn(colIndex)}
+                              >
+                                <p>
+                                  {selectedService[colIndex]?.label ||
+                                    "Select Service"}
+                                </p>
+                                <SharedIcon />
+                              </div>
+                            )}
                           </td>
                         );
 
@@ -1015,14 +1023,13 @@ export default function Table({
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
-                              className={styles.clickable_text}
-                              onClick={() =>
-                                onLocationClick?.("Location clicked")
+                              className={
+                                isReadOnly
+                                  ? styles.readonly_text
+                                  : styles.clickable_text
                               }
                             >
-                              <p>
-                                {textValues[`${rowName}-${colIndex}`] || ""}
-                              </p>
+                              {textValues[`${rowName}-${colIndex}`] || ""}
                             </div>
                           </td>
                         );
@@ -1031,15 +1038,13 @@ export default function Table({
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
-                              className={styles.clickable_text}
-                              onClick={() =>
-                                onTransportModeClick?.("Transport mode clicked")
+                              className={
+                                isReadOnly
+                                  ? styles.readonly_text
+                                  : styles.clickable_text
                               }
                             >
-                              <p>
-                                {" "}
-                                {selectedTransportMode[colIndex]?.label || ""}
-                              </p>
+                              {selectedTransportMode[colIndex]?.label || ""}
                             </div>
                           </td>
                         );
@@ -1048,10 +1053,13 @@ export default function Table({
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
-                              className={styles.clickable_text}
-                              onClick={() => onFromClick?.("From clicked")}
+                              className={
+                                isReadOnly
+                                  ? styles.readonly_text
+                                  : styles.clickable_text
+                              }
                             >
-                              <p> {selectedFrom[colIndex]?.label || ""}</p>
+                              {selectedFrom[colIndex]?.label || ""}
                             </div>
                           </td>
                         );
@@ -1060,10 +1068,13 @@ export default function Table({
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
-                              className={styles.clickable_text}
-                              onClick={() => onToClick?.("To clicked")}
+                              className={
+                                isReadOnly
+                                  ? styles.readonly_text
+                                  : styles.clickable_text
+                              }
                             >
-                              <p> {selectedTo[colIndex]?.label || ""}</p>
+                              {selectedTo[colIndex]?.label || ""}
                             </div>
                           </td>
                         );
@@ -1072,14 +1083,13 @@ export default function Table({
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
-                              className={styles.clickable_text}
-                              onClick={() =>
-                                onTransportTypeClick?.("Transport type clicked")
+                              className={
+                                isReadOnly
+                                  ? styles.readonly_text
+                                  : styles.clickable_text
                               }
                             >
-                              <p>
-                                {selectedTransportType[colIndex]?.label || ""}
-                              </p>
+                              {selectedTransportType[colIndex]?.label || ""}
                             </div>
                           </td>
                         );
@@ -1088,10 +1098,13 @@ export default function Table({
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div
-                              className={styles.clickable_text}
-                              onClick={() => onVendorClick?.("Vendor clicked")}
+                              className={
+                                isReadOnly
+                                  ? styles.readonly_text
+                                  : styles.clickable_text
+                              }
                             >
-                              <p> {selectedVendor[colIndex]?.label || ""}</p>
+                              {selectedVendor[colIndex]?.label || ""}
                             </div>
                           </td>
                         );
@@ -1099,18 +1112,24 @@ export default function Table({
                       case "Unit":
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
-                            <Select
-                              value={selectedUnit[colIndex]}
-                              onChange={(option) =>
-                                handleUnitChange(colIndex, option)
-                              }
-                              options={unitOptions}
-                              styles={getPackagingStyles("Select Unit")}
-                              isDisabled={isDisabled}
-                              placeholder="Select Unit"
-                              className={styles.react_select_container}
-                              isClearable
-                            />
+                            {isReadOnly ? (
+                              <div className={styles.readonly_text}>
+                                {selectedUnit[colIndex]?.label || ""}
+                              </div>
+                            ) : (
+                              <Select
+                                value={selectedUnit[colIndex]}
+                                onChange={(option) =>
+                                  handleUnitChange(colIndex, option)
+                                }
+                                options={unitOptions}
+                                styles={getPackagingStyles("Select Unit")}
+                                isDisabled={isDisabled}
+                                placeholder="Select Unit"
+                                className={styles.react_select_container}
+                                isClearable
+                              />
+                            )}
                           </td>
                         );
 
@@ -1120,104 +1139,147 @@ export default function Table({
                             key={`${rowIndex}-${colIndex}-${colId}`}
                             className={styles.nested_cell}
                           >
-                            <div className={styles.vertical_inputs}>
-                              <Select
-                                value={
-                                  selectedPackaging[6]?.[colIndex]?.[0] || null
-                                }
-                                onChange={(option) =>
-                                  handlePackagingChange(6, colIndex, 0, option)
-                                }
-                                options={packagingOptions1}
-                                styles={getPackagingStyles("Type")}
-                                isDisabled={isDisabled}
-                                placeholder="Type"
-                                className={styles.react_select_container}
-                                isClearable
-                              />
-                              <Select
-                                value={
-                                  selectedPackaging[6]?.[colIndex]?.[1] || null
-                                }
-                                onChange={(option) =>
-                                  handlePackagingChange(6, colIndex, 1, option)
-                                }
-                                options={packagingOptions2}
-                                styles={getPackagingStyles("Size")}
-                                isDisabled={
-                                  isDisabled ||
-                                  selectedPackaging[6]?.[colIndex]?.[0]
-                                    ?.value !== "Container"
-                                }
-                                placeholder="Size"
-                                className={styles.react_select_container}
-                                isClearable
-                              />
-                              <Select
-                                value={
-                                  selectedPackaging[6]?.[colIndex]?.[2] || null
-                                }
-                                onChange={(option) =>
-                                  handlePackagingChange(6, colIndex, 2, option)
-                                }
-                                options={getTypeOptions(
-                                  selectedPackaging[6]?.[colIndex]?.[0]
-                                    ?.value || "",
-                                )}
-                                styles={getPackagingStyles("Package")}
-                                isDisabled={
-                                  isDisabled ||
-                                  !selectedPackaging[6]?.[colIndex]?.[0] ||
-                                  selectedPackaging[6]?.[colIndex]?.[0]
-                                    ?.value === "Oversize_Cargo"
-                                }
-                                placeholder={
-                                  selectedPackaging[6]?.[colIndex]?.[0]
-                                    ?.value === "Oversize_Cargo"
-                                    ? "Not applicable"
-                                    : "Package"
-                                }
-                                className={styles.react_select_container}
-                                isClearable
-                              />
-                            </div>
+                            {isReadOnly ? (
+                              <div className={styles.readonly_text}>
+                                {selectedPackaging[6]?.[colIndex]?.[0]?.label ||
+                                  ""}
+                                {selectedPackaging[6]?.[colIndex]?.[1]?.label
+                                  ? ` / ${selectedPackaging[6]?.[colIndex]?.[1]?.label}`
+                                  : ""}
+                                {selectedPackaging[6]?.[colIndex]?.[2]?.label
+                                  ? ` / ${selectedPackaging[6]?.[colIndex]?.[2]?.label}`
+                                  : ""}
+                              </div>
+                            ) : (
+                              <div className={styles.vertical_inputs}>
+                                <Select
+                                  value={
+                                    selectedPackaging[6]?.[colIndex]?.[0] ||
+                                    null
+                                  }
+                                  onChange={(option) =>
+                                    handlePackagingChange(
+                                      6,
+                                      colIndex,
+                                      0,
+                                      option,
+                                    )
+                                  }
+                                  options={packagingOptions1}
+                                  styles={getPackagingStyles("Type")}
+                                  isDisabled={isDisabled}
+                                  placeholder="Type"
+                                  className={styles.react_select_container}
+                                  isClearable
+                                />
+                                <Select
+                                  value={
+                                    selectedPackaging[6]?.[colIndex]?.[1] ||
+                                    null
+                                  }
+                                  onChange={(option) =>
+                                    handlePackagingChange(
+                                      6,
+                                      colIndex,
+                                      1,
+                                      option,
+                                    )
+                                  }
+                                  options={packagingOptions2}
+                                  styles={getPackagingStyles("Size")}
+                                  isDisabled={
+                                    isDisabled ||
+                                    selectedPackaging[6]?.[colIndex]?.[0]
+                                      ?.value !== "Container"
+                                  }
+                                  placeholder="Size"
+                                  className={styles.react_select_container}
+                                  isClearable
+                                />
+                                <Select
+                                  value={
+                                    selectedPackaging[6]?.[colIndex]?.[2] ||
+                                    null
+                                  }
+                                  onChange={(option) =>
+                                    handlePackagingChange(
+                                      6,
+                                      colIndex,
+                                      2,
+                                      option,
+                                    )
+                                  }
+                                  options={getTypeOptions(
+                                    selectedPackaging[6]?.[colIndex]?.[0]
+                                      ?.value || "",
+                                  )}
+                                  styles={getPackagingStyles("Package")}
+                                  isDisabled={
+                                    isDisabled ||
+                                    !selectedPackaging[6]?.[colIndex]?.[0] ||
+                                    selectedPackaging[6]?.[colIndex]?.[0]
+                                      ?.value === "Oversize_Cargo"
+                                  }
+                                  placeholder={
+                                    selectedPackaging[6]?.[colIndex]?.[0]
+                                      ?.value === "Oversize_Cargo"
+                                      ? "Not applicable"
+                                      : "Package"
+                                  }
+                                  className={styles.react_select_container}
+                                  isClearable
+                                />
+                              </div>
+                            )}
                           </td>
                         );
 
                       case "VAT 18%":
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
-                            <label className={styles.custom_checkbox}>
-                              <input
-                                type="checkbox"
-                                disabled={isDisabled}
-                                checked={
-                                  textValues[`VAT 18%-${colIndex}`] === "true"
-                                }
-                                onChange={(e) =>
-                                  handleTextChange(
-                                    "VAT 18%",
-                                    colIndex,
-                                    e.target.checked ? "true" : "false",
-                                  )
-                                }
-                              />
-                            </label>
+                            {isReadOnly ? (
+                              <div className={styles.readonly_text}>
+                                {textValues[`VAT 18%-${colIndex}`] === "true"
+                                  ? "✓"
+                                  : ""}
+                              </div>
+                            ) : (
+                              <label className={styles.custom_checkbox}>
+                                <input
+                                  type="checkbox"
+                                  disabled={isDisabled}
+                                  checked={
+                                    textValues[`VAT 18%-${colIndex}`] === "true"
+                                  }
+                                  onChange={(e) =>
+                                    handleTextChange(
+                                      "VAT 18%",
+                                      colIndex,
+                                      e.target.checked ? "true" : "false",
+                                    )
+                                  }
+                                />
+                              </label>
+                            )}
                           </td>
                         );
 
                       case "Price quotation":
                         return (
-                          <td
-                            key={`${rowIndex}-${colIndex}-${colId}`}
-                            onClick={() => openTableForColumn(colIndex)}
-                          >
-                            <div className={styles.sent__td}>
-                              <div className={styles.sent}>
-                                <p>Sent service quotation to Purchase team</p>
-                                <SharedIcon />
+                          <td key={`${rowIndex}-${colIndex}-${colId}`}>
+                            {isReadOnly ? (
+                              <div className={styles.readonly_text}>-</div>
+                            ) : (
+                              <div
+                                className={styles.sent__td}
+                                onClick={() => openTableForColumn(colIndex)}
+                              >
+                                <div className={styles.sent}>
+                                  <p>Sent service quotation to Purchase team</p>
+                                  <SharedIcon />
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </td>
                         );
 
@@ -1237,16 +1299,31 @@ export default function Table({
                             />
                           </td>
                         );
+
                       case "Profit":
                         return (
                           <td
                             key={`${rowIndex}-${colIndex}-${colId}`}
                             className={styles.td_dollar}
                           >
-                            <input
-                              type="text"
-                              className={styles.clickable_text}
-                            />
+                            {isReadOnly ? (
+                              <div className={styles.readonly_text}>
+                                {textValues[`Profit-${colIndex}`] || "0"}
+                              </div>
+                            ) : (
+                              <input
+                                type="text"
+                                value={textValues[`Profit-${colIndex}`] || ""}
+                                onChange={(e) =>
+                                  handleTextChange(
+                                    "Profit",
+                                    colIndex,
+                                    e.target.value,
+                                  )
+                                }
+                                className={styles.clickable_text}
+                              />
+                            )}
                           </td>
                         );
 
@@ -1255,29 +1332,42 @@ export default function Table({
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
                             <div className={styles.clickable_text}>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="\d*"
                                 value={textValues[`Sub Code-${colIndex}`] || ""}
                                 onChange={(e) => {
-                                  const value = e.target.value.slice(0, 10);
-                                  handleTextChange("Sub Code", colIndex, value);
+                                  const value = e.target.value;
+                                  if (value === "") {
+                                    handleTextChange("Sub Code", colIndex, "");
+                                  } else {
+                                    const slicedValue = value.slice(0, 10);
+                                    handleTextChange(
+                                      "Sub Code",
+                                      colIndex,
+                                      slicedValue,
+                                    );
+                                  }
                                 }}
                                 className={styles.clickable_text}
-                                placeholder=""
+                                placeholder="Enter Sub Code (max 10 digits)"
+                                disabled={isDisabled}
                               />
                             </div>
                           </td>
                         );
-
                       case "Delete":
                         return (
                           <td key={`${rowIndex}-${colIndex}-${colId}`}>
-                            <div
-                              className={styles.sent__td}
-                              style={{ cursor: "pointer" }}
-                              onClick={() => deleteColumn(colIndex)}
-                            >
-                              <DeleteIcon />
-                            </div>
+                            {!isReadOnly && (
+                              <div
+                                className={styles.sent__td}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => deleteColumn(colIndex)}
+                              >
+                                <DeleteIcon />
+                              </div>
+                            )}
                           </td>
                         );
 
@@ -1287,19 +1377,27 @@ export default function Table({
                             key={`${rowIndex}-${colIndex}-${colId}`}
                             className={styles.td_dollar}
                           >
-                            <input
-                              type="text"
-                              value={textValues[`${rowName}-${colIndex}`] || ""}
-                              onChange={(e) =>
-                                handleTextChange(
-                                  rowName,
-                                  colIndex,
-                                  e.target.value,
-                                )
-                              }
-                              className={styles.clickable_text}
-                              disabled={isDisabled}
-                            />
+                            {isReadOnly ? (
+                              <div className={styles.readonly_text}>
+                                {textValues[`${rowName}-${colIndex}`] || ""}
+                              </div>
+                            ) : (
+                              <input
+                                type="text"
+                                value={
+                                  textValues[`${rowName}-${colIndex}`] || ""
+                                }
+                                onChange={(e) =>
+                                  handleTextChange(
+                                    rowName,
+                                    colIndex,
+                                    e.target.value,
+                                  )
+                                }
+                                className={styles.clickable_text}
+                                disabled={isDisabled}
+                              />
+                            )}
                           </td>
                         );
                     }
@@ -1309,21 +1407,25 @@ export default function Table({
             })}
           </tbody>
         </table>
-        <div className={styles.btn}>
-          <button className={styles.add_btn} onClick={addColumn}>
-            +<p>Add</p>
-          </button>
-        </div>
-      </div>
-      <div className={styles.amount}>
-        {displaySummaryData.map((item, idx) => (
-          <div key={`summary-${idx}`} className={styles.boxes}>
-            <p>{item.label}</p>
-            <p>{item.value}</p>
+        {!subcode && (
+          <div className={styles.btn}>
+            <button className={styles.add_btn} onClick={addColumn}>
+              +<p>Add</p>
+            </button>
           </div>
-        ))}
+        )}
       </div>
-      {modal?.type === "create" && (
+      {!subcode && (
+        <div className={styles.amount}>
+          {displaySummaryData.map((item, idx) => (
+            <div key={`summary-${idx}`} className={styles.boxes}>
+              <p>{item.label}</p>
+              <p>{item.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {!subcode && modal?.type === "create" && (
         <CreateServicesTable
           modalClose={() => {
             setModal(null);
@@ -1333,7 +1435,7 @@ export default function Table({
           }
         />
       )}
-      {modal?.type === "add" && (
+      {!subcode && modal?.type === "add" && (
         <PriceTable
           modalClose={() => {
             setModal(null);

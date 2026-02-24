@@ -420,7 +420,7 @@ const SubCode = () => {
   );
 
   const handleSubmit = async (status: "send") => {
-    if (!selectedCode || !totalWeight) {
+    if (!selectedCode) {
       alert("Lütfen tüm gerekli alanları doldurun");
       return;
     }

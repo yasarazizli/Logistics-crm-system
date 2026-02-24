@@ -17,6 +17,7 @@ import {
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import { DeleteIcon, FileIcon } from "@/assets/icons/shared.vectors.tsx";
 import Input from "@/components/Input/Input.tsx";
+import { AuthContext } from "@/contexts/AuthContext.tsx";
 
 interface Option {
   value: string;
@@ -206,6 +207,7 @@ const ExtraChangeModal = ({
   modalClose: (isRender: boolean) => void;
 }) => {
   const { setLoader } = useContext(LoaderContext);
+  const { auth } = useContext(AuthContext);
   const [services, setServices] = useState<Service[]>([
     {
       index: 0,
@@ -238,6 +240,7 @@ const ExtraChangeModal = ({
     date: "",
     client: "",
     contract: "",
+    checkbox: "",
   });
 
   const calculatedValues = useMemo(() => {
@@ -496,6 +499,7 @@ const ExtraChangeModal = ({
       const formDataToSend = new FormData();
 
       formDataToSend.append("date", formData.date);
+      formDataToSend.append("checkbox", formData.checkbox);
       formDataToSend.append(
         "order_id",
         selectedOrder?.order_no?.toString() || "",
@@ -609,7 +613,6 @@ const ExtraChangeModal = ({
               display: "flex",
               alignItems: "center",
               gap: 13,
-              marginBottom: 20,
             }}
           >
             <div className={styles.selectWrapper}>
@@ -630,18 +633,6 @@ const ExtraChangeModal = ({
               />
             </div>
             <div className={styles.selectWrapper}>
-              <label className={styles.label}>Bank rekviziti</label>
-              <Select
-                styles={customStyle}
-                options={bankOptions}
-                value={selectedBank}
-                onChange={setSelectedBank}
-                placeholder="Bank rekviziti"
-                isSearchable
-                isClearable
-              />
-            </div>
-            <div className={styles.selectWrapper}>
               <Input
                 type="text"
                 value={formData.contract}
@@ -658,6 +649,45 @@ const ExtraChangeModal = ({
                 }}
               />
             </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 13,
+              marginBottom: 20,
+            }}
+          >
+            {auth.role === "commercial_manager" && (
+              <div className={styles.selectWrapper}>
+                <label className={styles.label}>Bank rekviziti</label>
+                <Select
+                  styles={customStyle}
+                  options={bankOptions}
+                  value={selectedBank}
+                  onChange={setSelectedBank}
+                  placeholder="Bank rekviziti"
+                  isSearchable
+                  isClearable
+                />
+              </div>
+            )}
+            {auth.role === "commercial_manager" && (
+              <div className={styles.selectWrapper}>
+                <div className={styles.checkbox__bar}>
+                  <label className={styles.label}>
+                    Sale to Client and And Create Invoice
+                  </label>
+                  <input
+                    type="checkbox"
+                    value={formData.checkbox}
+                    onChange={(e) =>
+                      handleFormInputChange("checkbox", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
