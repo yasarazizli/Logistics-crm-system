@@ -206,7 +206,7 @@ const CreateServicesTable = ({
         onPageChange={(pg) => setPage(pg)}
       />
 
-      <div className={styles.form__buttons}>
+      <div className={styles.form__buttons} style={{ marginTop: "-30px" }}>
         <Button text="Cancel" type="button" onClick={() => modalClose(false)} />
       </div>
     </Modal>

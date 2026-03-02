@@ -235,3 +235,18 @@ export const updateExtraChange = async (
       return err.response;
     });
 };
+
+export const updateExtraCost = async (
+  formData: FormData,
+  id: number | null,
+) => {
+  return await axios
+    .put(`${apiUrl}/commercial/sales-extra-cost/?service_id=${id}`, formData, {
+      headers: {
+        Authorization: getCookie("allianceToken"),
+      },
+    })
+    .catch((err) => {
+      return err.response;
+    });
+};

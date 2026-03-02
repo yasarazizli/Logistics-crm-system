@@ -47,6 +47,7 @@ export default function PrivateRoute() {
       "/accountant/balance",
       "/accountant/order",
       "/notification",
+      "/extra/change",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/accountant/users`} />;
@@ -90,7 +91,7 @@ export default function PrivateRoute() {
       "/commercial/manager/information",
       "/commercial/manager/information/edit",
       "/notification",
-      "/commercial/extra/change",
+      "/extra/change",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/manager/order`} />;
@@ -104,7 +105,7 @@ export default function PrivateRoute() {
       "/commercial/manager/information",
       "/commercial/manager/information/edit",
       "/notification",
-      "/commercial/extra/change",
+      "/extra/change",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/commercial/specialist`} />;

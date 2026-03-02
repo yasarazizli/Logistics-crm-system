@@ -10,6 +10,7 @@ import {
   OrderIdNo,
   getExtraChange,
   updateExtraChange,
+  updateExtraCost,
 } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import {
   getAllServicesName,
@@ -235,6 +236,8 @@ const ExtraChangeUpdate = ({
   const { setLoader } = useContext(LoaderContext);
   const { auth } = useContext(AuthContext);
   const isCommercialManager = auth.role === "commercial_manager";
+  const isBuyerManager = auth.role === "buyer_manager";
+
   const [services, setServices] = useState<Service[]>([
     {
       index: 0,
@@ -271,7 +274,7 @@ const ExtraChangeUpdate = ({
     date: "",
     client: "",
     contract: "",
-    checkbox: "",
+    checkbox: false,
   });
 
   const calculatedValues = useMemo(() => {
@@ -583,7 +586,7 @@ const ExtraChangeUpdate = ({
 
   const handleFormInputChange = (
     field: keyof typeof formData,
-    value: string,
+    value: string | boolean,
   ) => {
     setFormData({
       ...formData,
@@ -635,6 +638,7 @@ const ExtraChangeUpdate = ({
       menuPosition="fixed"
       menuShouldBlockScroll
       required={required}
+      isDisabled={isCommercialManager}
     />
   );
 
@@ -649,56 +653,77 @@ const ExtraChangeUpdate = ({
     try {
       const formDataToSend = new FormData();
 
-      formDataToSend.append("date", formData.date);
-      formDataToSend.append(
-        "order_no",
-        selectedOrder?.order_no?.toString() || "",
-      );
-      formDataToSend.append("client", formData.client);
-      formDataToSend.append("contract", formData.contract);
-      formDataToSend.append("bank", selectedBank?.value?.toString() || "");
-      formDataToSend.append("checkbox", formData.checkbox);
-      formDataToSend.append("btn_status", status);
-
-      const servicesData = calculatedValues.services.map((service) => {
-        const parseOrZero = (value: string | undefined | null): number => {
-          if (!value || value.trim() === "") return 0;
-          const parsed = parseFloat(value);
-          return isNaN(parsed) ? 0 : parsed;
-        };
-
-        return {
-          row_id: service.row_id,
-          service_name: service.service_name,
-          service_id: service.service_id,
-          total_quantity: parseOrZero(service.total_quantity),
-          purchase_price_per_ton: parseOrZero(service.purchase_price_per_ton),
-          purchase_price_per_unit: parseOrZero(service.purchase_price_per_unit),
-          unit: service.unit,
-          total_purchase_price: parseOrZero(service.total_purchase_price),
-          selling_price: parseOrZero(service.selling_price),
-          total_selling_price: parseOrZero(service.total_selling_price),
-          vat: parseOrZero(service.vat),
-          vat_18: service.vat_18,
-          profit: parseOrZero(service.profit),
-          vendor: service.vendor,
-          description: service.description,
-        };
-      });
-
-      if (deletedRowIds.length > 0) {
-        formDataToSend.append("delete_service", JSON.stringify(deletedRowIds));
+      if (isBuyerManager) {
+        formDataToSend.append("date", formData.date);
+        formDataToSend.append(
+          "order_no",
+          selectedOrder?.order_no?.toString() || "",
+        );
+        formDataToSend.append("client", formData.client);
+        formDataToSend.append("contract", formData.contract);
+        formDataToSend.append("btn_status", status);
       }
 
-      formDataToSend.append("services", JSON.stringify(servicesData));
+      if (isCommercialManager) {
+        formDataToSend.append("bank", selectedBank?.value.toString() || "");
+        formDataToSend.append(
+          "create_invoice",
+          formData.checkbox ? "true" : "false",
+        );
+      }
 
-      services.forEach((service, index) => {
-        if (service.file) {
-          formDataToSend.append(`file_${index + 1}`, service.file);
+      if (isBuyerManager) {
+        const servicesData = calculatedValues.services.map((service) => {
+          const parseOrZero = (value: string | undefined | null): number => {
+            if (!value || value.trim() === "") return 0;
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? 0 : parsed;
+          };
+
+          return {
+            row_id: service.row_id,
+            service_name: service.service_name,
+            service_id: service.service_id,
+            total_quantity: parseOrZero(service.total_quantity),
+            purchase_price_per_ton: parseOrZero(service.purchase_price_per_ton),
+            purchase_price_per_unit: parseOrZero(
+              service.purchase_price_per_unit,
+            ),
+            unit: service.unit,
+            total_purchase_price: parseOrZero(service.total_purchase_price),
+            selling_price: parseOrZero(service.selling_price),
+            total_selling_price: parseOrZero(service.total_selling_price),
+            vat: parseOrZero(service.vat),
+            vat_18: service.vat_18,
+            profit: parseOrZero(service.profit),
+            vendor: service.vendor,
+            description: service.description,
+          };
+        });
+
+        if (deletedRowIds.length > 0) {
+          formDataToSend.append(
+            "delete_service",
+            JSON.stringify(deletedRowIds),
+          );
         }
-      });
 
-      const response = await updateExtraChange(formDataToSend, extraChangeId);
+        formDataToSend.append("services", JSON.stringify(servicesData));
+
+        services.forEach((service, index) => {
+          if (service.file) {
+            formDataToSend.append(`file_${index + 1}`, service.file);
+          }
+        });
+      }
+
+      let response;
+      if (isCommercialManager) {
+        response = await updateExtraCost(formDataToSend, extraChangeId);
+      } else if (isBuyerManager) {
+        response = await updateExtraChange(formDataToSend, extraChangeId);
+      }
+
       const { status: responseStatus, data } = response;
 
       if (responseStatus === 200) {
@@ -840,10 +865,11 @@ const ExtraChangeUpdate = ({
                   </label>
                   <input
                     type="checkbox"
-                    value={formData.checkbox}
+                    checked={formData.checkbox}
                     onChange={(e) =>
-                      handleFormInputChange("checkbox", e.target.value)
+                      handleFormInputChange("checkbox", e.target.checked)
                     }
+                    style={{ cursor: "pointer" }}
                   />
                 </div>
               </div>
@@ -1110,13 +1136,6 @@ const ExtraChangeUpdate = ({
               text="Draft"
               type="button"
               onClick={() => handleSend("draft")}
-            />
-          )}
-          {!isCommercialManager && (
-            <Button
-              text="Update"
-              type="button"
-              onClick={() => handleSend("update")}
             />
           )}
           <Button

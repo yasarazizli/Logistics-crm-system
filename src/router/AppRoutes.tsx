@@ -151,7 +151,7 @@ const AppRoutes = () => {
           path="commercial/manager/order"
           element={<CommercialManagerOrderPage />}
         />
-        <Route path="commercial/extra/change" element={<ExtraChangePage />} />
+        <Route path="extra/change" element={<ExtraChangePage />} />
         <Route
           path="commercial/specialist"
           element={<CommercialSpecialistPage />}
