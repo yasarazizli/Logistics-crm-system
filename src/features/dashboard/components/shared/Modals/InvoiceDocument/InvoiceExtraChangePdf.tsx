@@ -65,7 +65,15 @@ const InvoicePdf = ({
     console.log("API Response:", { status, data });
 
     if (status === 200) {
-      setOrderModel(data);
+      const transformedData = {
+        ...data,
+        services: data.services
+          ? Array.isArray(data.services)
+            ? data.services
+            : [data.services]
+          : [],
+      };
+      setOrderModel(transformedData);
     } else {
       toast.error(errorMessageHandler(data));
     }
@@ -166,64 +174,78 @@ const InvoicePdf = ({
             {/* Table Header END */}
 
             {/* Table Body START */}
-            {orderModel?.services?.map((row, index) => (
-              <View key={index} style={[invoiceTable.tableRow]}>
+            {orderModel?.services && orderModel.services.length > 0 ? (
+              orderModel.services.map((row, index) => (
+                <View key={index} style={[invoiceTable.tableRow]}>
+                  <Text
+                    style={[
+                      invoiceTable.tableCell,
+                      invoiceTable.col1,
+                      invoiceTable.tableBorder,
+                    ]}
+                  >
+                    {row.no}
+                  </Text>
+                  <Text
+                    style={[
+                      invoiceTable.tableCell,
+                      invoiceTable.col2,
+                      invoiceTable.tableBorder,
+                    ]}
+                  >
+                    {row.service}
+                  </Text>
+                  <Text
+                    style={[
+                      invoiceTable.tableCell,
+                      invoiceTable.col3,
+                      invoiceTable.tableBorder,
+                    ]}
+                  >
+                    ${row.Amount}
+                  </Text>
+                  <Text
+                    style={[
+                      invoiceTable.tableCell,
+                      invoiceTable.col4,
+                      invoiceTable.tableBorder,
+                    ]}
+                  >
+                    ${row.price}
+                  </Text>
+                  <Text
+                    style={[
+                      invoiceTable.tableCell,
+                      invoiceTable.col5,
+                      invoiceTable.tableBorder,
+                    ]}
+                  >
+                    ${row.vat}
+                  </Text>
+                  <Text
+                    style={[
+                      invoiceTable.tableCell,
+                      invoiceTable.col6,
+                      invoiceTable.tableBorder,
+                    ]}
+                  >
+                    ${row.total}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <View style={[invoiceTable.tableRow]}>
                 <Text
                   style={[
                     invoiceTable.tableCell,
-                    invoiceTable.col1,
+                    { width: "100%", textAlign: "center" },
                     invoiceTable.tableBorder,
                   ]}
                 >
-                  {row.no}
-                </Text>
-                <Text
-                  style={[
-                    invoiceTable.tableCell,
-                    invoiceTable.col2,
-                    invoiceTable.tableBorder,
-                  ]}
-                >
-                  {row.service}
-                </Text>
-                <Text
-                  style={[
-                    invoiceTable.tableCell,
-                    invoiceTable.col3,
-                    invoiceTable.tableBorder,
-                  ]}
-                >
-                  ${row.Amount}
-                </Text>
-                <Text
-                  style={[
-                    invoiceTable.tableCell,
-                    invoiceTable.col4,
-                    invoiceTable.tableBorder,
-                  ]}
-                >
-                  ${row.price}
-                </Text>
-                <Text
-                  style={[
-                    invoiceTable.tableCell,
-                    invoiceTable.col5,
-                    invoiceTable.tableBorder,
-                  ]}
-                >
-                  ${row.vat}
-                </Text>
-                <Text
-                  style={[
-                    invoiceTable.tableCell,
-                    invoiceTable.col6,
-                    invoiceTable.tableBorder,
-                  ]}
-                >
-                  ${row.total}
+                  No services available
                 </Text>
               </View>
-            ))}
+            )}
             {/* Table Body END */}
 
             {/* Footer */}
@@ -561,14 +583,16 @@ const InvoicePdf = ({
       <Modal modalClose={modalClose}>
         <div
           style={{
-            width: "600px",
+            width: "700px",
             height: "800px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             backgroundColor: "white",
           }}
-        ></div>
+        >
+          <p>Loading invoice data...</p>
+        </div>
       </Modal>
     );
   }
@@ -578,7 +602,7 @@ const InvoicePdf = ({
       <Modal modalClose={modalClose}>
         <div
           style={{
-            width: "600px",
+            width: "700px",
             height: "800px",
             display: "flex",
             justifyContent: "center",
