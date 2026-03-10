@@ -108,6 +108,24 @@ export const getOrderInvoiceDetailRequest = async (order_id: number) => {
     });
 };
 
+export const getExtraChangeInvoice = async (
+  service_id: number | null,
+  order_id: number,
+) => {
+  return await axios
+    .get(
+      `${apiUrl}/commercial/invoice-extra-cost/?service_id=${service_id}&order_id=${order_id}`,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
+      },
+    )
+    .catch((err) => {
+      return err.response;
+    });
+};
+
 export const getOrderInstructionDetailRequest = async (order_id: number) => {
   return await axios
     .get(`${apiUrl}/commercial/get-instruction/?order_id=${order_id}`, {
@@ -246,6 +264,41 @@ export const updateExtraCost = async (
         Authorization: getCookie("allianceToken"),
       },
     })
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const MonitoringExtraChange = async (
+  formData: FormData,
+  id: number | null,
+) => {
+  return await axios
+    .put(
+      `${apiUrl}/commercial/monitoring-extra-cost/?service_id=${id}`,
+      formData,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
+      },
+    )
+    .catch((err) => {
+      return err.response;
+    });
+};
+
+export const ExtraChangeConfirm = async (service_id: number) => {
+  return await axios
+    .put(
+      `${apiUrl}/commercial/accountant-extra-cost/?service_id=${service_id}`,
+      null,
+      {
+        headers: {
+          Authorization: getCookie("allianceToken"),
+        },
+      },
+    )
     .catch((err) => {
       return err.response;
     });

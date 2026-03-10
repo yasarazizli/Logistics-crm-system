@@ -724,6 +724,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    cursor: pointer;
 
     .icon__1 {
       border-radius: 16px;
@@ -752,6 +753,36 @@
       border: none;
     }
 
+  }
+}
+
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+
+  .icon__1 {
+    border-radius: 16px;
+    background: rgba(247, 65, 86, 0.20);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .icon__2 {
+    border-radius: 16px;
+    background: rgba(152, 213, 155, 0.56);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 }
 

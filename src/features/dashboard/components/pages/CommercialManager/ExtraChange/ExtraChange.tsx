@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import styles from "../../Controls/HsCode/HsCode.module.scss";
 import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
-import { PenIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
+import { EyesIcon, PenIcon, PlusIcon } from "@/assets/icons/shared.vectors.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
 import Pagination from "@/features/dashboard/components/shared/Pagination/Pagination.tsx";
 import { getAllExtraChange } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
@@ -10,6 +10,7 @@ import Button from "@/components/Button/Button.tsx";
 import ExtraChangeModal from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeModal.tsx";
 import ExtraChangeUpdate from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeUpdate.tsx";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
+import InvoiceExtraChangePdf from "@/features/dashboard/components/shared/Modals/InvoiceDocument/InvoiceExtraChangePdf.tsx";
 
 const filterKeys = [
   "order_no",
@@ -69,7 +70,7 @@ const ExtraChange = () => {
   });
 
   const [modal, setModal] = useState<
-    null | "accountant" | "extra_change" | "update"
+    null | "accountant" | "extra_change" | "update" | "invoice"
   >(null);
   const [data, setData] = useState<ExtraChangeProps[]>([]);
   const [total, setTotal] = useState(0);
@@ -126,6 +127,13 @@ const ExtraChange = () => {
   const totalPages = Math.ceil(total / pageSize);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
+  const handleOpenInvoice = (serviceId: number, orderId: number) => {
+    setSelectedOrderId(orderId);
+    setSelectedId(serviceId);
+    setModal("invoice");
+  };
 
   return (
     <div className={styles.hscode}>
@@ -158,7 +166,8 @@ const ExtraChange = () => {
             { name: "Vendor" },
             { name: "Description" },
             { name: "VAT 18%" },
-            { name: "Action" },
+            { name: "Invoice document" },
+            ...(auth.role === "user" ? [] : [{ name: "Action" }]),
           ]}
           filters={
             <>
@@ -174,6 +183,7 @@ const ExtraChange = () => {
               ))}
               <td></td>
               <td></td>
+              {auth.role !== "user" && <td></td>}
             </>
           }
         >
@@ -196,18 +206,37 @@ const ExtraChange = () => {
                 <input type="checkbox" checked={item.vat_18} readOnly />
               </td>
               <td>
-                <div className={styles.icon}>
+                <div
+                  className={styles.icon}
+                  style={{ display: "flex", gap: "8px" }}
+                >
                   <div
-                    className={styles.icon__2}
-                    onClick={() => {
-                      setSelectedId(item.service_id);
-                      setModal("update");
-                    }}
+                    className={styles.icon__3}
+                    onClick={() =>
+                      handleOpenInvoice(item.service_id, item.order_no)
+                    }
+                    style={{ cursor: "pointer" }}
+                    title="View Invoice PDF"
                   >
-                    <PenIcon />
+                    <EyesIcon />
                   </div>
                 </div>
               </td>
+              {auth.role !== "user" && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__2}
+                      onClick={() => {
+                        setSelectedId(item.service_id);
+                        setModal("update");
+                      }}
+                    >
+                      <PenIcon />
+                    </div>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </Table>
@@ -235,6 +264,16 @@ const ExtraChange = () => {
             setPageHelper((prev) => ({ ...prev, render: !prev.render }));
           }}
           extraChangeId={selectedId}
+        />
+      )}
+      {modal === "invoice" && selectedOrderId && (
+        <InvoiceExtraChangePdf
+          id={selectedOrderId}
+          servicesId={selectedId}
+          modalClose={() => {
+            setModal(null);
+            setSelectedOrderId(null);
+          }}
         />
       )}
     </div>

@@ -26,6 +26,7 @@ export default function PrivateRoute() {
       "/users/ask/quotation/edit",
       "/users/ask/quotation/update",
       "/notification",
+      "/extra/change",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/users`} />;
@@ -114,7 +115,11 @@ export default function PrivateRoute() {
 
   // Director
   if (auth.role === Roles.buyer_directory) {
-    const accessiblePages = ["/buyers/director/tasks", "/notification"];
+    const accessiblePages = [
+      "/buyers/director/tasks",
+      "/notification",
+      "/extra/change",
+    ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/buyers/director/tasks`} />;
     }
@@ -127,6 +132,7 @@ export default function PrivateRoute() {
       "/monitoring/order",
       "/monitoring/services",
       "/notification",
+      "/extra/change",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/monitoring`} />;

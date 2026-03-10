@@ -267,7 +267,6 @@ const CommercialManager = () => {
                   {item.bank || "Select Bank"} <SharedIcon />
                 </div>
               </td>
-
               <td>
                 <div
                   className={styles.icon}
@@ -291,7 +290,6 @@ const CommercialManager = () => {
                   </div>
                 </div>
               </td>
-
               <td>
                 <div
                   className={styles.icon}
@@ -317,7 +315,6 @@ const CommercialManager = () => {
                   </>
                 </div>
               </td>
-
               <td>
                 <div
                   className={styles.manager}
@@ -347,7 +344,6 @@ const CommercialManager = () => {
                   </div>
                 )}
               </td>
-
               <td>
                 <div className={styles.icon}>
                   <div
@@ -379,7 +375,6 @@ const CommercialManager = () => {
                   </div>
                 </div>
               </td>
-
               <td>
                 <div className={styles.icon}>
                   <div

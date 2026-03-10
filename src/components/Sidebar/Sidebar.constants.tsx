@@ -132,14 +132,14 @@ export const navigation = [
   {
     name: "main.title__5",
     path: "commercial/specialist",
-    icon: OrdersIcon,
+    icon: HomeIcon,
     roles: ["commercial_specialist"],
   },
   {
     name: "main.title__9",
     path: "extra/change",
     icon: ExtraChange,
-    roles: ["commercial_specialist", "buyer_manager", "accountant"],
+    roles: ["buyer_manager", "accountant", "user", "commercial_specialist"],
   },
 
   // Buyers Directory
@@ -165,6 +165,13 @@ export const navigation = [
   },
 
   {
+    name: "main.title__9",
+    path: "extra/change",
+    icon: ExtraChange,
+    roles: ["buyer_directory"],
+  },
+
+  {
     name: "main.title__4",
     path: "services",
     icon: ServiceIcon,
@@ -184,13 +191,20 @@ export const navigation = [
   {
     name: "main.title__5",
     path: "monitoring",
-    icon: OrdersIcon,
+    icon: HomeIcon,
     roles: ["monitoring"],
   },
   {
     name: "main.title__4",
     path: "monitoring/services",
     icon: ServiceIcon,
+    roles: ["monitoring"],
+  },
+
+  {
+    name: "main.title__9",
+    path: "extra/change",
+    icon: ExtraChange,
     roles: ["monitoring"],
   },
 

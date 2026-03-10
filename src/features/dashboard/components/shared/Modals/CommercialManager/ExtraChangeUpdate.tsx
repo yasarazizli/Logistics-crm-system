@@ -11,15 +11,21 @@ import {
   getExtraChange,
   updateExtraChange,
   updateExtraCost,
+  MonitoringExtraChange,
 } from "@/features/dashboard/services/CommercialManager/commercial.service.ts";
 import {
   getAllServicesName,
   getAllVendors,
 } from "@/features/dashboard/services/Services&Vendor/all.service.ts";
 import { LoaderContext } from "@/contexts/LoaderContext.tsx";
-import { DeleteIcon, FileIcon } from "@/assets/icons/shared.vectors.tsx";
+import {
+  AgreeIcon,
+  DeleteIcon,
+  FileIcon,
+} from "@/assets/icons/shared.vectors.tsx";
 import Input from "@/components/Input/Input.tsx";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
+import ExtraChangeCompleted from "@/features/dashboard/components/shared/Modals/CommercialManager/ExtraChangeCompleted.tsx";
 
 interface Option {
   value: string;
@@ -236,7 +242,9 @@ const ExtraChangeUpdate = ({
   const { setLoader } = useContext(LoaderContext);
   const { auth } = useContext(AuthContext);
   const isCommercialManager = auth.role === "commercial_manager";
+  const isMonitoring = auth.role === "monitoring";
   const isBuyerManager = auth.role === "buyer_manager";
+  const isAccountant = auth.role === "accountant";
 
   const [services, setServices] = useState<Service[]>([
     {
@@ -263,12 +271,14 @@ const ExtraChangeUpdate = ({
     },
   ]);
 
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [serviceNames, setServiceNames] = useState<Option[]>([]);
   const [vendors, setVendors] = useState<VendorType[]>([]);
   const [orderData, setOrderData] = useState<OrderData[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<OrderData | null>(null);
   const [selectedBank, setSelectedBank] = useState<OptionType | null>(null);
   const [deletedRowIds, setDeletedRowIds] = useState<number[]>([]);
+  const [modal, setModal] = useState<null | "confirm">(null);
 
   const [formData, setFormData] = useState({
     date: "",
@@ -412,6 +422,8 @@ const ExtraChangeUpdate = ({
       },
     ]);
   };
+
+  const [, setPageHelper] = useState({ render: false });
 
   const deleteRow = (id: number) => {
     const serviceToDelete = services.find((service) => service.id === id);
@@ -612,7 +624,7 @@ const ExtraChangeUpdate = ({
       menuPosition="fixed"
       menuShouldBlockScroll
       required={required}
-      isDisabled={isCommercialManager}
+      isDisabled={isCommercialManager || isMonitoring || isAccountant}
     />
   );
 
@@ -638,11 +650,11 @@ const ExtraChangeUpdate = ({
       menuPosition="fixed"
       menuShouldBlockScroll
       required={required}
-      isDisabled={isCommercialManager}
+      isDisabled={isCommercialManager || isMonitoring || isAccountant}
     />
   );
 
-  const handleSend = async (status: "draft" | "update" | "send") => {
+  const handleSend = async (status: "draft" | "update" | "send" | "reject") => {
     if (!extraChangeId) {
       toast.error("Update ID is missing");
       return;
@@ -717,11 +729,17 @@ const ExtraChangeUpdate = ({
         });
       }
 
+      if (isMonitoring) {
+        formDataToSend.append("btn_status", status);
+      }
+
       let response;
       if (isCommercialManager) {
         response = await updateExtraCost(formDataToSend, extraChangeId);
       } else if (isBuyerManager) {
         response = await updateExtraChange(formDataToSend, extraChangeId);
+      } else if (isMonitoring) {
+        response = await MonitoringExtraChange(formDataToSend, extraChangeId);
       }
 
       const { status: responseStatus, data } = response;
@@ -767,7 +785,7 @@ const ExtraChangeUpdate = ({
                 value={formData.date}
                 onChange={(e) => handleFormInputChange("date", e.target.value)}
                 className={styles.input}
-                disabled={isCommercialManager}
+                disabled={isCommercialManager || isMonitoring}
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -787,7 +805,7 @@ const ExtraChangeUpdate = ({
                 placeholder="Order ID"
                 isSearchable
                 isClearable
-                isDisabled={isCommercialManager}
+                isDisabled={isCommercialManager || isMonitoring}
               />
             </div>
           </div>
@@ -813,7 +831,7 @@ const ExtraChangeUpdate = ({
                   backgroundColor: selectedOrder ? "#f0f0f0" : "#F5F5F5",
                   cursor: selectedOrder ? "not-allowed" : "text",
                 }}
-                disabled={isCommercialManager}
+                disabled={isCommercialManager || isMonitoring}
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -831,7 +849,7 @@ const ExtraChangeUpdate = ({
                   backgroundColor: selectedOrder ? "#f0f0f0" : "#F5F5F5",
                   cursor: selectedOrder ? "not-allowed" : "text",
                 }}
-                disabled={isCommercialManager}
+                disabled={isCommercialManager || isMonitoring}
               />
             </div>
           </div>
@@ -843,7 +861,7 @@ const ExtraChangeUpdate = ({
               marginBottom: 20,
             }}
           >
-            {auth.role === "commercial_manager" && (
+            {!isBuyerManager && (
               <div className={styles.selectWrapper}>
                 <label className={styles.label}>Bank rekviziti</label>
                 <Select
@@ -854,10 +872,11 @@ const ExtraChangeUpdate = ({
                   placeholder="Bank rekviziti"
                   isSearchable
                   isClearable
+                  isDisabled={isMonitoring || isAccountant}
                 />
               </div>
             )}
-            {auth.role === "commercial_manager" && (
+            {!isBuyerManager && (
               <div className={styles.selectWrapper}>
                 <div className={styles.checkbox__bar}>
                   <label className={styles.label}>
@@ -870,6 +889,7 @@ const ExtraChangeUpdate = ({
                       handleFormInputChange("checkbox", e.target.checked)
                     }
                     style={{ cursor: "pointer" }}
+                    disabled={isMonitoring || isAccountant}
                   />
                 </div>
               </div>
@@ -893,7 +913,8 @@ const ExtraChangeUpdate = ({
             { name: "Vendor" },
             { name: "Description" },
             { name: "File" },
-            { name: "Actions" },
+            ...(!isAccountant ? [{ name: "Actions" }] : []),
+            ...(isAccountant ? [{ name: "Confirmation" }] : []),
           ]}
         >
           {displayServices.map((service) => (
@@ -922,7 +943,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
-                  disabled={isCommercialManager}
+                  disabled={isCommercialManager || isMonitoring || isAccountant}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -935,7 +956,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
-                  disabled={isCommercialManager}
+                  disabled={isCommercialManager || isMonitoring || isAccountant}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -948,7 +969,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
-                  disabled={isCommercialManager}
+                  disabled={isCommercialManager || isMonitoring || isAccountant}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -981,7 +1002,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
-                  disabled={isCommercialManager}
+                  disabled={isCommercialManager || isMonitoring || isAccountant}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -1002,7 +1023,7 @@ const ExtraChangeUpdate = ({
                       e.target.checked,
                     )
                   }
-                  disabled={isCommercialManager}
+                  disabled={isCommercialManager || isMonitoring || isAccountant}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -1015,7 +1036,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
-                  disabled={isCommercialManager}
+                  disabled={isCommercialManager || isMonitoring || isAccountant}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -1042,7 +1063,7 @@ const ExtraChangeUpdate = ({
                       e.target.value,
                     )
                   }
-                  disabled={isCommercialManager}
+                  disabled={isCommercialManager || isMonitoring || isAccountant}
                 />
               </td>
               <td className={styles.cellInput}>
@@ -1076,7 +1097,9 @@ const ExtraChangeUpdate = ({
                     onChange={(e) => handleFileChange(service.id, e)}
                     style={{ display: "none" }}
                     accept="*/*"
-                    disabled={isCommercialManager}
+                    disabled={
+                      isCommercialManager || isMonitoring || isAccountant
+                    }
                   />
                   {(service.file || service.existing_file) && (
                     <div
@@ -1107,44 +1130,83 @@ const ExtraChangeUpdate = ({
                   )}
                 </div>
               </td>
-              <td className={styles.cellInput}>
-                <div className={styles.icon}>
-                  <div
-                    className={styles.icon__1}
-                    onClick={() => deleteRow(service.id)}
-                  >
-                    <DeleteIcon />
+              {!isAccountant && (
+                <td className={styles.cellInput}>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__1}
+                      onClick={() => deleteRow(service.id)}
+                    >
+                      <DeleteIcon />
+                    </div>
                   </div>
-                </div>
-              </td>
+                </td>
+              )}
+              {isAccountant && (
+                <td>
+                  <div className={styles.icon}>
+                    <div
+                      className={styles.icon__2}
+                      onClick={() => {
+                        setModal("confirm");
+                        setSelectedId(service.service_id);
+                      }}
+                    >
+                      <AgreeIcon />
+                    </div>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </Table>
 
-        <div style={{ marginTop: "10px", position: "absolute" }}>
-          <Button
-            text="Add Column"
-            type="button"
-            onClick={addNewRow}
-            viewType="green__light"
-          />
-        </div>
+        {!isAccountant && (
+          <div style={{ marginTop: "10px", position: "absolute" }}>
+            <Button
+              text="Add Column"
+              type="button"
+              onClick={addNewRow}
+              viewType="green__light"
+            />
+          </div>
+        )}
 
         <div className={styles.form__buttons}>
-          {!isCommercialManager && (
+          {isMonitoring && (
             <Button
-              text="Draft"
+              text="Reject"
               type="button"
-              onClick={() => handleSend("draft")}
+              onClick={() => handleSend("reject")}
+              viewType="red"
             />
           )}
-          <Button
-            text="Send"
-            type="button"
-            onClick={() => handleSend("send")}
-          />
+          {!isCommercialManager ||
+            (!isMonitoring && (
+              <Button
+                text="Draft"
+                type="button"
+                onClick={() => handleSend("draft")}
+              />
+            ))}
+          {!isAccountant && (
+            <Button
+              text="Send"
+              type="button"
+              onClick={() => handleSend("send")}
+            />
+          )}
         </div>
       </div>
+      {modal === "confirm" && (
+        <ExtraChangeCompleted
+          modalClose={() => {
+            setModal(null);
+            setPageHelper((prev) => ({ ...prev, render: !prev.render }));
+          }}
+          selectedId={selectedId}
+        />
+      )}
     </Modal>
   );
 };
