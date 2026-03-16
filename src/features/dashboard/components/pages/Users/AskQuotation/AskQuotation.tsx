@@ -192,15 +192,24 @@ const AskQuotation = () => {
         }
       : {};
 
-    const filteredRoutes = routes.filter(
+    const routesWithTypes = routes.map((route, index) => ({
+      ...route,
+      route_type: ["full", "requested", "container", "wagon"][index] || "full",
+    }));
+
+    const filteredRoutes = routesWithTypes.filter(
       (route) =>
         route.start_country_id !== null ||
         route.end_country_id !== null ||
         route.start_address !== "" ||
-        route.end_address !== "",
+        route.end_address !== "" ||
+        route.start_station_id !== null ||
+        route.end_station_id !== null ||
+        route.start_port_id !== null ||
+        route.end_port_id !== null,
     );
 
-    const formattedRoutes = filteredRoutes.map((route, index) => ({
+    const formattedRoutes = filteredRoutes.map((route) => ({
       start_country_id: route.start_country_id,
       start_city_id: route.start_city_id,
       start_address: route.start_address,
@@ -211,8 +220,8 @@ const AskQuotation = () => {
       end_address: route.end_address,
       end_station_id: route.end_station_id,
       end_port_id: route.end_port_id,
-      is_main: index === 0,
-      route_type: ["full", "requested", "container", "wagon"][index] || "full",
+      is_main: false,
+      route_type: route.route_type,
     }));
 
     const order = {

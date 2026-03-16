@@ -699,7 +699,9 @@ const ExtraChangeModal = ({
             { name: "Purchase price per unit" },
             { name: "Unit" },
             { name: "Total Purchase Price" },
-            { name: "Selling price" },
+            ...(auth.role === "buyer_manager" || auth.role === "buyer_directory"
+              ? []
+              : [{ name: "Selling price" }]),
             { name: "Total Price" },
             { name: "VAT" },
             { name: "VAT (18%)" },
@@ -782,18 +784,21 @@ const ExtraChangeModal = ({
               <td className={styles.cellInput}>
                 <input value={service.total_purchase_price} readOnly />
               </td>
-              <td className={styles.cellInput}>
-                <input
-                  value={service.selling_price}
-                  onChange={(e) =>
-                    handleServiceInputChange(
-                      service.id,
-                      "selling_price",
-                      e.target.value,
-                    )
-                  }
-                />
-              </td>
+              {auth.role !== "buyer_manager" &&
+                auth.role !== "buyer_directory" && (
+                  <td className={styles.cellInput}>
+                    <input
+                      value={service.selling_price}
+                      onChange={(e) =>
+                        handleServiceInputChange(
+                          service.id,
+                          "selling_price",
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </td>
+                )}
               <td className={styles.cellInput}>
                 <input value={service.total_selling_price} readOnly />
               </td>

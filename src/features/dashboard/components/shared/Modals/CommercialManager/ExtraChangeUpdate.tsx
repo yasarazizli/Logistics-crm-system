@@ -241,9 +241,11 @@ const ExtraChangeUpdate = ({
 }) => {
   const { setLoader } = useContext(LoaderContext);
   const { auth } = useContext(AuthContext);
-  const isCommercialManager = auth.role === "commercial_manager";
+  const isCommercialManager =
+    auth.role === "commercial_manager" || auth.role === "commercial_specialist";
   const isMonitoring = auth.role === "monitoring";
-  const isBuyerManager = auth.role === "buyer_manager";
+  const isBuyerManager =
+    auth.role === "buyer_manager" || auth.role === "buyer_direcotry";
   const isAccountant = auth.role === "accountant";
 
   const [services, setServices] = useState<Service[]>([
@@ -684,50 +686,43 @@ const ExtraChangeUpdate = ({
         );
       }
 
-      if (isBuyerManager) {
-        const servicesData = calculatedValues.services.map((service) => {
-          const parseOrZero = (value: string | undefined | null): number => {
-            if (!value || value.trim() === "") return 0;
-            const parsed = parseFloat(value);
-            return isNaN(parsed) ? 0 : parsed;
-          };
+      const servicesData = calculatedValues.services.map((service) => {
+        const parseOrZero = (value: string | undefined | null): number => {
+          if (!value || value.trim() === "") return 0;
+          const parsed = parseFloat(value);
+          return isNaN(parsed) ? 0 : parsed;
+        };
 
-          return {
-            row_id: service.row_id,
-            service_name: service.service_name,
-            service_id: service.service_id,
-            total_quantity: parseOrZero(service.total_quantity),
-            purchase_price_per_ton: parseOrZero(service.purchase_price_per_ton),
-            purchase_price_per_unit: parseOrZero(
-              service.purchase_price_per_unit,
-            ),
-            unit: service.unit,
-            total_purchase_price: parseOrZero(service.total_purchase_price),
-            selling_price: parseOrZero(service.selling_price),
-            total_selling_price: parseOrZero(service.total_selling_price),
-            vat: parseOrZero(service.vat),
-            vat_18: service.vat_18,
-            profit: parseOrZero(service.profit),
-            vendor: service.vendor,
-            description: service.description,
-          };
-        });
+        return {
+          row_id: service.row_id,
+          service_name: service.service_name,
+          service_id: service.service_id,
+          total_quantity: parseOrZero(service.total_quantity),
+          purchase_price_per_ton: parseOrZero(service.purchase_price_per_ton),
+          purchase_price_per_unit: parseOrZero(service.purchase_price_per_unit),
+          unit: service.unit,
+          total_purchase_price: parseOrZero(service.total_purchase_price),
+          selling_price: parseOrZero(service.selling_price),
+          total_selling_price: parseOrZero(service.total_selling_price),
+          vat: parseOrZero(service.vat),
+          vat_18: service.vat_18,
+          profit: parseOrZero(service.profit),
+          vendor: service.vendor,
+          description: service.description,
+        };
+      });
 
-        if (deletedRowIds.length > 0) {
-          formDataToSend.append(
-            "delete_service",
-            JSON.stringify(deletedRowIds),
-          );
-        }
-
-        formDataToSend.append("services", JSON.stringify(servicesData));
-
-        services.forEach((service, index) => {
-          if (service.file) {
-            formDataToSend.append(`file_${index + 1}`, service.file);
-          }
-        });
+      if (deletedRowIds.length > 0) {
+        formDataToSend.append("delete_service", JSON.stringify(deletedRowIds));
       }
+
+      formDataToSend.append("services", JSON.stringify(servicesData));
+
+      services.forEach((service, index) => {
+        if (service.file) {
+          formDataToSend.append(`file_${index + 1}`, service.file);
+        }
+      });
 
       if (isMonitoring) {
         formDataToSend.append("btn_status", status);
@@ -905,7 +900,9 @@ const ExtraChangeUpdate = ({
             { name: "Purchase price per unit" },
             { name: "Unit" },
             { name: "Total Purchase Price" },
-            { name: "Selling price" },
+            ...(auth.role === "buyer_manager" || auth.role === "buyer_directory"
+              ? []
+              : [{ name: "Selling price" }]),
             { name: "Total Selling Price" },
             { name: "VAT" },
             { name: "VAT (18%)" },
@@ -992,19 +989,22 @@ const ExtraChangeUpdate = ({
               <td className={styles.cellInput}>
                 <input value={service.total_purchase_price} readOnly />
               </td>
-              <td className={styles.cellInput}>
-                <input
-                  value={service.selling_price}
-                  onChange={(e) =>
-                    handleServiceInputChange(
-                      service.id,
-                      "selling_price",
-                      e.target.value,
-                    )
-                  }
-                  disabled={isCommercialManager || isMonitoring || isAccountant}
-                />
-              </td>
+              {auth.role !== "buyer_manager" &&
+                auth.role !== "buyer_directory" && (
+                  <td className={styles.cellInput}>
+                    <input
+                      value={service.selling_price}
+                      onChange={(e) =>
+                        handleServiceInputChange(
+                          service.id,
+                          "selling_price",
+                          e.target.value,
+                        )
+                      }
+                      disabled={isMonitoring || isAccountant}
+                    />
+                  </td>
+                )}
               <td className={styles.cellInput}>
                 <input value={service.total_selling_price} readOnly />
               </td>

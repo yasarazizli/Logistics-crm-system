@@ -4,6 +4,7 @@ import Table from "@/features/dashboard/components/shared/Table/Table.tsx";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   DeleteIcon,
+  EyesIcon,
   PenIcon,
   SharedIcon,
 } from "@/assets/icons/shared.vectors.tsx";
@@ -16,8 +17,11 @@ import { AuthContext } from "@/contexts/AuthContext.tsx";
 import { AddIcon } from "@/assets/icons/order.vectors.tsx";
 import AttachServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/AttachServices.tsx";
 import DeleteServices from "@/features/dashboard/components/shared/Modals/Services&Vendor/DeleteServices.tsx";
+import i18n from "@/locales/i18n.ts";
+import { useNavigate } from "react-router-dom";
 
 interface Buyers {
+  order_id: number;
   id: number;
   service: string;
   location: string;
@@ -38,6 +42,7 @@ const filterKeys = [
 ] as const;
 
 const Tasks = () => {
+  const navigate = useNavigate();
   const { setLoader } = useContext(LoaderContext);
   const { auth } = useContext(AuthContext);
   const [filters, setFilters] = useState({
@@ -112,6 +117,13 @@ const Tasks = () => {
 
   const totalPages = Math.ceil(total / pageSize);
 
+  const handleClickEdit = (orderId: number) => {
+    const selectedOrder = data.find((item) => item.order_id === orderId);
+    navigate(`/${i18n.language}/buyers/details`, {
+      state: { order: selectedOrder },
+    });
+  };
+
   return (
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
@@ -128,6 +140,7 @@ const Tasks = () => {
             { name: "From" },
             { name: "To" },
             { name: "Choose Specialist" },
+            { name: "Details" },
             { name: "Add Service" },
             { name: "Attach Services" },
             ...(auth.role === "admin" ? [{ name: "Delete Tasks" }] : []),
@@ -144,6 +157,7 @@ const Tasks = () => {
                   />
                 </td>
               ))}
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -169,6 +183,16 @@ const Tasks = () => {
                 >
                   {item.buyers || "Not selected"}
                   <SharedIcon />
+                </div>
+              </td>
+              <td>
+                <div className={styles.icon}>
+                  <div
+                    className={styles.icon__3}
+                    onClick={() => handleClickEdit(item.order_id)}
+                  >
+                    <EyesIcon />
+                  </div>
                 </div>
               </td>
               <td>

@@ -139,15 +139,14 @@ const ExtraChange = () => {
     <div className={styles.hscode}>
       <div className={styles.title__btn}>
         <h1>Extra Change</h1>
-        {auth.role === "buyer_manager" ||
-          (auth.role === "buyer_directory" && (
-            <Button
-              text="Extra Change"
-              viewType="green__light"
-              icon={PlusIcon}
-              onClick={() => setModal("extra_change")}
-            />
-          ))}
+        {(auth.role === "buyer_manager" || auth.role === "buyer_directory") && (
+          <Button
+            text="Extra Change"
+            viewType="green__light"
+            icon={PlusIcon}
+            onClick={() => setModal("extra_change")}
+          />
+        )}
       </div>
 
       <div className={styles.table}>

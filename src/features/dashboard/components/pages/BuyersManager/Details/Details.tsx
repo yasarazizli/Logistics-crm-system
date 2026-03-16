@@ -1,6 +1,5 @@
 import styles from "@/features/auth/components/pages/PriceQuotation/PriceQuotation.module.scss";
 import Header from "@/components/Header/Header.tsx";
-import { useTranslation } from "react-i18next";
 import Input from "@/components/Input/Input.tsx";
 import { useEffect, useState, useRef, useCallback } from "react";
 import GetPackagingForm from "@/features/dashboard/components/shared/GetPackagingForm/GetPackagingForm.tsx";
@@ -97,7 +96,6 @@ interface ApiOfferData {
 }
 
 const Details = () => {
-  const { t } = useTranslation();
   const location = useLocation();
   const order = location.state?.order;
 
@@ -351,7 +349,7 @@ const Details = () => {
       <Header />
       <div className={styles.price}>
         <div className={styles.input__name}>
-          <h1 className={styles.title}>{t("price.title")}</h1>
+          <h1 className={styles.title}>Order</h1>
           <div className={styles.input__list}>
             <GetSelectList
               selectedCargo={selectedCargo}
