@@ -24,7 +24,7 @@ export const navigation = [
     name: "main.title__5",
     path: "buyers/manager/order",
     icon: HomeIcon,
-    roles: ["buyer_manager"],
+    roles: ["buyer_manager", "buyer_directory"],
   },
   {
     name: "main.title__2",
@@ -146,7 +146,7 @@ export const navigation = [
   {
     name: "main.title__7",
     path: "buyers/director/tasks",
-    icon: HomeIcon,
+    icon: TasksIcon,
     roles: ["buyer_directory"],
   },
 

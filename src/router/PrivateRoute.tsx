@@ -119,6 +119,8 @@ export default function PrivateRoute() {
       "/buyers/director/tasks",
       "/notification",
       "/extra/change",
+      "/buyers/manager/order",
+      "/buyers/manager/order/subcode",
     ];
     if (!accessiblePages.includes(normalizedPath)) {
       return <Navigate to={`/${i18n.language}/buyers/director/tasks`} />;

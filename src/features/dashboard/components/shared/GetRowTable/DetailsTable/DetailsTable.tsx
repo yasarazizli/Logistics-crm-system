@@ -1341,7 +1341,7 @@ export default function Table({
                                   if (value === "") {
                                     handleTextChange("Sub Code", colIndex, "");
                                   } else {
-                                    const slicedValue = value.slice(0, 10);
+                                    const slicedValue = value.slice(0, 40);
                                     handleTextChange(
                                       "Sub Code",
                                       colIndex,
@@ -1350,7 +1350,7 @@ export default function Table({
                                   }
                                 }}
                                 className={styles.clickable_text}
-                                placeholder="Enter Sub Code (max 10 digits)"
+                                placeholder="Enter Sub Code"
                                 disabled={isDisabled}
                               />
                             </div>
