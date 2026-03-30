@@ -121,8 +121,8 @@ const AppRoutes = () => {
 
       {/* Privet Route */}
       <Route path="/:lang" element={<PrivateRoute />}>
-        <Route path="users" element={<UsersPage />} />
         <Route path="notification" element={<NotificationPage />} />
+        <Route path="users" element={<UsersPage />} />
         <Route path="lawyer/users" element={<LawyerPage />} />
         <Route path="accountant/users" element={<AccountantUserPage />} />
         <Route path="accountant/order" element={<AccountantOrderPage />} />
